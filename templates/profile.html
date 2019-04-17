@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Show Profile</h1>
+
+<div show={{show}}>
+    <ul>Title: {{show.title}}</ul>
+    <ul>Director: {{show.director}}</ul>
+    <ul>Link to Script: {{show.script}}</ul>
+    <ul>Release: {{show.release}}</ul>
+</div>
+
+{% endblock %}

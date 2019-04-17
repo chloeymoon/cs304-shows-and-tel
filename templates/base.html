@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name=author content="shows-and-tel">
+    {% block headstuff %}
+        <title>Shows-and-Tel</title>
+    {% endblock %}
+    <link rel='stylesheet' href="{{url_for('static',filename='style.css')}}">
+</head>
+<body>
+
+<ul uid={{uid}}>
+  <li><a class="active" href={{url_for('index')}}>Home</a></li>
+  <li>
+      <div class="textbox">
+    <!--  <form id="search" method=POST action="{{url_for('search')}}">-->
+    <!--    <input type="hidden" name="uid" value="{{uid}}">-->
+    <!--    <input id="searchterm" placeholder="Search" name="searchterm">-->
+    <!--    <button id="searchbutton" type="submit" name="submit" value="Search">Search</button>-->
+    <!--</form>-->
+    </div>
+    </li>
+   
+</ul>
+
+<br>
+<!--<div class="blurb">-->
+<!--    <h1>Welcome!</h1>-->
+
+<!--    <p>Use the search bar above to search for a movie</p> -->
+<!--    <p>or</p> -->
+<!--    <p>click here for <a href="/movies/">all movies</a>.</p>-->
+<!--    <p>click here for <a href="/movies/harry">all "harry" movies</a>.</p>-->
+    
+</div>
+
+{% block content %}
+
+{% endblock %}
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+
+
+
+</body>
+</html>
