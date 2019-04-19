@@ -17,16 +17,19 @@ def index():
     # uid= session.get('uid','')
     return render_template('home.html')
     
+@app.route('/results/', methods=['GET', 'POST'])
+def results():
+    if request.method == 'GET':
+        return render_template('results.html')
+    
 @app.route('/search/', methods=['POST','GET'])
 def search():
-    if request.method == 'GET':
-        return render_template('search.html')
     if request.method == 'POST':
-        searchterm = request.form['searchterm']
+        # searchterm = request.form['searchterm']
         # return all relevant dictionaries and display results
-        conn = functions.getConn('wmdb')
-        shows = functions.getResults(conn,searchterm)
-        return render_template('search.html', shows=shows)
+        # conn = functions.getConn('wmdb')
+        # shows = functions.getResults(conn,searchterm)
+        return render_template('results.html') #, shows=shows)
     
 @app.route('/login/', methods=['POST'])
 def login():

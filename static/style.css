@@ -82,3 +82,20 @@ p {
   /*margin-bottom: 10px;*/
   /*font-size: 30px;*/
 }
+
+.form {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+.form-inputs {
+    display: inline-block;
+    text-align: left;
+}
+
+table, th, td {
+  border: 1px solid black;
+  padding: 15px;
+}
