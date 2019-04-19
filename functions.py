@@ -34,7 +34,7 @@ def getResults(conn,term):
 
 def getShow(conn,sid):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select * from shows where tt = %s', (sid,))
+    curs.execute('select * from shows where sid = %s', (sid,))
     return curs.fetchone()
 
 # def addUserRating(conn,tt,rating,uid):
@@ -55,6 +55,6 @@ def getShow(conn,sid):
 #     return curs.fetchone()
 
 if __name__ == '__main__':
-    conn = getConn('wmdb')
+    conn = getConn('c9')
 
    

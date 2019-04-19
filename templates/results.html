@@ -4,31 +4,44 @@
   <h1>Results</h1>
   <div class=results>
     <table style="width:100%">
+      {% if shows%}
+        {% for show in shows %}
+        <tr>
+          <th><a class="profile" href={{url_for('profile',sid=show.sid)}}>{{show.title}}</a></th>
+          <th>{{show.description}}</th>
+          <th>{{show.year}}</th>
+        </tr>
+        {% endfor %}
+      {% else %}
       <tr>
-        <th>Title</th>
-        <th>Description</th> 
-        <th>Release Year</th>
+        <th>Result doesn't exist</th>
       </tr>
-      <tr>
-        <td>Game of Thrones</td>
-        <td>Nine noble families fight for control over the mythical lands of Westeros, while an ancient enemy returns after being dormant for thousands of years.</td> 
-        <td>2011</td>
-      </tr>
-      <tr>
-        <td>Friends</td>
-        <td>Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan.</td> 
-        <td>1994</td>
-      </tr>
-      <tr>
-        <td>Sherlock</td>
-        <td>A modern update finds the famous sleuth and his doctor partner solving crime in 21st century London.</td> 
-        <td>2010</td>
-      </tr>
-      <tr>
-        <td>Breaking Bad</td>
-        <td>A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future.</td> 
-        <td>2008</td>
-      </tr>
+      {% endif %}
+      <!--<tr>-->
+      <!--  <th>Title</th>-->
+      <!--  <th>Description</th> -->
+      <!--  <th>Release Year</th>-->
+      <!--</tr>-->
+      <!--<tr>-->
+      <!--  <td>Game of Thrones</td>-->
+      <!--  <td>Nine noble families fight for control over the mythical lands of Westeros, while an ancient enemy returns after being dormant for thousands of years.</td> -->
+      <!--  <td>2011</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+      <!--  <td>Friends</td>-->
+      <!--  <td>Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan.</td> -->
+      <!--  <td>1994</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+      <!--  <td>Sherlock</td>-->
+      <!--  <td>A modern update finds the famous sleuth and his doctor partner solving crime in 21st century London.</td> -->
+      <!--  <td>2010</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+      <!--  <td>Breaking Bad</td>-->
+      <!--  <td>A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future.</td> -->
+      <!--  <td>2008</td>-->
+      <!--</tr>-->
     </table>
   </div>
 {% endblock %}

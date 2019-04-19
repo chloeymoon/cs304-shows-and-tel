@@ -25,11 +25,11 @@ def results():
 @app.route('/search/', methods=['POST','GET'])
 def search():
     if request.method == 'POST':
-        # searchterm = request.form['searchterm']
+        conn = functions.getConn('c9')
+        title = request.form['title']
         # return all relevant dictionaries and display results
-        # conn = functions.getConn('wmdb')
-        # shows = functions.getResults(conn,searchterm)
-        return render_template('results.html') #, shows=shows)
+        shows = functions.getResults(conn,title)
+        return render_template('results.html', shows=shows) 
     
 @app.route('/login/', methods=['POST'])
 def login():
@@ -37,10 +37,10 @@ def login():
 
 # how are we connecting search result and each movie profile?
 # link on each title? or separate section in the result page (maybe table)?
-@app.route('/profile/<sid>/', methods=['GET', 'POST'])
+@app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
 def profile(sid):
     if request.method == 'GET':
-        conn = functions.getConn('wmdb')
+        conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
         return render_template('profile.html', show=show)
 
