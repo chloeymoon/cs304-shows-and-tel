@@ -29,7 +29,15 @@ def search():
         title = request.form['title']
         # return all relevant dictionaries and display results
         shows = functions.getResults(conn,title)
-        return render_template('results.html', shows=shows) 
+        return render_template('results.html', shows=shows)
+    
+@app.route('/displayAll/', methods=['GET'])
+def displayAll():
+    if request.method == 'GET': # return all results
+        conn = functions.getConn('c9')
+        shows = functions.getResults(conn,"")
+        return render_template('results.html', shows=shows)
+
     
 @app.route('/login/', methods=['POST'])
 def login():
