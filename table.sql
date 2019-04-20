@@ -1,17 +1,20 @@
 use c9;
 
-drop table if exists shows, networks, interviews, tags; 
-drop table if exists creators, scripts, streams, actors;
+SET FOREIGN_KEY_CHECKS = 0;
+drop table if exists showsCreators, showsActors, showsStreams, showsTags;
+drop table if exists interviews, scripts, streams, networks;
+drop table if exists shows, creators, streams, actors, tags; 
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- THINGS TO DO: 
 -- required relationship?
 
--- Creating tables
+-- Tables
 
 create table networks (
     nid int auto_increment,
     primary key (nid),
-    name varchar(30)
+    name varchar(30) not null
 )
 ENGINE = InnoDB;
 
@@ -62,7 +65,7 @@ create table interviews (
     iid int auto_increment,
     primary key (iid),
     sid int,
-    link varchar(100),
+    link varchar(500),
     foreign key (sid) references shows(sid) on delete cascade 
         -- interview:show is many:one
 )
@@ -71,42 +74,42 @@ ENGINE = InnoDB;
 
 -- tables for many to many relationships --
 
--- -- shows and creators
--- create table showsCreators (
---     sid int,
---     cid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (cid) references creators(cid) on delete cascade,
---     primary key(sid, cid)
--- )
--- ENGINE = InnoDB;
+-- shows and creators
+create table showsCreators (
+    sid int,
+    cid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (cid) references creators(cid) on delete cascade,
+    primary key(sid, cid)
+)
+ENGINE = InnoDB;
 
--- -- shows and streams
--- create table showsStreams (
---     sid int,
---     stid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (stid) references streams(stid) on delete cascade,
---     primary key(sid, stid)
--- )
--- ENGINE = InnoDB;
+-- shows and streams
+create table showsStreams (
+    sid int,
+    stid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (stid) references streams(stid) on delete cascade,
+    primary key(sid, stid)
+)
+ENGINE = InnoDB;
 
--- -- shows and actors
--- create table showsActors (
---     sid int,
---     aid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (aid) references actors(aid) on delete cascade,
---     primary key(sid, aid)
--- )
--- ENGINE = InnoDB;
+-- shows and actors
+create table showsActors (
+    sid int,
+    aid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (aid) references actors(aid) on delete cascade,
+    primary key(sid, aid)
+)
+ENGINE = InnoDB;
 
--- -- shows and tags
--- create table showsTags (
---     sid int,
---     tid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (tid) references tags(tid) on delete cascade,
---     primary key(sid, tid)
--- )
--- ENGINE = InnoDB;
+-- shows and tags
+create table showsTags (
+    sid int,
+    tid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (tid) references tags(tid) on delete cascade,
+    primary key(sid, tid)
+)
+ENGINE = InnoDB;
