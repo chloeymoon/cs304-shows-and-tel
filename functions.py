@@ -34,7 +34,7 @@ def getShow(conn,sid):
     return curs.fetchone()
 
 def getResultsByCreator(conn,term):
-    '''Returns all shows based on the search term using title'''
+    '''Returns all shows based on the search term using creator'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     term = '%' + term + '%'
     curs.execute('select * from shows, showsCreators, creators '
@@ -43,7 +43,7 @@ def getResultsByCreator(conn,term):
     return curs.fetchall()
     
 def getResultsByNetwork(conn,term):
-    '''Returns all shows based on the search term using title'''
+    '''Returns all shows based on the search term using network'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select networks.name as network, shows.* from shows '+
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
