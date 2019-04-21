@@ -30,12 +30,12 @@ def search():
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']
-        print creator
         if title:
             shows = functions.getResultsByTitle(conn,title)
-        elif network:
+        if network:
             shows = functions.getResultsByNetwork(conn,network)
-        elif creator:
+        if creator:
+            print creator
             shows = functions.getResultsByCreator(conn,creator)
         return render_template('results.html', shows=shows)
     

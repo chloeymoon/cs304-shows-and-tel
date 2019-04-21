@@ -24,7 +24,6 @@ def getResultsByTitle(conn,term):
 def getResultsByNetwork(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    # term = '%' + term + '%'
     curs.execute('select networks.name as network, shows.* from shows inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
 
