@@ -13,37 +13,39 @@ def getConn(db):
                            passwd='',
                            db=db)
     return conn
-
-# def getAllMovies(conn):
-#     '''Returns a list of rows as dictionaries. selects all movies in  database'''
-#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-#     curs.execute('select person.name as director, movie.tt, movie.title, ' +
-#              'movie.release, movie.addedby, movie.rating from person right join '
-#              + 'movie on person.nm = movie.director')
-#     return curs.fetchall()
     
-def getResults(conn,term):
+def getResultsByTitle(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     term = '%' + term + '%'
-    # curs.execute('select person.name as director, movie.tt, movie.title, '+
-    #             'movie.release, movie.rating from person right join movie '+
-    #             'on person.nm = movie.director where title like %s',(term,))
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
+    
+def getResultsByNetwork(conn,term):
+    '''Returns all shows based on the search term using title'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # term = '%' + term + '%'
+    curs.execute('select networks.name as network, shows.* from shows inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
+    return curs.fetchall()
 
+def getResultsByCreator(conn,term):
+    '''Returns all shows based on the search term using title'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    term = '%' + term + '%'
+    curs.execute('select shows.* from shows, showsCreators, creators where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid and creators.name like %s', (term,))
+    return curs.fetchall()
+    
 def getShow(conn,sid):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select * from shows where sid = %s', (sid,))
+    #curs.execute('select * from shows where sid = %s', (sid,))
+    curs.execute('select networks.name as network, shows.* from shows inner join networks on '+
+                    'networks.nid = shows.nid where sid = %s', (sid,))
     return curs.fetchone()
-
-# def addUserRating(conn,tt,rating,uid):
-#     '''Adds to the ratings table the tt, uid, and rating'''
-#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-#     curs.execute('insert into ratings (tt, uid, rating) values (%s, %s, %s) '+
-#                 'on duplicate key update rating = %s',(tt,uid,rating,rating))
-#     conn.commit()
-#     return updateAvgRating(conn,tt) # add rating, update avrating, return dic
+    
+def getAllNetworks(conn):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select name from networks')
+    return curs.fetchall()
     
 # def updateAvgRating(conn,tt):
 #     '''Updates the average rating in the movie table'''

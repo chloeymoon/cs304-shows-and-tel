@@ -2,15 +2,17 @@
 
 {% block content %}
 
-<h1>Show Profile</h1>
+<!--<h1>Show Profile</h1>-->
 
-<div show={{show}}>
-    <ul>Title: {{show.title}}</ul>
-    <ul>Description: {{show.description}}</ul>
-    <ul>Director: {{show.director}}</ul>
-    <ul>Genre: {{show.genre}}</ul>
-    <ul>Link to Script: {{show.script}}</ul>
-    <ul>Release Year: {{show.year}}</ul>
+<show={{show}}>
+    <h2>{{show.title}} ({{show.year}})</h2>
+    <p>{{show.description}}</p>
+    <!--<ul>-->
+        <li>Creator: {{show.creator}}</li>
+        <li>Genre: {{show.genre}}</li>
+        <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
+        <li>Network: {{show.network}}</li>  
+    <!--</ul>-->
 </div>
 
 {% endblock %}

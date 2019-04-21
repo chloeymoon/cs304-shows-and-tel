@@ -8,14 +8,15 @@ import functions
 
 app.secret_key = 'asdflsgflawiewurhe'
 
-# This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
     '''Main page'''
     # uid= session.get('uid','')
-    return render_template('home.html')
+    conn = functions.getConn('c9')
+    networks = functions.getAllNetworks(conn)
+    return render_template('home.html',networks=networks)
     
 @app.route('/results/', methods=['GET', 'POST'])
 def results():
@@ -27,15 +28,22 @@ def search():
     if request.method == 'POST':
         conn = functions.getConn('c9')
         title = request.form['title']
-        # return all relevant dictionaries and display results
-        shows = functions.getResults(conn,title)
+        network = request.form['network']
+        creator = request.form['creator']
+        print creator
+        if title:
+            shows = functions.getResultsByTitle(conn,title)
+        elif network:
+            shows = functions.getResultsByNetwork(conn,network)
+        elif creator:
+            shows = functions.getResultsByCreator(conn,creator)
         return render_template('results.html', shows=shows)
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
     if request.method == 'GET': # return all results
         conn = functions.getConn('c9')
-        shows = functions.getResults(conn,"")
+        shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
 
     
@@ -43,13 +51,13 @@ def displayAll():
 def login():
     return render_template('search.html')
 
-# how are we connecting search result and each movie profile?
-# link on each title? or separate section in the result page (maybe table)?
+# Things to do: display creators
 @app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
 def profile(sid):
     if request.method == 'GET':
         conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
+        print show
         return render_template('profile.html', show=show)
 
 

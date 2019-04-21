@@ -6,8 +6,6 @@ drop table if exists interviews, scripts, streams, networks;
 drop table if exists shows, creators, streams, actors, tags; 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- THINGS TO DO: 
--- required relationship?
 
 -- Tables
 
@@ -72,7 +70,7 @@ create table interviews (
 ENGINE = InnoDB;
 
 
--- tables for many to many relationships --
+-- TABLES FOR MANY TO MANY RELATIONSHIPS --
 
 -- shows and creators
 create table showsCreators (
