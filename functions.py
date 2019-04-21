@@ -24,14 +24,17 @@ def getResultsByTitle(conn,term):
 def getResultsByNetwork(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select networks.name as network, shows.* from shows inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
+    curs.execute('select networks.name as network, shows.* from shows '+
+                'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
 
 def getResultsByCreator(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     term = '%' + term + '%'
-    curs.execute('select shows.* from shows, showsCreators, creators where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid and creators.name like %s', (term,))
+    curs.execute('select * from shows, showsCreators, creators '
+                +'where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid '
+                +'and creators.name like %s group by shows.title', (term,))
     return curs.fetchall()
     
 def getShow(conn,sid):
@@ -40,6 +43,13 @@ def getShow(conn,sid):
     curs.execute('select networks.name as network, shows.* from shows inner join networks on '+
                     'networks.nid = shows.nid where sid = %s', (sid,))
     return curs.fetchone()
+    
+def getCreators(conn,sid): #get creators by show id
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select creators.name from creators, shows, showsCreators '
+                    +'where showsCreators.sid=shows.sid'+
+                    ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
+    return curs.fetchall()
     
 def getAllNetworks(conn):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
