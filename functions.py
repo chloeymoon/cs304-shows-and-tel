@@ -55,15 +55,6 @@ def getResultsByTitle(conn,term):
     term = '%' + term + '%'
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
-    
-# def updateAvgRating(conn,tt):
-#     '''Updates the average rating in the movie table'''
-#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-#     curs.execute('update movie set rating = (select avg(rating) from ratings '+
-#                                         'where tt = %s) where tt = %s',(tt,tt))
-#     conn.commit()
-#     curs.execute('select * from movie where tt = %s',(tt,))
-#     return curs.fetchone()
 
 if __name__ == '__main__':
     conn = getConn('c9')
