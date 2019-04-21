@@ -18,6 +18,25 @@ def index():
     networks = functions.getAllNetworks(conn)
     return render_template('home.html',networks=networks)
     
+@app.route('/displayAll/', methods=['GET'])
+def displayAll():
+    if request.method == 'GET': # return all results
+        conn = functions.getConn('c9')
+        shows = functions.getResultsByTitle(conn,"")
+        return render_template('results.html', shows=shows)
+        
+@app.route('/login/', methods=['POST'])
+def login():
+    return render_template('search.html')
+    
+@app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
+def profile(sid):
+    if request.method == 'GET':
+        conn = functions.getConn('c9')
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        return render_template('profile.html', show=show, creators=creators)
+    
 @app.route('/results/', methods=['GET', 'POST'])
 def results():
     if request.method == 'GET':
@@ -38,31 +57,7 @@ def search():
             print creator
             shows = functions.getResultsByCreator(conn,creator)
         return render_template('results.html', shows=shows)
-    
-@app.route('/displayAll/', methods=['GET'])
-def displayAll():
-    if request.method == 'GET': # return all results
-        conn = functions.getConn('c9')
-        shows = functions.getResultsByTitle(conn,"")
-        return render_template('results.html', shows=shows)
-
-    
-@app.route('/login/', methods=['POST'])
-def login():
-    return render_template('search.html')
-
-@app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
-def profile(sid):
-    if request.method == 'GET':
-        conn = functions.getConn('c9')
-        show = functions.getShow(conn,sid)
-        creators = functions.getCreators(conn,sid)
-        return render_template('profile.html', show=show, creators=creators)
-
 
 if __name__ == '__main__':
-    
-    
     app.debug = True
     app.run('0.0.0.0',8082)
-
