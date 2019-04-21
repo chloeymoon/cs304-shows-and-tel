@@ -4,15 +4,21 @@
 
 <!--<h1>Show Profile</h1>-->
 
-<show={{show}}>
+<div show={{show}} creators={{creators}}>
     <h2>{{show.title}} ({{show.year}})</h2>
     <p>{{show.description}}</p>
-    <!--<ul>-->
-        <li>Creator: {{show.creator}}</li>
+    <ul>
+        <li>Creator: 
+            {% for creator in creators %}
+                <ul class="inside">
+                <li>{{creator.name}}</li>
+                </ul>
+            {% endfor %}
+        </li>
         <li>Genre: {{show.genre}}</li>
         <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
         <li>Network: {{show.network}}</li>  
-    <!--</ul>-->
+    </ul>
 </div>
 
 {% endblock %}

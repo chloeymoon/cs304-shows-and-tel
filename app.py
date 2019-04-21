@@ -51,14 +51,13 @@ def displayAll():
 def login():
     return render_template('search.html')
 
-# Things to do: display creators
 @app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
 def profile(sid):
     if request.method == 'GET':
         conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
-        print show
-        return render_template('profile.html', show=show)
+        creators = functions.getCreators(conn,sid)
+        return render_template('profile.html', show=show, creators=creators)
 
 
 if __name__ == '__main__':

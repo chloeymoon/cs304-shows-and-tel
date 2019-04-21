@@ -44,6 +44,13 @@ def getShow(conn,sid):
                     'networks.nid = shows.nid where sid = %s', (sid,))
     return curs.fetchone()
     
+def getCreators(conn,sid): #get creators by show id
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select creators.name from creators, shows, showsCreators '
+                    +'where showsCreators.sid=shows.sid'+
+                    ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
+    return curs.fetchall()
+    
 def getAllNetworks(conn):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select name from networks')
