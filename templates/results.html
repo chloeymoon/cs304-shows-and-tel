@@ -4,12 +4,12 @@
   <h1>Results</h1>
   <div class=results>
     <table style="width:100%">
+      {% if shows%}
       <tr>
         <th>Title</th>
         <th>Description</th> 
         <th>Release Year</th>
       </tr>
-      {% if shows%}
         {% for show in shows %}
         <tr>
           <th><a class="profile" href={{url_for('profile',sid=show.sid)}}>{{show.title}}</a></th>
