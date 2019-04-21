@@ -47,7 +47,7 @@ ul {
 }
 
 
-/*li a:hover:not(.active) {*/
+/*.navbar li a:hover:not(.active) {*/
 /*  background-color: #111;*/
 /*}*/
 
@@ -55,9 +55,9 @@ ul {
 /*  background-color: #4CAF50;*/
 /*}*/
 
-div {
-  /*padding-top: 5px;*/
-}
+/*div {*/
+/*  padding-top: 5px;*/
+/*}*/
 
 p {
   font-weight: bold;
@@ -80,7 +80,6 @@ p {
   left: 50%;
   transform: translate(-50%, 50%);
   width: 40%;
-  
 }
 
 

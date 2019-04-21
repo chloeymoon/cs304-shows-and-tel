@@ -24,14 +24,17 @@ def getResultsByTitle(conn,term):
 def getResultsByNetwork(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select networks.name as network, shows.* from shows inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
+    curs.execute('select networks.name as network, shows.* from shows '+
+                'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
 
 def getResultsByCreator(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     term = '%' + term + '%'
-    curs.execute('select shows.* from shows, showsCreators, creators where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid and creators.name like %s', (term,))
+    curs.execute('select * from shows, showsCreators, creators '
+                +'where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid '
+                +'and creators.name like %s group by shows.title', (term,))
     return curs.fetchall()
     
 def getShow(conn,sid):
