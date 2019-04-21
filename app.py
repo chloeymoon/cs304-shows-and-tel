@@ -1,11 +1,15 @@
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug import secure_filename
+import random, math
 app = Flask(__name__)
 
 import functions
 
-app.secret_key = 'asdflsgflawiewurhe'
+app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                          'abcdefghijklmnopqrstuvxyz' +
+                                          '0123456789'))
+                           for i in range(20) ])
 
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
