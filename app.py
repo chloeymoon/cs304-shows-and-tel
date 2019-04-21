@@ -46,7 +46,7 @@ def displayAll():
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
 
-    
+
 @app.route('/login/', methods=['POST'])
 def login():
     return render_template('search.html')
