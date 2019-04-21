@@ -34,7 +34,7 @@ def getShow(conn,sid):
     return curs.fetchone()
 
 def getResultsByCreator(conn,term):
-    '''Returns all shows based on the search term using title'''
+    '''Returns all shows based on the search term using creator'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     term = '%' + term + '%'
     curs.execute('select * from shows, showsCreators, creators '
@@ -43,7 +43,7 @@ def getResultsByCreator(conn,term):
     return curs.fetchall()
     
 def getResultsByNetwork(conn,term):
-    '''Returns all shows based on the search term using title'''
+    '''Returns all shows based on the search term using network'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select networks.name as network, shows.* from shows '+
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
@@ -55,15 +55,6 @@ def getResultsByTitle(conn,term):
     term = '%' + term + '%'
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
-    
-# def updateAvgRating(conn,tt):
-#     '''Updates the average rating in the movie table'''
-#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-#     curs.execute('update movie set rating = (select avg(rating) from ratings '+
-#                                         'where tt = %s) where tt = %s',(tt,tt))
-#     conn.commit()
-#     curs.execute('select * from movie where tt = %s',(tt,))
-#     return curs.fetchone()
 
 if __name__ == '__main__':
     conn = getConn('c9')

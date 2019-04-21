@@ -3,7 +3,6 @@ from flask import (Flask, render_template, make_response, url_for, request,
 from werkzeug import secure_filename
 app = Flask(__name__)
 
-# import sys,os,random
 import functions
 
 app.secret_key = 'asdflsgflawiewurhe'
@@ -30,27 +29,27 @@ def add():
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
+    '''Displays all shows in the database'''
     if request.method == 'GET': # return all results
         conn = functions.getConn('c9')
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
-        
-@app.route('/login/', methods=['POST'])
-def login():
-    return render_template('search.html')
     
 @app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
 def profile(sid):
+    '''Displays profile page of the show based on show id (sid)'''
     if request.method == 'GET':
         conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         return render_template('profile.html', show=show, creators=creators)
     
+
 # @app.route('/results/', methods=['GET', 'POST'])
 # def results():
 #     if request.method == 'GET':
 #         return render_template('results.html')
+
     
 @app.route('/search/', methods=['POST','GET'])
 def search():
