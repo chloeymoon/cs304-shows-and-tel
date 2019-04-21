@@ -67,5 +67,3 @@ def getResultsByTitle(conn,term):
 
 if __name__ == '__main__':
     conn = getConn('c9')
-
-   
