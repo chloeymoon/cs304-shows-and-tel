@@ -1,5 +1,4 @@
 '''Functions interacting with the backend that will be used in app.py.
-
 Written Spring 2019
 Chloe Moon
 '''
@@ -12,6 +11,7 @@ def getConn(db):
                            user='ubuntu',
                            passwd='',
                            db=db)
+    conn.autocommit(True) 
     return conn
     
 def getAllNetworks(conn):
