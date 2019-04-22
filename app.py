@@ -48,12 +48,9 @@ def add():
             return render_template('add.html')
             
         else:
-            curs.execute('select title from shows where title=%s', [title])
-            databaseTitles = curs.fetchone()
+            databaseTitles = functions.getResultsByTitle(conn, title)
             if(databaseTitles == None):
-                curs.execute('insert into shows (title, year, genre, script, description) values(%s, %s, %s, %s, %s)', [title, year, genre, script, description])
-                curs.execute('insert into creators (name) values(%s)', [creator])
-                curs.execute('insert into networks (name) values(%s)', [network])
+                functions.insertShows(conn, title, year, genre, script, description, creator, network)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else:
@@ -79,8 +76,6 @@ def profile(sid):
         creators = functions.getCreators(conn,sid)
         return render_template('profile.html', show=show, creators=creators)
 
-    
-    
 
 # @app.route('/results/', methods=['GET', 'POST'])
 # def results():

@@ -55,6 +55,13 @@ def getResultsByTitle(conn,term):
     term = '%' + term + '%'
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
+    
+def insertShows(conn, title, year, genre, script, description, creator, network):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('insert into shows (title, year, genre, script, description) values(%s, %s, %s, %s, %s)', [title, year, genre, script, description])
+    curs.execute('insert into creators (name) values(%s)', [creator])
+    curs.execute('insert into networks (name) values(%s)', [network])
+    
 
 if __name__ == '__main__':
     conn = getConn('c9')
