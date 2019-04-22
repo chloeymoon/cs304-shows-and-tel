@@ -11,6 +11,7 @@ def getConn(db):
                            user='ubuntu',
                            passwd='',
                            db=db)
+    conn.autocommit(True) 
     return conn
     
 def getAllNetworks(conn):
