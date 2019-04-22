@@ -1,10 +1,11 @@
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug import secure_filename
-import random, math
+import functions, random, math
+
+
 app = Flask(__name__)
 
-import functions
 
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                                           'abcdefghijklmnopqrstuvxyz' +
@@ -23,13 +24,43 @@ def index():
 @app.route('/add', methods=['GET','POST'])
 def add():
     '''Allows users to add a show to the database'''
+    conn = functions.getConn('c9')
+    curs = conn.cursor()
+
     if request.method == 'GET':
         return render_template('add.html')
     if request.method == 'POST':
         conn = functions.getConn('c9')
-        # insert data to database
-        # and flash a message saying it's successful
+        title = request.form.get('title')
+        year = request.form.get('year')
+        genre = request.form.get('genre')
+        script = request.form.get('script')
+        description = request.form.get('description')
+        creator = request.form.get('creator')
+        network = request.form.get('network')
+
+        if title == "":
+            flash("Title must be nonempty")
+            return render_template('add.html')
+            
+        elif script == "":
+            flash("Script must be nonempty")
+            return render_template('add.html')
+            
+        else:
+            curs.execute('select title from shows where title=%s', [title])
+            databaseTitles = curs.fetchone()
+            if(databaseTitles == None):
+                curs.execute('insert into shows (title, year, genre, script, description) values(%s, %s, %s, %s, %s)', [title, year, genre, script, description])
+                curs.execute('insert into creators (name) values(%s)', [creator])
+                curs.execute('insert into networks (name) values(%s)', [network])
+                flash("TV show: " + title + " successfully inserted")
+                return render_template('add.html')
+            else:
+                flash("TV Show already exists in database")
+                return render_template('add.html')
         return render_template('add.html')
+
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
@@ -47,6 +78,8 @@ def profile(sid):
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         return render_template('profile.html', show=show, creators=creators)
+
+    
     
 
 # @app.route('/results/', methods=['GET', 'POST'])
@@ -57,6 +90,7 @@ def profile(sid):
     
 @app.route('/search/', methods=['POST','GET'])
 def search():
+    '''Displays all the user requested search results'''
     if request.method == 'POST':
         conn = functions.getConn('c9')
         title = request.form['title']
