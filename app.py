@@ -16,10 +16,20 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     '''Main page'''
-    # uid= session.get('uid','')
     conn = functions.getConn('c9')
     networks = functions.getAllNetworks(conn)
     return render_template('home.html',networks=networks)
+    
+@app.route('/add', methods=['GET','POST'])
+def add():
+    '''Allows users to add a show to the database'''
+    if request.method == 'GET':
+        return render_template('add.html')
+    if request.method == 'POST':
+        conn = functions.getConn('c9')
+        # insert data to database
+        # and flash a message saying it's successful
+        return render_template('add.html')
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
@@ -38,6 +48,12 @@ def profile(sid):
         creators = functions.getCreators(conn,sid)
         return render_template('profile.html', show=show, creators=creators)
     
+
+# @app.route('/results/', methods=['GET', 'POST'])
+# def results():
+#     if request.method == 'GET':
+#         return render_template('results.html')
+
     
 @app.route('/search/', methods=['POST','GET'])
 def search():
