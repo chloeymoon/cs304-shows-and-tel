@@ -21,7 +21,7 @@ def index():
     networks = functions.getAllNetworks(conn)
     return render_template('home.html',networks=networks)
     
-@app.route('/add', methods=['GET','POST'])
+@app.route('/add/', methods=['GET','POST'])
 def add():
     '''Allows users to add a show to the database'''
     conn = functions.getConn('c9')
@@ -101,7 +101,6 @@ def search():
         if network:
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
-            print creator
             shows = functions.getResultsByCreator(conn,creator)
         return render_template('results.html', shows=shows)
 
