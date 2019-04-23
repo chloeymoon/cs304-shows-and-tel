@@ -56,11 +56,34 @@ def getResultsByTitle(conn,term):
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
     
+def getNid(conn,networkName):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select nid from networks where name = %s',[networkName])
+    return curs.fetchone()['nid']
+    
+def getSid(conn,showTitle):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select sid from shows where title = %s',[showTitle])
+    return curs.fetchone()['sid']
+
+def getCid(conn,creatorName):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select sid from creators where name = %s',[creatorName])
+    return curs.fetchone()['cid']
+
 def insertShows(conn, title, year, genre, script, description, creator, network):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('insert into shows (title, year, genre, script, description) values(%s, %s, %s, %s, %s)', [title, year, genre, script, description])
-    curs.execute('insert into creators (name) values(%s)', [creator])
     curs.execute('insert into networks (name) values(%s)', [network])
+    nid = getNid(conn,network)
+    curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
+    curs.execute('insert into creators (name) values(%s)', [creator])
+    sid = getSid(conn,title)
+    cid = getCid(conn,creator)
+    # insert relationship
+    curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+    curs.execute('select * from shows')
+    curs.execute('select * from creators')
+
     
 
 if __name__ == '__main__':

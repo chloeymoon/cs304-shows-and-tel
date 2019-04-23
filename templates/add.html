@@ -3,12 +3,23 @@
 {% block content %}
 <h1>Add Show</h1>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <form id="search" method=POST action={{url_for('add')}}>
     <div class=form-inputs>
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
             <input type="text" id="title" name="title" />
         </label></p>
+        
         <p><label for=creator>Creator:
             <input type="text" id="creator" name="creator" />
         </label></p>
@@ -17,6 +28,24 @@
             <input type="text" id="network" name="network" />
         </label></p>
         
+        <p><label for=year>Year Debuted:
+            <input type="text" id="year" name="year" />
+        </label></p>
+        
+        <p><label for=genre>Genre:
+            <input type="text" id="genre" name="genre" />
+        </label></p>
+        
+        <p><label for=script>Link to Script:
+            <input type="text" id="script" name="script" />
+        </label></p>
+        
+        <p><label for=description>Description:
+            <input type="text" id="description" name="description" />
+        </label></p>
+        
+        
+<!--
         <p><label for="tags">Tags:
             <select id="tags" name="tags">
                 <option>Choose a tag</option>
@@ -30,6 +59,9 @@
         <label for="tag-arg">
             <input type="text" id="tag-arg" name="tag-arg"/>
         </label></p> 
+        -->
+        
+        
         <p><button type="submit">Submit</button></p>
     </div>
     
