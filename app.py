@@ -1,3 +1,8 @@
+'''Enables users to search and add TV shows to the database.
+
+Written Spring 2019
+Chloe Moon
+'''
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug import secure_filename
@@ -71,7 +76,7 @@ def profile(sid):
         print show
         return render_template('profile.html', show=show, creators=creators)
     
-@app.route('/search/', methods=['POST','GET'])
+@app.route('/search/', methods=['POST'])
 def search():
     '''Displays all the user requested search results'''
     if request.method == 'POST':
