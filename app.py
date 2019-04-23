@@ -36,7 +36,6 @@ def add():
         description = request.form.get('description')
         creator = request.form.get('creator')
         network = request.form.get('network')
-
         if title == "":
             flash("Title must be nonempty")
             return render_template('add.html')
@@ -64,8 +63,8 @@ def displayAll():
         conn = functions.getConn('c9')
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
-    
-@app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
+
+@app.route('/profile/<int:sid>/', methods=['GET'])
 def profile(sid):
     '''Displays profile page of the show based on show id (sid)'''
     if request.method == 'GET':
@@ -89,6 +88,9 @@ def search():
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
+        if title=='' and network=='' and creator=='':
+            flash("Search using at least one criteria")
+            return redirect(request.referrer)
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':
