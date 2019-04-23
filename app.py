@@ -25,8 +25,6 @@ def index():
 def add():
     '''Allows users to add a show to the database'''
     conn = functions.getConn('c9')
-    curs = conn.cursor()
-
     if request.method == 'GET':
         return render_template('add.html')
     if request.method == 'POST':
@@ -38,7 +36,6 @@ def add():
         description = request.form.get('description')
         creator = request.form.get('creator')
         network = request.form.get('network')
-
         if title == "":
             flash("Title must be nonempty")
             return render_template('add.html')
@@ -49,7 +46,7 @@ def add():
             
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
-            if(databaseTitles == None):
+            if(len(databaseTitles)==0):
                 functions.insertShows(conn, title, year, genre, script, description, creator, network)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
@@ -66,22 +63,16 @@ def displayAll():
         conn = functions.getConn('c9')
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
-    
-@app.route('/profile/<int:sid>/', methods=['GET', 'POST'])
+
+@app.route('/profile/<int:sid>/', methods=['GET'])
 def profile(sid):
     '''Displays profile page of the show based on show id (sid)'''
     if request.method == 'GET':
         conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
+        print show
         return render_template('profile.html', show=show, creators=creators)
-
-
-# @app.route('/results/', methods=['GET', 'POST'])
-# def results():
-#     if request.method == 'GET':
-#         return render_template('results.html')
-
     
 @app.route('/search/', methods=['POST','GET'])
 def search():
@@ -97,6 +88,9 @@ def search():
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
+        if title=='' and network=='' and creator=='':
+            flash("Search using at least one criteria")
+            return redirect(request.referrer)
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':

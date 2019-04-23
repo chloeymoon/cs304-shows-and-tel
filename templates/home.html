@@ -1,10 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
+
     <div class=search>
         <div class=form>
             <h1>Welcome to Shows & Tel</h1>
             <p>Use the form to search for a TV show!</p>
+            
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div id="flashes">
+                {% for msg in messages %}
+                  <p>{{msg}}</p>
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
             <form id="search" method=POST action="/search/">
                 <div class=form-inputs>
                     <input type="hidden" name="uid" value="{{uid}}">
