@@ -1,0 +1,145 @@
+use c9;
+
+-- TRUNCATE TABLE networks, shows, creators, showsCreators;
+
+-- Inserting sample data
+
+insert into networks (name)
+values ("HBO"), ("NBC"), ("BBC"), ("AMC"), ("Netflix");
+
+insert into shows (title, year, nid, genre, script, description) 
+values ("Game of Thrones", 2011, 1, "Fantasy",  "https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=game-of-thrones",
+        "Nine noble families fight for control over the mythical lands of Westeros, while an ancient enemy returns after being dormant for thousands of years."),
+        ("Friends", 1994, 2, "Sitcom", "https://fangj.github.io/friends/",
+        "Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan."),
+        ("Sherlock", 2010, 3, "Crime", "https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=sherlock",
+        "A modern update finds the famous sleuth and his doctor partner solving crime in 21st century London."),
+        ("Breaking Bad", 2008, 4, "Drama", "https://filmschoolrejects.com/wp-content/uploads/2017/05/Screenplay-Breaking_Bad-Pilot.pdf",
+        "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future."),
+        ("Black Mirror", 2011, 5, "Science Fiction", "https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=black-mirror-2011",
+        "Featuring stand-alone dramas -- sharp, suspenseful, satirical tales that explore techno-paranoia -- 'Black Mirror' is a contemporary reworking of 'The Twilight Zone' with stories that tap into the collective unease about the modern world. ")
+        ;
+
+insert into creators(name)
+values('Mark Gatiss'),('Steven Moffat'),('Vince Gilligan'),('David Crane'),('Marta Kauffman'),('David Benioff'),('D. B. Weiss'),('Charlie Brooker');
+
+insert into showsCreators(sid, cid)
+values (3,1),(3,2),(4,3),(2,4),(2,5),(1,6),(1,7),(5,8);
+
+-- Check
+-- select * from networks;
+-- select * from shows;
+select * from creators;
+select * from showsCreators;use c9;
+
+SET FOREIGN_KEY_CHECKS = 0;
+drop table if exists showsCreators, showsActors, showsStreams, showsTags;
+drop table if exists interviews, scripts, streams, networks;
+drop table if exists shows, creators, streams, actors, tags; 
+SET FOREIGN_KEY_CHECKS = 0;
+
+
+-- Tables
+
+create table networks (
+    nid int auto_increment,
+    primary key (nid),
+    name varchar(30) not null
+)
+ENGINE = InnoDB;
+
+
+create table tags (
+    tid int auto_increment,
+    primary key (tid),
+    name varchar(30)
+)
+ENGINE = InnoDB;
+
+create table creators (
+    cid int auto_increment,
+    primary key (cid),
+    name varchar(50)
+)
+ENGINE = InnoDB;
+
+create table streams (
+    stid int auto_increment,
+    primary key (stid),
+    source varchar(50)
+)
+ENGINE = InnoDB;
+
+create table actors (
+    aid int auto_increment,
+    primary key (aid),
+    name varchar(30)
+)
+ENGINE = InnoDB;
+
+create table shows (
+    sid int auto_increment,
+    primary key (sid),
+    nid int,
+    title varchar(30),
+    description varchar(1000),
+    year int,
+    genre varchar(30), -- Q: enum(a,b,c)?? what is better?
+    script varchar(100), -- adding scripts as an attribute in shows (link)
+    foreign key(nid) references networks(nid) on delete cascade 
+        -- one show can have one network, but one network can have many shows
+)
+ENGINE = InnoDB;
+
+create table interviews (
+    iid int auto_increment,
+    primary key (iid),
+    sid int,
+    link varchar(500),
+    foreign key (sid) references shows(sid) on delete cascade 
+        -- interview:show is many:one
+)
+ENGINE = InnoDB;
+
+
+-- TABLES FOR MANY TO MANY RELATIONSHIPS --
+
+-- shows and creators
+create table showsCreators (
+    sid int,
+    cid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (cid) references creators(cid) on delete cascade,
+    primary key(sid, cid)
+)
+ENGINE = InnoDB;
+
+-- shows and streams
+create table showsStreams (
+    sid int,
+    stid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (stid) references streams(stid) on delete cascade,
+    primary key(sid, stid)
+)
+ENGINE = InnoDB;
+
+-- shows and actors
+create table showsActors (
+    sid int,
+    aid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (aid) references actors(aid) on delete cascade,
+    primary key(sid, aid)
+)
+ENGINE = InnoDB;
+
+-- shows and tags
+create table showsTags (
+    sid int,
+    tid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (tid) references tags(tid) on delete cascade,
+    primary key(sid, tid)
+)
+ENGINE = InnoDB;
