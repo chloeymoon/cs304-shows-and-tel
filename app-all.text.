@@ -1,0 +1,460 @@
+'''Enables users to search and add TV shows in/to the database.
+
+Written Spring 2019
+Chloe Moon
+'''
+from flask import (Flask, render_template, make_response, url_for, request,
+                   redirect, flash, session, send_from_directory, jsonify)
+from werkzeug import secure_filename
+import functions, random, math
+
+
+app = Flask(__name__)
+
+
+app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                          'abcdefghijklmnopqrstuvxyz' +
+                                          '0123456789'))
+                           for i in range(20) ])
+
+app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+
+@app.route('/')
+def index():
+    '''Main page'''
+    conn = functions.getConn('c9')
+    networks = functions.getAllNetworks(conn)
+    return render_template('home.html',networks=networks)
+    
+@app.route('/add/', methods=['GET','POST'])
+def add():
+    '''Allows users to add a show to the database'''
+    conn = functions.getConn('c9')
+    if request.method == 'GET':
+        return render_template('add.html')
+    if request.method == 'POST':
+        conn = functions.getConn('c9')
+        title = request.form.get('title')
+        year = request.form.get('year')
+        genre = request.form.get('genre')
+        script = request.form.get('script')
+        description = request.form.get('description')
+        creator = request.form.get('creator')
+        network = request.form.get('network')
+        filled = (title and year and genre and script and description and creator and network)
+
+        if not(filled):
+            flash("All fields should be completely filled")
+            return redirect(request.referrer)
+        else:
+            databaseTitles = functions.getResultsByTitle(conn, title)
+            if(len(databaseTitles)==0):
+                functions.insertShows(conn, title, year, genre, script, description, creator, network)
+                flash("TV show: " + title + " successfully inserted")
+                return render_template('add.html')
+            else:
+                flash("TV Show already exists in database")
+                return render_template('add.html')
+        return render_template('add.html')
+
+    
+@app.route('/displayAll/', methods=['GET'])
+def displayAll():
+    '''Displays all shows in the database'''
+    if request.method == 'GET': # return all results
+        conn = functions.getConn('c9')
+        shows = functions.getResultsByTitle(conn,"")
+        return render_template('results.html', shows=shows)
+
+@app.route('/profile/<int:sid>/', methods=['GET'])
+def profile(sid):
+    '''Displays profile page of the show based on show id (sid)'''
+    if request.method == 'GET':
+        conn = functions.getConn('c9')
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        print show
+        return render_template('profile.html', show=show, creators=creators)
+    
+@app.route('/search/', methods=['POST'])
+def search():
+    '''Displays all the user requested search results'''
+    if request.method == 'POST':
+        conn = functions.getConn('c9')
+        title = request.form['title']
+        network = request.form['network']
+        creator = request.form['creator']
+        if title:
+            shows = functions.getResultsByTitle(conn,title)
+        if network:
+            shows = functions.getResultsByNetwork(conn,network)
+        if creator:
+            shows = functions.getResultsByCreator(conn,creator)
+        if title=='' and network=='' and creator=='':
+            flash("Search using at least one criteria")
+            return redirect(request.referrer)
+        return render_template('results.html', shows=shows)
+
+if __name__ == '__main__':
+    app.debug = True
+    app.run('0.0.0.0',8082)
+'''Functions interacting with the backend that will be used in app.py.
+
+Written Spring 2019
+Chloe Moon
+'''
+import sys
+import MySQLdb
+
+def getConn(db):
+    '''Connects to local host'''
+    conn = MySQLdb.connect(host='localhost',
+                           user='ubuntu',
+                           passwd='',
+                           db=db)
+    conn.autocommit(True) 
+    return conn
+    
+def getAllNetworks(conn):
+    '''Returns all the networks in the database, for the dropdown menu in the home page (no multiple)'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select name from networks group by networks.name')
+    return curs.fetchall()
+    
+def getCreators(conn,sid):
+    '''Returns all creators of the show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select creators.name from creators, shows, showsCreators '
+                    +'where showsCreators.sid=shows.sid'+
+                    ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
+    return curs.fetchall()
+
+def getShow(conn,sid):
+    '''Returns show with network name given sid'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select networks.name as network, shows.* from shows inner join networks on '+
+                    'networks.nid = shows.nid where sid = %s', (sid,))
+    return curs.fetchone()
+
+def getResultsByCreator(conn,term):
+    '''Returns all shows based on the search term using creator'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    term = '%' + term + '%'
+    curs.execute('select * from shows, showsCreators, creators '
+                +'where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid '
+                +'and creators.name like %s group by shows.title', (term,))
+    return curs.fetchall()
+    
+def getResultsByNetwork(conn,term):
+    '''Returns all shows based on the search term using network'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select networks.name as network, shows.* from shows '+
+                'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
+    return curs.fetchall()
+    
+def getResultsByTitle(conn,term):
+    '''Returns all shows based on the search term using title'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    term = '%' + term + '%'
+    curs.execute('select * from shows where title like %s', (term,))
+    return curs.fetchall()
+
+def getNid(conn,networkName):
+    '''Returns nid based on network name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select nid from networks where name = %s',[networkName])
+    return curs.fetchone()['nid']
+    
+def getSid(conn,showTitle):
+    '''Returns sid based on show name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select sid from shows where title = %s',[showTitle])
+    return curs.fetchone()['sid']
+
+def getCid(conn,creatorName):
+    '''Returns cid based on creator name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select cid from creators where name = %s',[creatorName])
+    return curs.fetchone()['cid']
+
+def insertShows(conn, title, year, genre, script, description, creator, network):
+    '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('insert into networks (name) values(%s)', [network])
+    nid = getNid(conn,network)
+    curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
+    curs.execute('insert into creators (name) values(%s)', [creator])
+    sid = getSid(conn,title)
+    cid = getCid(conn,creator)
+    # insert relationship
+    curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+    # curs.execute('select * from shows')
+    # curs.execute('select * from creators')
+
+    
+
+if __name__ == '__main__':
+    conn = getConn('c9'){% extends "base.html" %}
+
+{% block content %}
+<h1>Add Show</h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form id="search" method=POST action={{url_for('add')}}>
+    <div class=form-inputs>
+        <input type="hidden" name="uid" value="{{uid}}">
+        <p><label for=title>Title:
+            <input type="text" id="title" name="title" />
+        </label></p>
+        
+        <p><label for=creator>Creator:
+            <input type="text" id="creator" name="creator" />
+        </label></p>
+        
+        <p><label for=network>Network:
+            <input type="text" id="network" name="network" />
+        </label></p>
+        
+        <p><label for=year>Year Debuted:
+            <input type="text" id="year" name="year" />
+        </label></p>
+        
+        <p><label for=genre>Genre:
+            <input type="text" id="genre" name="genre" />
+        </label></p>
+        
+        <p><label for=script>Link to Script:
+            <input type="text" id="script" name="script" />
+        </label></p>
+        
+        <p><label for=description>Description:
+            <input type="text" id="description" name="description" />
+        </label></p>
+        
+        
+<!--
+        <p><label for="tags">Tags:
+            <select id="tags" name="tags">
+                <option>Choose a tag</option>
+                <option>Genre</option>
+                <option>Content Warning</option>
+                <option>Pace</option>
+                <option>Length</option>
+                <option>Type</option>
+            </select>
+        </label>
+        <label for="tag-arg">
+            <input type="text" id="tag-arg" name="tag-arg"/>
+        </label></p> 
+        -->
+        
+        
+        <p><button type="submit">Submit</button></p>
+    </div>
+    
+</form>
+{% endblock %}<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name=author content="shows-and-tel">
+    {% block headstuff %}
+        <title>Shows-and-Tel</title>
+    {% endblock %}
+    <link rel='stylesheet' href="/static/style.css">
+</head>
+<body>
+
+<ul id="navbar" class="navbar" uid={{uid}}>
+  <li><a class="active" href={{url_for('index')}}>Home</a></li>
+  <li><a class="active" href={{url_for('displayAll')}}>All</a></li>
+  <li><a class="active" href={{url_for('add')}}>Add</a></li>
+</ul>
+
+<br>
+</div>
+
+{% block content %}
+
+{% endblock %}
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+
+
+
+</body>
+</html>{% extends "base.html" %}
+
+{% block content %}
+
+    <div class=search>
+        <div class=form>
+            <h1>Welcome to Shows & Tel</h1>
+            <p>Use the form to search for a TV show!</p>
+            
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div id="flashes">
+                {% for msg in messages %}
+                  <p>{{msg}}</p>
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form id="search" method=POST action="/search/">
+                <div class=form-inputs>
+                    <input type="hidden" name="uid" value="{{uid}}">
+                    <p><label for=title>Title:
+                        <input type="text" id="title" name="title" />
+                    </label></p>
+                    <p><label for=creator>Creator:
+                        <input type="text" id="creator" name="creator" />
+                    </label></p>
+                    
+                    <p><label for=network>Network:
+                        <select id="network" name="network" />
+                                <option value="">Select Network</option>
+                            {% for network in networks %}
+                                <option>{{network.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </label></p>
+                    
+                    <p><label for="tags">Tags:
+                        <select id="tags" name="tags">
+                            <option>Choose a tag</option>
+                            <option>Genre</option>
+                            <option>Content Warning</option>
+                            <option>Pace</option>
+                            <option>Length</option>
+                            <option>Type</option>
+                        </select>
+                    </label>
+                    <label for="tag-arg">
+                        <input type="text" id="tag-arg" name="tag-arg"/>
+                    </label></p> 
+                    <p><button type="submit">Submit</button></p>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}{% extends "base.html" %}
+{% block content %}
+
+<div show={{show}} creators={{creators}}>
+    <h2>{{show.title}} ({{show.year}})</h2>
+    <p>{{show.description}}</p>
+    <ul>
+        <li>Creator(s): 
+            {% for creator in creators %}
+                <ul class="inside">
+                <li>{{creator.name}}</li>
+                </ul>
+            {% endfor %}
+        </li>
+        <li>Genre: {{show.genre}}</li>
+        <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
+        <li>Network: {{show.network}}</li>  
+    </ul>
+</div>
+
+{% endblock %}{% extends "base.html" %}
+
+{% block content %}
+  <h1>Search Results</h1>
+  
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+  <div class=results>
+    <table style="width:100%">
+      {% if shows%}
+      <tr>
+        <th>Title</th>
+        <th>Description</th> 
+        <th>Release Year</th>
+      </tr>
+        {% for show in shows %}
+        <tr>
+          <th><a class="profile" href={{url_for('profile',sid=show.sid)}}>{{show.title}}</a></th>
+          <th>{{show.description}}</th>
+          <th>{{show.year}}</th>
+        </tr>
+        {% endfor %}
+      {% else %}
+      <tr>
+        <th>Result doesn't exist</th>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+{% endblock %}#messages {
+    font-size: large;
+    color: red;
+}
+
+
+body {
+    background-color: #f7faff;
+    font-family: "Lato", sans-serif;
+    /*margin:0;*/
+}
+
+#navbar {
+  list-style-type: none;
+  margin: 0;
+  margin-left: -20px;
+  margin-top: -10px;
+  padding-left: 7px;
+  padding-right: 7px;
+  overflow: hidden;
+  position: relative;
+  top: 0;
+  width: 101%;
+  background-color: #6384b7;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#navbar li a{
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+
+.form {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+.form-inputs {
+    display: inline-block;
+    text-align: left;
+}
+
+/*table, */
+th, td {
+  border: 1px solid black;
+  padding: 15px;
+}

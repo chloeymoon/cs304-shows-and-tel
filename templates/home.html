@@ -17,7 +17,7 @@
               {% endif %}
             {% endwith %}
 
-            <form id="search" method=POST action="/search/">
+            <form id="search" method=POST action="{{url_for('search')}}">
                 <div class=form-inputs>
                     <input type="hidden" name="uid" value="{{uid}}">
                     <p><label for=title>Title:
