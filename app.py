@@ -36,14 +36,11 @@ def add():
         description = request.form.get('description')
         creator = request.form.get('creator')
         network = request.form.get('network')
-        if title == "":
-            flash("Title must be nonempty")
-            return render_template('add.html')
-            
-        elif script == "":
-            flash("Script must be nonempty")
-            return render_template('add.html')
-            
+        filled = (title and year and genre and script and description and creator and network)
+
+        if not(filled):
+            flash("All fields should be completely filled")
+            return redirect(request.referrer)
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
