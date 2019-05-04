@@ -75,6 +75,18 @@ def profile(sid):
         creators = functions.getCreators(conn,sid)
         print show
         return render_template('profile.html', show=show, creators=creators)
+        
+@app.route('/edit/<int:sid>/', methods=['GET','POST'])
+def edit(sid):
+    '''Edits/updates profile page of the show based on show id (sid)'''
+    if request.method == 'GET':
+        conn = functions.getConn('c9')
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        print show
+        return render_template('edit.html', show=show, creators=creators)
+    #if request.method == 'POST':
+        
     
 @app.route('/search/', methods=['POST'])
 def search():

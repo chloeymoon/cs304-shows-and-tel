@@ -37,6 +37,7 @@ def getShow(conn,sid):
                     'networks.nid = shows.nid where sid = %s', (sid,))
     return curs.fetchone()
 
+
 def getResultsByCreator(conn,term):
     '''Returns all shows based on the search term using creator'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
