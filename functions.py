@@ -18,7 +18,8 @@ def getConn(db):
 def getAllNetworks(conn):
     '''Returns all the networks in the database, for the dropdown menu in the home page (no multiple)'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select name from networks group by networks.name')
+    # curs.execute('select name from networks group by networks.name')
+    curs.execute('select name from networks')
     return curs.fetchall()
     
 def getCreators(conn,sid):
@@ -63,7 +64,11 @@ def getNid(conn,networkName):
     '''Returns nid based on network name'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select nid from networks where name = %s',[networkName])
-    return curs.fetchone()['nid']
+    res = curs.fetchone()
+    if res:
+        return res['nid']
+    else:
+        return None
     
 def getSid(conn,showTitle):
     '''Returns sid based on show name'''
@@ -80,8 +85,11 @@ def getCid(conn,creatorName):
 def insertShows(conn, title, year, genre, script, description, creator, network):
     '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('insert into networks (name) values(%s)', [network])
+    # check if network exists and, if not, inserts the network in the networks table
+    if getNid(conn,network) is None:
+        curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
+    print nid
     curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
     curs.execute('insert into creators (name) values(%s)', [creator])
     sid = getSid(conn,title)
