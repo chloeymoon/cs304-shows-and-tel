@@ -79,13 +79,23 @@ def profile(sid):
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
     '''Edits/updates profile page of the show based on show id (sid)'''
+    conn = functions.getConn('c9')
     if request.method == 'GET':
-        conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         print show
         return render_template('edit.html', show=show, creators=creators)
-    #if request.method == 'POST':
+    if request.method == 'POST':
+        newtitle = request.form['show-title']
+        newnetwork = request.form['show-network']
+        newyear = request.form['show-release']
+        newdesc = request.form['show-description']
+        newscript = request.form['show-script']
+        newgenre = request.form['show-genre']
+        newcreators = request.form['show-creators']
+        functions.update(conn, sid, newtitle, newyear, newnetwork, newgenre, newscript, newdesc, newcreators)
+        return redirect(url_for('edit', sid=sid))
+        
         
     
 @app.route('/search/', methods=['POST'])

@@ -2,11 +2,11 @@
   {% block headstuff %}<title>Edit Show</title>{% endblock %}
 
 {% block content %}
-  <h1 show=show>Update Show: {{show}}</h1>
+  <h1 show=show>Update Show: {{show.title}}</h1>
     
   <!--<p style="text-align:center;">Use "None" or "null" to set a field to null. Only Title, Release Year and Director can be null.-->
 
-    <form method=POST action="/update/{{tt}}" show=show creators=creators>
+    <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators>
       <table>
         <tr>
           <td><label for="show-title">Title</label></td>
