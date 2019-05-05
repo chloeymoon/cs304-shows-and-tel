@@ -54,7 +54,7 @@ create table shows (
     year int,
     genre varchar(30), -- Q: enum(a,b,c)?? what is better?
     script varchar(100), -- adding scripts as an attribute in shows (link)
-    foreign key(nid) references networks(nid) on delete cascade 
+    foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
 )
 ENGINE = InnoDB;
