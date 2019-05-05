@@ -2,7 +2,7 @@
   {% block headstuff %}<title>Edit Show</title>{% endblock %}
 
 {% block content %}
-  <h1 show=show>Update Show: {{show.title}}</h1>
+  <h1 show=show>Update Show: {{show.title}} (#{{show.sid}})</h1>
     
   <!--<p style="text-align:center;">Use "None" or "null" to set a field to null. Only Title, Release Year and Director can be null.-->
 
@@ -11,10 +11,6 @@
         <tr>
           <td><label for="show-title">Title</label></td>
           <td><input name='show-title' value='{{show.title}}'></td> 
-        </tr>
-        <tr>
-          <td><label for="show-tt">Show id</label></td>
-          <td><input name='show-tt' value='{{show.sid}}'></td>
         </tr>
         <tr>
           <td><label for="show-network">Network</label></td>
@@ -26,11 +22,11 @@
         </tr>
         <tr>
           <td><label for="show-description">Description</label></td>
-          <td><input name='show-description' value='{{show.description}}'></td>
+          <td><textarea rows="4" cols="75" name='show-description'>{{show.description}}</textarea></td>
         </tr>
         <tr>
           <td><label for="show-script">Script</label></td>
-          <td><input name='show-script' value='{{show.script}}'></td>
+          <td><input name='show-script' value='{{show.script}}' size="80"></td>
         </tr>
         <tr>
           <td><label for="show-genre">Genre</label></td>
