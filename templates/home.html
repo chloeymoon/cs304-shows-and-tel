@@ -42,6 +42,7 @@
                     </button>  
                     <ul id="tags-list">
                         <div class=tag-input>
+                            <li>
                             <select id="tags" name="tags">
                                 <option>Choose a tag</option>
                                 <option>Genre</option>
@@ -53,22 +54,23 @@
                             <label for="tag-arg">
                                 <input type="text" id="tag-arg" name="tag-arg"/>
                             </label>
-                        </div>
+                        </li></div>
                     </ul>
                     <p><button type="submit">Submit</button></p>
                 </div>
             </form>
         </div>
     </div>
-{% endblock %}
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
 <script>
 /* global $ */
 
 $("#add-tag").on("click", function (event) {
-    $("<ul>").append($(".tag-input"));
+    $("ul#tags-list").append($("div.tag-input").html())
     console.log("Adding another tag input");
 });
 
 </script>
+
+{% endblock %}
