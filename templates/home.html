@@ -36,22 +36,39 @@
                         </select>
                     </label></p>
                     
-                    <p><label for="tags">Tags:
-                        <select id="tags" name="tags">
-                            <option>Choose a tag</option>
-                            <option>Genre</option>
-                            <option>Content Warning</option>
-                            <option>Pace</option>
-                            <option>Length</option>
-                            <option>Type</option>
-                        </select>
-                    </label>
-                    <label for="tag-arg">
-                        <input type="text" id="tag-arg" name="tag-arg"/>
-                    </label></p> 
+                    <p><label for="tags">Tags:</label>
+                    <button type="button" id="add-tag" name="tag-arg">
+                        Add another tag
+                    </button>  
+                    <ul id="tags-list">
+                        <div class=tag-input>
+                            <select id="tags" name="tags">
+                                <option>Choose a tag</option>
+                                <option>Genre</option>
+                                <option>Content Warning</option>
+                                <option>Pace</option>
+                                <option>Length</option>
+                                <option>Type</option>
+                            </select>
+                            <label for="tag-arg">
+                                <input type="text" id="tag-arg" name="tag-arg"/>
+                            </label>
+                        </div>
+                    </ul>
                     <p><button type="submit">Submit</button></p>
                 </div>
             </form>
         </div>
     </div>
 {% endblock %}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
+<script>
+/* global $ */
+
+$("#add-tag").on("click", function (event) {
+    $("<ul>").append($(".tag-input"));
+    console.log("Adding another tag input");
+});
+
+</script>
