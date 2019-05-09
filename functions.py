@@ -54,6 +54,12 @@ def getResultsByNetwork(conn,term):
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
     
+def getResultsByTags(conn, tag_names, tag_vals):
+    '''Returns all shows based on the search term using tags'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('''select * from shows''')
+    return curs.fetchall()
+    
 def getResultsByTitle(conn,term):
     '''Returns all shows based on the search term using title'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)

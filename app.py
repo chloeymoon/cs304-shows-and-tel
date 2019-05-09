@@ -107,6 +107,10 @@ def search():
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-arg')
+        print(tag_names)
+        print(tag_vals)
         if title:
             shows = functions.getResultsByTitle(conn,title)
         if network:
@@ -116,6 +120,8 @@ def search():
         if title=='' and network=='' and creator=='':
             flash("Search using at least one criteria")
             return redirect(request.referrer)
+        if tag_names and tag_vals:
+            shows = functions.getResultsByTags(conn, tag_names, tag_vals)
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':
