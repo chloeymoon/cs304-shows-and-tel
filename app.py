@@ -22,18 +22,18 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     '''Main page'''
-    conn = functions.getConn('c9')
+    conn = functions.getConn('final_project')
     networks = functions.getAllNetworks(conn)
     return render_template('home.html',networks=networks)
     
 @app.route('/add/', methods=['GET','POST'])
 def add():
     '''Allows users to add a show to the database'''
-    conn = functions.getConn('c9')
+    conn = functions.getConn('final_project')
     if request.method == 'GET':
         return render_template('add.html')
     if request.method == 'POST':
-        conn = functions.getConn('c9')
+        conn = functions.getConn('final_project')
         title = request.form.get('title')
         year = request.form.get('year')
         genre = request.form.get('genre')
@@ -62,7 +62,7 @@ def add():
 def displayAll():
     '''Displays all shows in the database'''
     if request.method == 'GET': # return all results
-        conn = functions.getConn('c9')
+        conn = functions.getConn('final_project')
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
 
@@ -70,7 +70,7 @@ def displayAll():
 def profile(sid):
     '''Displays profile page of the show based on show id (sid)'''
     if request.method == 'GET':
-        conn = functions.getConn('c9')
+        conn = functions.getConn('final_project')
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         print show
@@ -79,7 +79,7 @@ def profile(sid):
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
     '''Edits/updates profile page of the show based on show id (sid)'''
-    conn = functions.getConn('c9')
+    conn = functions.getConn('final_project')
     if request.method == 'GET':
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
@@ -103,7 +103,7 @@ def edit(sid):
 def search():
     '''Displays all the user requested search results'''
     if request.method == 'POST':
-        conn = functions.getConn('c9')
+        conn = functions.getConn('final_project')
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']

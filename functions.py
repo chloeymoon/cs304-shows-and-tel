@@ -127,4 +127,4 @@ def update(conn, sid, title, year, oldnetwork, network, genre, script, descripti
     
 
 if __name__ == '__main__':
-    conn = getConn('c9')
+    conn = getConn('final_project')
