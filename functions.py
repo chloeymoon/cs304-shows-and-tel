@@ -29,6 +29,14 @@ def getCreators(conn,sid):
                     +'where showsCreators.sid=shows.sid'+
                     ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
     return curs.fetchall()
+    
+def getWarnings(conn,sid):
+    '''Returns all contentwarnings of the show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select contentwarnings.cw from contentwarnings, shows, showsCWs '
+                    +'where showsCWs.sid=shows.sid'+
+                    ' and showsCWs.cwid=contentwarnings.cwid and shows.sid=%s', (sid,))
+    return curs.fetchall()
 
 def getShow(conn,sid):
     '''Returns show with network name given sid'''
@@ -61,6 +69,8 @@ def getResultsByTitle(conn,term):
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
 
+
+# ID Getters
 def getNid(conn,networkName):
     '''Returns nid based on network name'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -71,7 +81,6 @@ def getNid(conn,networkName):
     else:
         return None
         
-
 def getCWid(conn,cw):
     '''Returns cwid based on contentwarning'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -98,18 +107,20 @@ def getCid(conn,creatorName):
     else:
         return None
 
-# for many to many to many relationships (creator/network), we should give in a list? add in list?
-def insertShows(conn, title, year, genre, cw, script, description, creator, network):
+def insertShows(conn, title, year, genre, cwList, script, description, creator, network):
     '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # check if network exists and, if not, inserts the network in the networks table
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
-    if getCWid(conn,cw) is None:
-        curs.execute('insert into contentwarnings (cw) values(%s)', [cw])
-    cwid = getCWid(conn,cw)
-    # print nid
+    cwidList=[]
+    for cw in cwList:
+        if getCWid(conn,cw) is None:
+            curs.execute('insert into contentwarnings (cw) values(%s)', [cw])
+        cwidList.append(getCWid(conn,cw))
+        # print "FUNCTIONS.PY LINE 115"
+        # print cwidList
     curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
     curs.execute('insert into creators (name) values(%s)', [creator])
     sid = getSid(conn,title)
@@ -118,7 +129,8 @@ def insertShows(conn, title, year, genre, cw, script, description, creator, netw
     curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
     # curs.execute('select * from shows')
     # curs.execute('select * from creators')
-    curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
+    for cwid in cwidList:
+        curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
     
 
 

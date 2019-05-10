@@ -34,8 +34,6 @@ def add():
         return render_template('add.html')
     if request.method == 'POST':
         conn = functions.getConn('c9')
-        # print("Contentwarnings HERE: " + request.form['cw'])
-        print request.form.getlist('cw')
         title = request.form.get('title')
         year = request.form.get('year')
         genre = request.form.get('genre')
@@ -44,15 +42,15 @@ def add():
         creator = request.form.get('creator')
         network = request.form.get('network')
         # cw = request.form.get('contentwarning')
-        cw=1
-        filled = (title and year and genre and script and description and creator and network )
+        cwList = request.form.getlist('cw')
+        filled = (title and year and genre and script and description and creator and network and cwList[0])
         if not(filled):
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
-                functions.insertShows(conn, title, year, genre, cw, script, description, creator, network)
+                functions.insertShows(conn, title, year, genre, cwList, script, description, creator, network)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else:
@@ -76,8 +74,9 @@ def profile(sid):
         conn = functions.getConn('c9')
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
+        warnings = functions.getWarnings(conn,sid)
         print show
-        return render_template('profile.html', show=show, creators=creators)
+        return render_template('profile.html', show=show, creators=creators, warnings=warnings)
         
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
