@@ -13,7 +13,7 @@
   {% endif %}
 {% endwith %}
 
-<form id="search" method=POST action={{url_for('add')}}>
+<form name="add" id="add" method=POST action={{url_for('add')}}>
     <div class=form-inputs>
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
@@ -34,6 +34,11 @@
         
         <p><label for=genre>Genre:
             <input type="text" id="genre" name="genre" />
+        </label></p>
+        
+        <p><label for=contentwarning>Content Warning: 
+            <input type="button" value="Add Content Warnings" onclick="addCW()" id="cwbutton" name="cwbutton"/>
+            <span id="fooBar"></span>
         </label></p>
         
         <p><label for=script>Link to Script:
@@ -66,4 +71,13 @@
     </div>
     
 </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script language="javascript">
+function addCW() {
+	$("#fooBar").append('<input type="text" id="cw[]" name="cw[]"/>');
+}
+
+</script>
+
 {% endblock %}
+

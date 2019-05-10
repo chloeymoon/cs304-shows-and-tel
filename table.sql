@@ -1,8 +1,8 @@
 use c9;
 
 SET FOREIGN_KEY_CHECKS = 0;
-drop table if exists showsCreators, showsActors, showsStreams, showsTags;
-drop table if exists interviews, scripts, streams, networks;
+drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs;
+drop table if exists interviews, scripts, streams, networks, contentwarnings;
 drop table if exists shows, creators, streams, actors, tags; 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -13,6 +13,14 @@ create table networks (
     nid int auto_increment,
     primary key (nid),
     name varchar(30) not null
+)
+ENGINE = InnoDB;
+
+-- many to many because one show can have multiple content warnings and one content warning can have many shows
+create table contentwarnings (
+    cwid int auto_increment,
+    primary key (cwid),
+    cw varchar(30)
 )
 ENGINE = InnoDB;
 
@@ -53,6 +61,7 @@ create table shows (
     description varchar(1000),
     year int,
     genre varchar(30), -- Q: enum(a,b,c)?? what is better?
+    -- cwid int, -- not right b/c many to many
     script varchar(100), -- adding scripts as an attribute in shows (link)
     foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
@@ -89,6 +98,15 @@ create table showsStreams (
     foreign key (sid) references shows(sid) on delete cascade,
     foreign key (stid) references streams(stid) on delete cascade,
     primary key(sid, stid)
+)
+ENGINE = InnoDB;
+
+create table showsCWs (
+    sid int,
+    cwid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (cwid) references contentwarnings(cwid) on delete cascade,
+    primary key(sid, cwid)
 )
 ENGINE = InnoDB;
 

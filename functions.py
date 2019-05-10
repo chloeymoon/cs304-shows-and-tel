@@ -70,6 +70,17 @@ def getNid(conn,networkName):
         return res['nid']
     else:
         return None
+        
+
+def getCWid(conn,cw):
+    '''Returns cwid based on contentwarning'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select cwid from contentwarnings where cw = %s',[cw])
+    res = curs.fetchone()
+    if res:
+        return res['cwid']
+    else:
+        return None
     
 def getSid(conn,showTitle):
     '''Returns sid based on show name'''
@@ -87,14 +98,18 @@ def getCid(conn,creatorName):
     else:
         return None
 
-def insertShows(conn, title, year, genre, script, description, creator, network):
+# for many to many to many relationships (creator/network), we should give in a list? add in list?
+def insertShows(conn, title, year, genre, cw, script, description, creator, network):
     '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # check if network exists and, if not, inserts the network in the networks table
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
-    print nid
+    if getCWid(conn,cw) is None:
+        curs.execute('insert into contentwarnings (cw) values(%s)', [cw])
+    cwid = getCWid(conn,cw)
+    # print nid
     curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
     curs.execute('insert into creators (name) values(%s)', [creator])
     sid = getSid(conn,title)
@@ -103,6 +118,8 @@ def insertShows(conn, title, year, genre, script, description, creator, network)
     curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
     # curs.execute('select * from shows')
     # curs.execute('select * from creators')
+    curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
+    
 
 
 # creators will be a list??? dic??

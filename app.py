@@ -34,6 +34,8 @@ def add():
         return render_template('add.html')
     if request.method == 'POST':
         conn = functions.getConn('c9')
+        # print("Contentwarnings HERE: " + request.form['cw'])
+        print request.form.getlist('cw')
         title = request.form.get('title')
         year = request.form.get('year')
         genre = request.form.get('genre')
@@ -41,15 +43,16 @@ def add():
         description = request.form.get('description')
         creator = request.form.get('creator')
         network = request.form.get('network')
-        filled = (title and year and genre and script and description and creator and network)
-
+        # cw = request.form.get('contentwarning')
+        cw=1
+        filled = (title and year and genre and script and description and creator and network )
         if not(filled):
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
-                functions.insertShows(conn, title, year, genre, script, description, creator, network)
+                functions.insertShows(conn, title, year, genre, cw, script, description, creator, network)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else:
@@ -94,6 +97,7 @@ def edit(sid):
         newscript = request.form['show-script']
         newgenre = request.form['show-genre']
         newcreators = request.form['show-creators']
+        
         functions.update(conn, sid, newtitle, newyear,oldnetwork,newnetwork, newgenre, newscript, newdesc, newcreators)
         return redirect(url_for('edit', sid=sid))
         
