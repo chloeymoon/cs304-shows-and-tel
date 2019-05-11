@@ -24,7 +24,8 @@ def index():
     '''Main page'''
     conn = functions.getConn('final_project')
     networks = functions.getAllNetworks(conn)
-    return render_template('home.html',networks=networks)
+    contentwarnings = functions.getAllWarnings(conn)
+    return render_template('home.html',networks=networks, contentwarnings=contentwarnings)
     
 @app.route('/add/', methods=['GET','POST'])
 def add():
@@ -39,9 +40,7 @@ def add():
         genre = request.form.get('genre')
         script = request.form.get('script')
         description = request.form.get('description')
-        # creator = request.form.get('creator')
         network = request.form.get('network')
-        # cw = request.form.get('contentwarning')
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
         filled = (title and year and genre and script and description and creatorList[0] and network and cwList[0])
@@ -113,6 +112,7 @@ def search():
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']
+        contentwarning = request.form['contentwarning']
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-arg')
         print(tag_names)
@@ -123,7 +123,9 @@ def search():
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
-        if title=='' and network=='' and creator=='':
+        if contentwarning:
+            contentwarning = functions.getResultsByContentWarning(conn,contentwarning)
+        if title=='' and network=='' and creator=='' and contentwarning=='':
             flash("Search using at least one criteria")
             return redirect(request.referrer)
         if tag_names and tag_vals:
