@@ -42,8 +42,10 @@ def add():
         description = request.form.get('description')
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
+        print '---------- app.py line 45 ---------------'
+        print cwList
         creatorList=request.form.getlist('creator')
-        filled = (title and year and genre and script and description and creatorList[0] and network and cwList[0])
+        filled = (title and year and genre and script and description and creatorList and network and cwList)
         if not(filled):
             flash("All fields should be completely filled")
             return redirect(request.referrer)

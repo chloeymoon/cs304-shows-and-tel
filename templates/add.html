@@ -15,15 +15,12 @@
 
 <form name="add" id="add" method=POST action={{url_for('add')}}>
     <div class=form-inputs>
+        
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
-            <input type="text" id="title" name="title" />
+            <input type="text" id="title" name="title" size="60"/>
         </label></p>
-        
-        <!--<p><label for=creator>Creator:-->
-        <!--    <input type="text" id="creator" name="creator" />-->
-        <!--</label></p>-->
-        
+
         <p><label for=creator>Creator: 
             <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
             <span id="c_placeholder"></span>
@@ -42,19 +39,26 @@
         </label></p>
         
         <p><label for=contentwarning>Content Warning: 
-            <input type="button" value="Add Content Warnings" onclick="addCW()" id="cwbutton" name="cwbutton"/>
-            <span id="fooBar"></span>
+            <select name="warning-dropdown" id="warning-dropdown">
+                <option value="Sex & Nudity">Sex & Nudity</option>
+                <option value="Violence & Gore">Violence & Gore</option>
+                <option value="Profanity">Profanity</option>
+                <option value="Alcohol, Drugs & Smoking">Alcohol, Drugs & Smoking</option>
+                <option value="Other">Other (Add a new warning)</option>
+                <input type="button" value="Add" id="cwbutton" name="cwbutton"/>
+                <br><span id="newwarning_placeholder"></span>
+                <span id="cw_placeholder"></span>
+            </select>
         </label></p>
         
         <p><label for=script>Link to Script:
-            <input type="text" id="script" name="script" />
+            <input type="text" id="script" name="script" size="100"/>
         </label></p>
         
         <p><label for=description>Description:<br>
             <!--<input type="text" id="description" name="description" />-->
-            <textarea rows="4" cols="75" name='description'></textarea>
+            <textarea rows="4" cols="110" name='description'></textarea>
         </label></p>
-        
         
 
         <p><label for="tags">Tags:
@@ -77,9 +81,27 @@
 </form>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
-function addCW() {
-	$("#fooBar").append('<input type="text" id="cw" name="cw"/>');
+
+function addNewWarning(){
+    newwarning = $('#newcw').val()
+    $("#cw_placeholder").append('<ul><input type="text" value="'+newwarning+'" name="cw"/></ul>');
 }
+
+$("#cwbutton").on("click", function (e) {
+    selected = $("#warning-dropdown option:selected").text()
+    if ($("#warning-dropdown option:selected").val()=="Other"){
+        $("#newwarning_placeholder")
+        .append('<ul>Add a new warning: <input type="text" id="newcw"/>' +
+                    '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
+    } else {
+        $("#cw_placeholder").append('<ul><input type="text" id="cw" value="'+selected+'" name="cw"/></ul>');
+    }
+});
+
+// $("newcwbutton").on("click", function (e) {
+//     newwarning = $('#newcw').val()
+//     $("#cw_placeholder").append('<ul><input type="text" id="cw" value="'+newwarning+'" name="cw"/></ul>');
+// })
 
 function addCreators() {
 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');

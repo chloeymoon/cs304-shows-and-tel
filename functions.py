@@ -134,15 +134,20 @@ def insertShows(conn, title, year, genre, cwList, script, description, creatorLi
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
-    cwidList=[]
+    
+    curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
+    sid = getSid(conn,title)
+
+    #many to many relationship: contentwarnings, creators
+    cwidList=[] #contentwarning id for this specific show
     cidList=[]
+    
     for cw in cwList:
         if getCWid(conn,cw) is None:
             curs.execute('insert into contentwarnings (name) values(%s)', [cw])
+        cwid=getCWid(conn,cw)
+        curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
         cwidList.append(getCWid(conn,cw))
-    curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
-    # curs.execute('insert into creators (name) values(%s)', [creator])
-    sid = getSid(conn,title)
     
     for creator in creatorList:
         if getCid(conn,creator) is None:
@@ -150,10 +155,10 @@ def insertShows(conn, title, year, genre, cwList, script, description, creatorLi
         cid = getCid(conn,creator)
         curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
         cidList.append(cid)
-        print cidList
+        # print cidList
 
-    for cwid in cwidList:
-        curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
+    # for cwid in cwidList:
+    #     curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
     
 
 

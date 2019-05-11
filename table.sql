@@ -4,7 +4,7 @@ use final_project;
 SET FOREIGN_KEY_CHECKS = 0;
 drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs;
 drop table if exists interviews, scripts, streams, networks, contentwarnings;
-drop table if exists shows, creators, streams, actors, tags, genre; 
+drop table if exists shows, creators, streams, actors, tags; 
 SET FOREIGN_KEY_CHECKS = 0;
 
 
@@ -66,7 +66,6 @@ create table shows (
     year int,
     genre varchar(30), -- Q: enum(a,b,c)?? what is better?
     -- cwid int, -- not right b/c many to many
-    -- genre varchar(30), -- NEED TO REMOVE
     script varchar(100), -- adding scripts as an attribute in shows (link)
     foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
