@@ -1,4 +1,5 @@
-use c9;
+create database if not exists final_project;
+use final_project;
 
 SET FOREIGN_KEY_CHECKS = 0;
 drop table if exists showsCreators, showsActors, showsStreams, showsTags;
@@ -20,7 +21,10 @@ ENGINE = InnoDB;
 create table tags (
     tid int auto_increment,
     primary key (tid),
-    name varchar(30)
+    sid int,
+    name ENUM('genre', 'length', 'pace', 'type'),
+    val varchar(30),
+    foreign key(sid) references shows(sid) on delete cascade
 )
 ENGINE = InnoDB;
 
@@ -52,7 +56,7 @@ create table shows (
     title varchar(30),
     description varchar(1000),
     year int,
-    genre varchar(30), -- Q: enum(a,b,c)?? what is better?
+    genre varchar(30), -- NEED TO REMOVE
     script varchar(100), -- adding scripts as an attribute in shows (link)
     foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
