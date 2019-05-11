@@ -4,7 +4,7 @@
 {% block content %}
   <h1 show=show>Update Show: {{show.title}} (#{{show.sid}})</h1>
     
-  <!--<p style="text-align:center;">Use "None" or "null" to set a field to null. Only Title, Release Year and Director can be null.-->
+  <p>You may delete or add content warnings and creators. However, a show must have at least one content warning and creator.
 
     <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators warnings=warnings>
       <table>
@@ -35,17 +35,35 @@
         {% for warning in warnings %}
         <tr>
             <td><label for="show-warning">Content Warning</label></td>
-            <td><input name='show-warning' value='{{warning.name}}'></td>
+            <td><input name='show-warning' value='{{warning.name}}'>
+            {% if warning != warnings[0]%}
+              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+            {% endif %}
+            </td>
         </tr>
         {% endfor %}
         {% for creator in creators %}
         <tr>
           <td><label for="show-creators">Creator</label></td>
-          <td><input name='show-creators' value='{{creator.name}}'></td>
+          <td><input name='show-creators' value='{{creator.name}}'>
+            {% if creator != creators[0]%}
+            <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
           
       </table>
       <input type="submit" name="submit" value="update">
     </form>
+    
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script language="javascript">
+/* global $ */
+function deleteRow(elem){
+    console.log('deleting')
+    elem.closest('tr').remove();
+}
+
+</script>
 {% endblock %}
