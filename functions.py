@@ -73,7 +73,7 @@ def getResultsByContentWarning(conn,term):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select * from shows, showsCWs, contentwarnings '
                 +'where showsCWs.sid=shows.sid and contentwarnings.cwid=showsCWs.cwid '
-                +'and contentwarnings.name like %s group by shows.title', (term,))
+                +'and contentwarnings.name=%s', (term,))
     return curs.fetchall()
     
 def getResultsByTags(conn, tag_names, tag_vals):

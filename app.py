@@ -117,8 +117,8 @@ def search():
         contentwarning = request.form['contentwarning']
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-arg')
-        print(tag_names)
-        print(tag_vals)
+        # print(tag_names)
+        # print(tag_vals)
         if title:
             shows = functions.getResultsByTitle(conn,title)
         if network:
@@ -126,12 +126,16 @@ def search():
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
         if contentwarning:
-            contentwarning = functions.getResultsByContentWarning(conn,contentwarning)
+            shows = functions.getResultsByContentWarning(conn,contentwarning)
+            print '---------------------------------------'
+            print contentwarning
+            # print shows
         if title=='' and network=='' and creator=='' and contentwarning=='':
             flash("Search using at least one criteria")
             return redirect(request.referrer)
-        if tag_names and tag_vals:
-            shows = functions.getResultsByTags(conn, tag_names, tag_vals)
+        # if tag_names and tag_vals:
+        #     shows = functions.getResultsByTags(conn, tag_names, tag_vals)
+        print shows
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':
