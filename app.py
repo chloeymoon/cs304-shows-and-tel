@@ -39,17 +39,19 @@ def add():
         genre = request.form.get('genre')
         script = request.form.get('script')
         description = request.form.get('description')
-        creator = request.form.get('creator')
+        # creator = request.form.get('creator')
         network = request.form.get('network')
-        filled = (title and year and genre and script and description and creator and network)
-
+        # cw = request.form.get('contentwarning')
+        cwList = request.form.getlist('cw')
+        creatorList=request.form.getlist('creator')
+        filled = (title and year and genre and script and description and creatorList[0] and network and cwList[0])
         if not(filled):
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
-                functions.insertShows(conn, title, year, genre, script, description, creator, network)
+                functions.insertShows(conn, title, year, genre, cwList, script, description, creatorList, network)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else:
@@ -73,8 +75,9 @@ def profile(sid):
         conn = functions.getConn('final_project')
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
-        print show
-        return render_template('profile.html', show=show, creators=creators)
+        warnings = functions.getWarnings(conn,sid)
+        # print show
+        return render_template('profile.html', show=show, creators=creators, warnings=warnings)
         
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
@@ -83,7 +86,8 @@ def edit(sid):
     if request.method == 'GET':
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
-        return render_template('edit.html', show=show, creators=creators)
+        warnings = functions.getWarnings(conn,sid)
+        return render_template('edit.html', show=show, creators=creators, warnings=warnings)
     if request.method == 'POST':
         oldshow = functions.getShow(conn,sid)
         newtitle = request.form['show-title']
@@ -94,7 +98,9 @@ def edit(sid):
         newscript = request.form['show-script']
         newgenre = request.form['show-genre']
         newcreators = request.form['show-creators']
-        functions.update(conn, sid, newtitle, newyear,oldnetwork,newnetwork, newgenre, newscript, newdesc, newcreators)
+        oldcwList = functions.getWarnings(conn,sid)
+        newcwList = request.form.getlist('show-warning')
+        functions.update(conn, sid, newtitle, newyear,oldnetwork,newnetwork, newgenre, oldcwList, newcwList, newscript, newdesc, newcreators)
         return redirect(url_for('edit', sid=sid))
         
         

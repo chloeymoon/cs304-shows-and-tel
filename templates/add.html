@@ -13,15 +13,20 @@
   {% endif %}
 {% endwith %}
 
-<form id="search" method=POST action={{url_for('add')}}>
+<form name="add" id="add" method=POST action={{url_for('add')}}>
     <div class=form-inputs>
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
             <input type="text" id="title" name="title" />
         </label></p>
         
-        <p><label for=creator>Creator:
-            <input type="text" id="creator" name="creator" />
+        <!--<p><label for=creator>Creator:-->
+        <!--    <input type="text" id="creator" name="creator" />-->
+        <!--</label></p>-->
+        
+        <p><label for=creator>Creator: 
+            <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+            <span id="c_placeholder"></span>
         </label></p>
         
         <p><label for=network>Network:
@@ -34,6 +39,11 @@
         
         <p><label for=genre>Genre:
             <input type="text" id="genre" name="genre" />
+        </label></p>
+        
+        <p><label for=contentwarning>Content Warning: 
+            <input type="button" value="Add Content Warnings" onclick="addCW()" id="cwbutton" name="cwbutton"/>
+            <span id="fooBar"></span>
         </label></p>
         
         <p><label for=script>Link to Script:
@@ -66,4 +76,17 @@
     </div>
     
 </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script language="javascript">
+function addCW() {
+	$("#fooBar").append('<input type="text" id="cw" name="cw"/>');
+}
+
+function addCreators() {
+	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
+}
+
+</script>
+
 {% endblock %}
+
