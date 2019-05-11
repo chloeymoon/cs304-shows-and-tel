@@ -20,8 +20,13 @@
             <input type="text" id="title" name="title" />
         </label></p>
         
-        <p><label for=creator>Creator:
-            <input type="text" id="creator" name="creator" />
+        <!--<p><label for=creator>Creator:-->
+        <!--    <input type="text" id="creator" name="creator" />-->
+        <!--</label></p>-->
+        
+        <p><label for=creator>Creator: 
+            <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+            <span id="c_placeholder"></span>
         </label></p>
         
         <p><label for=network>Network:
@@ -75,6 +80,10 @@
 <script language="javascript">
 function addCW() {
 	$("#fooBar").append('<input type="text" id="cw" name="cw"/>');
+}
+
+function addCreators() {
+	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
 }
 
 </script>

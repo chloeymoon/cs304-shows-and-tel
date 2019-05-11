@@ -107,7 +107,7 @@ def getCid(conn,creatorName):
     else:
         return None
 
-def insertShows(conn, title, year, genre, cwList, script, description, creator, network):
+def insertShows(conn, title, year, genre, cwList, script, description, creatorList, network):
     '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # check if network exists and, if not, inserts the network in the networks table
@@ -115,6 +115,7 @@ def insertShows(conn, title, year, genre, cwList, script, description, creator, 
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
     cwidList=[]
+    cidList=[]
     for cw in cwList:
         if getCWid(conn,cw) is None:
             curs.execute('insert into contentwarnings (cw) values(%s)', [cw])
@@ -122,11 +123,20 @@ def insertShows(conn, title, year, genre, cwList, script, description, creator, 
         # print "FUNCTIONS.PY LINE 115"
         # print cwidList
     curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
-    curs.execute('insert into creators (name) values(%s)', [creator])
+    # curs.execute('insert into creators (name) values(%s)', [creator])
     sid = getSid(conn,title)
-    cid = getCid(conn,creator)
+    
+    for creator in creatorList:
+        if getCid(conn,creator) is None:
+            curs.execute('insert into creators (name) values(%s)', [creator])
+        cid = getCid(conn,creator)
+        curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+        cidList.append(cid)
+        print cidList
+        
+    # cid = getCid(conn,creator)
     # insert relationship
-    curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+    # curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
     # curs.execute('select * from shows')
     # curs.execute('select * from creators')
     for cwid in cwidList:
@@ -136,7 +146,7 @@ def insertShows(conn, title, year, genre, cwList, script, description, creator, 
 
 # creators will be a list??? dic??
 # would there be the case where we want to change the sid? -- not really?
-def update(conn, sid, title, year, oldnetwork, network, genre, script, description, creators):
+def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList, newcwList, script, description, creators):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])

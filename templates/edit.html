@@ -6,7 +6,7 @@
     
   <!--<p style="text-align:center;">Use "None" or "null" to set a field to null. Only Title, Release Year and Director can be null.-->
 
-    <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators>
+    <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators warnings=warnings>
       <table>
         <tr>
           <td><label for="show-title">Title</label></td>
@@ -32,6 +32,12 @@
           <td><label for="show-genre">Genre</label></td>
           <td><input name='show-genre' value='{{show.genre}}'></td>
         </tr>
+        {% for warning in warnings %}
+        <tr>
+            <td><label for="show-warning">Content Warning</label></td>
+            <td><input name='show-warning' value='{{warning.cw}}'></td>
+        </tr>
+        {% endfor %}
         {% for creator in creators %}
         <tr>
           <td><label for="show-creators">Creator</label></td>
