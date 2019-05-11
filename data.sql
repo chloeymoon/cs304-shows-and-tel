@@ -1,4 +1,4 @@
-use c9;
+use final_project;
 
 -- TRUNCATE TABLE networks, shows, creators, showsCreators;
 
