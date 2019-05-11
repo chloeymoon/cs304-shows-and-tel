@@ -130,9 +130,6 @@ def search():
             shows = functions.getResultsByCreator(conn,creator)
         if contentwarning:
             shows = functions.getResultsByContentWarning(conn,contentwarning)
-            print '---------------------------------------'
-            print contentwarning
-            # print shows
         if title=='' and network=='' and creator=='' and contentwarning=='':
             flash("Search using at least one criteria")
             return redirect(request.referrer)
