@@ -20,10 +20,6 @@
             <input type="text" id="title" name="title" />
         </label></p>
         
-        <!--<p><label for=creator>Creator:-->
-        <!--    <input type="text" id="creator" name="creator" />-->
-        <!--</label></p>-->
-        
         <p><label for=creator>Creator: 
             <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
             <span id="c_placeholder"></span>
@@ -46,6 +42,25 @@
             <span id="fooBar"></span>
         </label></p>
         
+        <p><label for="tags">Tags:</label>
+            <button type="button" id="add-tag" name="tag-arg">
+                Add another tag
+            </button>  
+            <ul id="tags-list">
+                <div class=tag-input>
+                    <li>
+                    <select id="tags" name="tags">
+                        <option>Choose a tag</option>
+                        <option>Pace</option>
+                        <option>Length</option>
+                        <option>Type</option>
+                    </select>
+                    <label for="tag-arg">
+                        <input type="text" id="tag-arg" name="tag-arg"/>
+                    </label>
+                </li></div>
+            </ul></p>
+        
         <p><label for=script>Link to Script:
             <input type="text" id="script" name="script" />
         </label></p>
@@ -54,30 +69,13 @@
             <input type="text" id="description" name="description" />
         </label></p>
         
-        
-<!--
-        <p><label for="tags">Tags:
-            <select id="tags" name="tags">
-                <option>Choose a tag</option>
-                <option>Genre</option>
-                <option>Content Warning</option>
-                <option>Pace</option>
-                <option>Length</option>
-                <option>Type</option>
-            </select>
-        </label>
-        <label for="tag-arg">
-            <input type="text" id="tag-arg" name="tag-arg"/>
-        </label></p> 
-        -->
-        
-        
         <p><button type="submit">Submit</button></p>
     </div>
     
 </form>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
+/* global $ */
 function addCW() {
 	$("#fooBar").append('<input type="text" id="cw" name="cw"/>');
 }
@@ -85,6 +83,11 @@ function addCW() {
 function addCreators() {
 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
 }
+
+$("#add-tag").on("click", function (event) {
+    $("ul#tags-list").append($("div.tag-input").html())
+    console.log("Adding another tag input");
+});
 
 </script>
 

@@ -21,6 +21,13 @@
                 </ul>
             {% endfor %}
         </li>
+        <li>Tags:
+            {% for tag in tags %}
+                <ul class="inside">
+                <li>{{tag.name}}: {{tag.val}}</li>
+                </ul>
+            {% endfor %}
+        </li>
         <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
         <li>Network: {{show.network}}</li>  
     </ul>

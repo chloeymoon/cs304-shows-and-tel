@@ -75,6 +75,11 @@ def getResultsByTitle(conn,term):
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
 
+def getTags(conn,sid):
+    '''Returns all tags associated with a given show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select name, val from tags where sid=%s', (sid,))
+    return curs.fetchall()
 
 # ID Getters
 def getNid(conn,networkName):
@@ -113,8 +118,10 @@ def getCid(conn,creatorName):
     else:
         return None
 
-def insertShows(conn, title, year, genre, cwList, script, description, creatorList, network):
-    '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
+def insertShows(conn, title, year, genre, cwList, script, description, 
+                creatorList, network, tag_names, tag_vals):
+    ''' Inserts show, creator, show&creator relationship etc. to the database, 
+        given form values '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # check if network exists and, if not, inserts the network in the networks table
     if getNid(conn,network) is None:
@@ -148,7 +155,11 @@ def insertShows(conn, title, year, genre, cwList, script, description, creatorLi
     for cwid in cwidList:
         curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
     
-
+    for i in range(len(tag_names)):
+        name = tag_names[i]
+        val = tag_vals[i]
+        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, name, val])
 
 # creators will be a list??? dic??
 # would there be the case where we want to change the sid? -- not really?
