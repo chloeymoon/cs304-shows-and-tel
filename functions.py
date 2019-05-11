@@ -16,10 +16,17 @@ def getConn(db):
     return conn
     
 def getAllNetworks(conn):
-    '''Returns all the networks in the database, for the dropdown menu in the home page (no multiple)'''
+    '''Returns all the networks in the database, for the dropdown menu in the home page'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # curs.execute('select name from networks group by networks.name')
     curs.execute('select name from networks')
+    return curs.fetchall()
+    
+def getAllWarnings(conn):
+    '''Returns all the content warnings in the database, for the dropdown menu in the home page'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # curs.execute('select name from networks group by networks.name')
+    curs.execute('select name from contentwarnings')
     return curs.fetchall()
     
 def getCreators(conn,sid):
@@ -33,7 +40,7 @@ def getCreators(conn,sid):
 def getWarnings(conn,sid):
     '''Returns all contentwarnings of the show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select contentwarnings.cw from contentwarnings, shows, showsCWs '
+    curs.execute('select contentwarnings.name from contentwarnings, shows, showsCWs '
                     +'where showsCWs.sid=shows.sid'+
                     ' and showsCWs.cwid=contentwarnings.cwid and shows.sid=%s', (sid,))
     return curs.fetchall()
@@ -44,7 +51,6 @@ def getShow(conn,sid):
     curs.execute('select networks.name as network, shows.* from shows inner join networks on '+
                     'networks.nid = shows.nid where sid = %s', (sid,))
     return curs.fetchone()
-
 
 def getResultsByCreator(conn,term):
     '''Returns all shows based on the search term using creator'''
@@ -60,6 +66,14 @@ def getResultsByNetwork(conn,term):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select networks.name as network, shows.* from shows '+
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
+    return curs.fetchall()
+    
+def getResultsByContentWarning(conn,term):
+    '''Returns all shows based on the search term using network'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select * from shows, showsCWs, contentwarnings '
+                +'where showsCWs.sid=shows.sid and contentwarnings.cwid=showsCWs.cwid '
+                +'and contentwarnings.name=%s', (term,))
     return curs.fetchall()
     
 def getResultsByTags(conn, tag_names, tag_vals):
@@ -90,7 +104,7 @@ def getNid(conn,networkName):
 def getCWid(conn,cw):
     '''Returns cwid based on contentwarning'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select cwid from contentwarnings where cw = %s',[cw])
+    curs.execute('select cwid from contentwarnings where name = %s',[cw])
     res = curs.fetchone()
     if res:
         return res['cwid']
@@ -113,6 +127,26 @@ def getCid(conn,creatorName):
     else:
         return None
 
+# helper functions for insertShows
+# many-to-many relationships (Contentwarnings, Creators)
+# inserts each creator/cw's id first if not already in the database
+# also inserts the relationship (e.g. showsCWs)
+def insertContentwarnings(conn,sid,cwList):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    for cw in cwList:
+        if getCWid(conn,cw) is None:
+            curs.execute('insert into contentwarnings (name) values(%s)', [cw])
+        cwid=getCWid(conn,cw)
+        curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
+
+def insertCreators(conn,sid,creatorList):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    for creator in creatorList:
+        if getCid(conn,creator) is None:
+            curs.execute('insert into creators (name) values(%s)', [creator])
+        cid = getCid(conn,creator)
+        curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+
 def insertShows(conn, title, year, genre, cwList, script, description, creatorList, network):
     '''Inserts show, creator, show&creator relationship etc. to the database, given form values'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -120,37 +154,11 @@ def insertShows(conn, title, year, genre, cwList, script, description, creatorLi
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
-    cwidList=[]
-    cidList=[]
-    for cw in cwList:
-        if getCWid(conn,cw) is None:
-            curs.execute('insert into contentwarnings (cw) values(%s)', [cw])
-        cwidList.append(getCWid(conn,cw))
-        # print "FUNCTIONS.PY LINE 115"
-        # print cwidList
     curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
-    # curs.execute('insert into creators (name) values(%s)', [creator])
     sid = getSid(conn,title)
-    
-    for creator in creatorList:
-        if getCid(conn,creator) is None:
-            curs.execute('insert into creators (name) values(%s)', [creator])
-        cid = getCid(conn,creator)
-        curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
-        cidList.append(cid)
-        print cidList
-        
-    # cid = getCid(conn,creator)
-    # insert relationship
-    # curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
-    # curs.execute('select * from shows')
-    # curs.execute('select * from creators')
-    for cwid in cwidList:
-        curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
-    
+    insertContentwarnings(conn,sid,cwList)
+    insertCreators(conn,sid,creatorList)
 
-
-# creators will be a list??? dic??
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList, newcwList, script, description, creators):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)

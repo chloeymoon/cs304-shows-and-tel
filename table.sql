@@ -21,7 +21,7 @@ ENGINE = InnoDB;
 create table contentwarnings (
     cwid int auto_increment,
     primary key (cwid),
-    cw varchar(30)
+    name varchar(30)
 )
 ENGINE = InnoDB;
 
@@ -66,7 +66,6 @@ create table shows (
     year int,
     genre varchar(30), -- Q: enum(a,b,c)?? what is better?
     -- cwid int, -- not right b/c many to many
-    genre varchar(30), -- NEED TO REMOVE
     script varchar(100), -- adding scripts as an attribute in shows (link)
     foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
