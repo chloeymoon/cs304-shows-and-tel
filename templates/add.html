@@ -40,10 +40,14 @@
         
         <p><label for=contentwarning>Content Warning: 
             <select name="warning-dropdown" id="warning-dropdown">
-                <option value="Sex & Nudity">Sex & Nudity</option>
-                <option value="Violence & Gore">Violence & Gore</option>
-                <option value="Profanity">Profanity</option>
-                <option value="Alcohol, Drugs & Smoking">Alcohol, Drugs & Smoking</option>
+                {% for common in commonWarnings %}
+                    <option value={{common}}>{{common}}</option>
+                {% endfor %}
+                {% for warning in contentwarnings %}
+                    {% if warning.name not in commonWarnings %}
+                        <option value="{{warning.name}}">{{warning.name}}</option>
+                    {% endif %}
+                {% endfor %}
                 <option value="Other">Other (Add a new warning)</option>
                 <input type="button" value="Add" id="cwbutton" name="cwbutton"/>
                 <br><span id="newwarning_placeholder"></span>

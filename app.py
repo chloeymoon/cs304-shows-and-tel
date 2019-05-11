@@ -19,6 +19,10 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
 
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
+#a list of common contentwarnings
+#used in add() to allow users to choose from a set of warnings but also add new warnings
+commonWarnings = ["Sex & Nudity","Violence & Gore","Profanity","Alcohol, Drugs & Smoking"]
+        
 @app.route('/')
 def index():
     '''Main page'''
@@ -32,7 +36,8 @@ def add():
     '''Allows users to add a show to the database'''
     conn = functions.getConn('final_project')
     if request.method == 'GET':
-        return render_template('add.html')
+        contentwarnings = functions.getAllWarnings(conn)
+        return render_template('add.html',contentwarnings=contentwarnings, commonWarnings=commonWarnings)
     if request.method == 'POST':
         conn = functions.getConn('final_project')
         title = request.form.get('title')
@@ -42,8 +47,6 @@ def add():
         description = request.form.get('description')
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
-        print '---------- app.py line 45 ---------------'
-        print cwList
         creatorList=request.form.getlist('creator')
         filled = (title and year and genre and script and description and creatorList and network and cwList)
         if not(filled):
