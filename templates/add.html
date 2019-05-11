@@ -21,10 +21,10 @@
             <input type="text" id="title" name="title" size="60"/>
         </label></p>
 
-        <p><label for=creator>Creator: 
+        <div class="creator">
+            <label for=creator>Creator: </label>
             <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
-            <span id="c_placeholder"></span>
-        </label></p>
+        </div>
         
         <p><label for=network>Network:
             <input type="text" id="network" name="network" />
@@ -38,7 +38,8 @@
             <input type="text" id="genre" name="genre" />
         </label></p>
         
-        <p><label for=contentwarning>Content Warning: 
+        <div class="contentwarning">
+            <label for=contentwarning>Content Warning: </label>
             <select name="warning-dropdown" id="warning-dropdown">
                 {% for common in commonWarnings %}
                     <option value={{common}}>{{common}}</option>
@@ -51,9 +52,8 @@
                 <option value="Other">Other (Add a new warning)</option>
                 <input type="button" value="Add" id="cwbutton" name="cwbutton"/>
                 <br><span id="newwarning_placeholder"></span>
-                <span id="cw_placeholder"></span>
             </select>
-        </label></p>
+        </div>
         
         <p><label for=script>Link to Script:
             <input type="text" id="script" name="script" size="100"/>
@@ -86,29 +86,38 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 
+/* global $ */
 function addNewWarning(){
-    newwarning = $('#newcw').val()
-    $("#cw_placeholder").append('<ul><input type="text" value="'+newwarning+'" name="cw"/></ul>');
+    newwarning = $('#newcw').val();
+    warninghtml = '<ul id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></ul>'
+    $(warninghtml).appendTo('.contentwarning')
 }
 
+function deleteUl(elem){
+    elem.closest('ul').remove();
+}
+
+
 $("#cwbutton").on("click", function (e) {
-    selected = $("#warning-dropdown option:selected").text()
+    selected = $("#warning-dropdown option:selected").text();
     if ($("#warning-dropdown option:selected").val()=="Other"){
         $("#newwarning_placeholder")
         .append('<ul>Add a new warning: <input type="text" id="newcw"/>' +
                     '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
     } else {
-        $("#cw_placeholder").append('<ul><input type="text" id="cw" value="'+selected+'" name="cw"/></ul>');
+        warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
+                     +'<button type="button" onclick="deleteCW(this)" name="delete">X</button></ul>'
+        $(warninghtml).appendTo(".contentwarning")
     }
 });
 
-// $("newcwbutton").on("click", function (e) {
-//     newwarning = $('#newcw').val()
-//     $("#cw_placeholder").append('<ul><input type="text" id="cw" value="'+newwarning+'" name="cw"/></ul>');
-// })
 
 function addCreators() {
-	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
+// 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
+    creatorhtml = '<ul><input type="text" id="creator" name="creator"/>'
+            +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+    $(creatorhtml).appendTo(".creator")
 }
 
 </script>

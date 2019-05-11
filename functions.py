@@ -159,8 +159,6 @@ def insertShows(conn, title, year, genre, cwList, script, description, creatorLi
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
 
-
-
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList, newcwList, script, description, creators):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
