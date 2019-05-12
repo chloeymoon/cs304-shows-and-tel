@@ -62,6 +62,21 @@
           </tr>
           {% endfor %}
         <!--</div>-->
+        
+        <td><label for="show-tag">Tags</label></td>
+          <td>
+            {% for tag in tags %}
+            <div class=tags-row name={{tag.name}}>
+              <p><select id="tags" name=tags>
+                  <option value=''>Choose a tag</option>
+                  <option value='pace'>Pace</option>
+                  <option value='length'>Length</option>
+                  <option value='type'>Type</option>
+              </select>
+              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>
+            </div>
+            {% endfor %}
+          </td>
           
       </table>
       <input type="submit" name="submit" value="update">
@@ -76,13 +91,13 @@ $(document).ready(function() {
 });
 
 $("#addwarning").on('click', function(){
-  newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
+  var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
                     '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>'
   $(newWarning).insertAfter($(this).closest('.warning'));
 })
 
 $("#addcreator").on('click', function(){
-  newCreatpr = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
+  var newCreatpr = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
               '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
   $(newCreatpr).insertAfter($(this).closest('.creator'));
 })
