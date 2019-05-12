@@ -42,14 +42,14 @@
           <td><label for="show-tag">Tags</label></td>
           <td>
             {% for tag in tags %}
-            <div class=tags-row>
-              <p><select id="tags" name={{tag.name}}>
-                  <option>Choose a tag</option>
+            <div class=tags-row name={{tag.name}}>
+              <p><select id="tags" name=tags>
+                  <option value=''>Choose a tag</option>
                   <option value='pace'>Pace</option>
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
-              <input id="tag-vals" name='show-tag-val' value='{{tag.val}}'></p>
+              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>
             </div>
             {% endfor %}
           </td>
@@ -68,9 +68,10 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
-// $(document).ready(function() {
-//   $('#tags option[value=pace]').prop('selected', true);
-// });
+$(document).ready(function() {
+  var tag_name = $(".tags-row").attr("name");
+  $('#tags option[value='+tag_name+']').prop('selected', true);
+});
 
 </script>
 {% endblock %}

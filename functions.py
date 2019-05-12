@@ -166,7 +166,7 @@ def insertShows(conn, title, year, genre, cwList, script, description,
 # creators will be a list??? dic??
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList, 
-            newcwList, script, description, creators):
+            newcwList, script, description, creators, tag_name, tag_val):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
@@ -174,6 +174,8 @@ def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList,
     curs.execute('''update shows set title=%s, year=%s, genre=%s, script=%s, 
                     description=%s, nid=%s where sid=%s''', 
                     [title, year, genre, script, description, nid, sid]) 
+    curs.execute('update tags set name=%s, val=%s where sid=%s', 
+                  (tag_name, tag_val, sid))
     # if only this show has this network, delete network from networks table or not?
     if len(getResultsByNetwork(conn,oldnetwork))==0:
         curs.execute('delete from networks where name=%s', [oldnetwork])

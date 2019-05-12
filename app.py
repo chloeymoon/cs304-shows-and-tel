@@ -111,10 +111,12 @@ def edit(sid):
         newcreators = request.form['show-creators']
         oldcwList = functions.getWarnings(conn,sid)
         newcwList = request.form.getlist('show-warning')
+        tag_name = request.form['tags']
+        tag_val = request.form['tag-vals']
         functions.update(conn, sid, newtitle, newyear, oldnetwork, newnetwork, 
                         newgenre, oldcwList, newcwList, newscript, newdesc,
-                        newcreators)
-        return redirect(url_for('edit', sid=sid))
+                        newcreators, tag_name, tag_val)
+        return redirect(url_for('profile', sid=sid))
         
 @app.route('/search/', methods=['POST'])
 def search():
