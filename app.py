@@ -44,11 +44,13 @@ def add():
         # cw = request.form.get('contentwarning')
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
-        tag_names = request.form.getlist('tags')
-        tag_vals = request.form.getlist('tag-arg')
+        # tag_names = request.form.getlist('tags')
+        # tag_vals = request.form.getlist('tag-arg')
+        tag_name = request.form['tags']
+        tag_val = request.form['tag-arg']
         filled = (title and year and genre and script and description 
                     and creatorList[0] and network and cwList[0]
-                    and tag_names and tag_vals)
+                    and tag_name and tag_val)
         if not(filled):
             flash("All fields should be completely filled")
             return redirect(request.referrer)
