@@ -32,8 +32,5 @@ values('Mark Gatiss'),('Steven Moffat'),('Vince Gilligan'),('David Crane'),('Mar
 insert into showsCreators(sid,cid)
 values (3,1),(3,2),(4,3),(2,4),(2,5),(1,6),(1,7),(5,8);
 
--- Check
--- select * from networks;
--- select * from shows;
-select * from contentwarnings;
-select * from showsCWs;
+insert into tags(sid, name, val)
+values (1, 'type', 'ensemble cast'), (2, 'type', 'ensemble cast'), (3, 'pace', 'fast'), (4, 'length', '5 seasons'), (5, 'length', '5 seasons');
