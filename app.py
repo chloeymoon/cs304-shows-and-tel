@@ -88,8 +88,6 @@ def profile(sid):
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
         tags = functions.getTags(conn,sid)
-        print(tags)
-        # print show
         return render_template('profile.html', show=show, creators=creators, 
                                 warnings=warnings, tags=tags)
         

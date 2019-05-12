@@ -156,7 +156,7 @@ def insertCreators(conn,sid,creatorList):
         curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
         
 def insertShows(conn, title, year, genre, cwList, script, description, 
-                creatorList, network, tag_names, tag_vals):
+                creatorList, network, tag_name, tag_val):
     ''' Inserts show, creator, show&creator relationship etc. to the database, 
         given form values '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -168,12 +168,15 @@ def insertShows(conn, title, year, genre, cwList, script, description,
     sid = getSid(conn,title)
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
+    curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, tag_name, tag_val])
     
-    for i in range(len(tag_names)):
-        name = tag_names[i]
-        val = tag_vals[i]
-        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-                    [sid, name, val])
+    # Support for multiple tags
+    # for i in range(len(tag_names)):
+    #     name = tag_names[i]
+    #     val = tag_vals[i]
+    #     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+    #                 [sid, name, val])
 
 def updateWarnings(conn,sid,newwarnings):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -234,27 +237,6 @@ def update(conn, sid, title, year, network, genre, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
-        
-# def update2(conn, sid, title, year, oldnetwork, network, genre, oldcwList, newcwList, script, description, creators):
-# curs = conn.cursor(MySQLdb.cursors.DictCursor)
-# oldshow = getShow(conn,sid)
-# print oldshow
-# if getNid(conn,network) is None:
-#     curs.execute('insert into networks (name) values(%s)', [network])
-# nid = getNid(conn,network)
-# curs.execute('''update shows set title=%s, year=%s, genre=%s, script=%s, 
-#                 description=%s, nid=%s where sid=%s''', 
-#                 [title, year, genre, script, description, nid, sid]) 
-# # if only this show has this network, delete network from networks table or not?
-# if len(getResultsByNetwork(conn,oldnetwork))==0:
-#     curs.execute('delete from networks where name=%s', [oldnetwork])
-# # for creator in creators:
-# #     if getCid(conn,creator) is None:
-# #         curs.execute('insert into creators (name) values(%s)', [creator])
-# #     cid = getCid(conn,creator)
-# #     # curs.execute('update creators set name=%s where sid=%s', [creator,sid])
-# #     curs.execute('update showsCreators set cid=%s where sid=%s',[cid,sid])
-
 
 if __name__ == '__main__':
     conn = getConn('final_project')
