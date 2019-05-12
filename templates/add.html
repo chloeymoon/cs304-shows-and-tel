@@ -107,7 +107,7 @@ $("#cwbutton").on("click", function (e) {
                     '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
     } else {
         warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
-                     +'<button type="button" onclick="deleteCW(this)" name="delete">X</button></ul>'
+                     +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
         $(warninghtml).appendTo(".contentwarning")
     }
 });
