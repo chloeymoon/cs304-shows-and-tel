@@ -171,7 +171,7 @@ def insertShows(conn, title, year, genre, cwList, script, description,
     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, tag_name, tag_val])
     
-    # Support for multiple tags
+    # Support for multiple tags to be added in beta version
     # for i in range(len(tag_names)):
     #     name = tag_names[i]
     #     val = tag_vals[i]
