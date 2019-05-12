@@ -62,10 +62,12 @@ def getResultsByNetwork(conn,term):
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
     
-def getResultsByTags(conn, tag_names, tag_vals):
+def getResultsByTags(conn, tag_name, tag_val):
     '''Returns all shows based on the search term using tags'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('''select * from shows''')
+    val = '%' + tag_val + '%'
+    curs.execute('''select * from shows where sid=(select sid from tags where
+                    name=%s and val like %s)''', (tag_name, val))
     return curs.fetchall()
     
 def getResultsByTitle(conn,term):
@@ -163,7 +165,8 @@ def insertShows(conn, title, year, genre, cwList, script, description,
 
 # creators will be a list??? dic??
 # would there be the case where we want to change the sid? -- not really?
-def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList, newcwList, script, description, creators):
+def update(conn, sid, title, year, oldnetwork, network, genre, oldcwList, 
+            newcwList, script, description, creators):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])

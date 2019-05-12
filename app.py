@@ -96,7 +96,9 @@ def edit(sid):
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
-        return render_template('edit.html', show=show, creators=creators, warnings=warnings)
+        tags = functions.getTags(conn, sid)
+        return render_template('edit.html', show=show, creators=creators, 
+                                warnings=warnings, tags=tags)
     if request.method == 'POST':
         oldshow = functions.getShow(conn,sid)
         newtitle = request.form['show-title']
@@ -109,11 +111,11 @@ def edit(sid):
         newcreators = request.form['show-creators']
         oldcwList = functions.getWarnings(conn,sid)
         newcwList = request.form.getlist('show-warning')
-        functions.update(conn, sid, newtitle, newyear,oldnetwork,newnetwork, newgenre, oldcwList, newcwList, newscript, newdesc, newcreators)
+        functions.update(conn, sid, newtitle, newyear, oldnetwork, newnetwork, 
+                        newgenre, oldcwList, newcwList, newscript, newdesc,
+                        newcreators)
         return redirect(url_for('edit', sid=sid))
         
-        
-    
 @app.route('/search/', methods=['POST'])
 def search():
     '''Displays all the user requested search results'''
@@ -122,19 +124,25 @@ def search():
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']
-        tag_names = request.form.getlist('tags')
-        tag_vals = request.form.getlist('tag-arg')
+        tag_name = request.form['tags']
+        tag_val = request.form['tag-arg']
+        print("*************************")
+        print(tag_name)
+        print(tag_val)
+        # tag_names = request.form.getlist('tags')
+        # tag_vals = request.form.getlist('tag-arg')
         if title:
             shows = functions.getResultsByTitle(conn,title)
         if network:
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
-        if title=='' and network=='' and creator=='':
+        if (title=='' and network=='' and creator==''
+                      and tag_name=='' and tag_val==''):
             flash("Search using at least one criteria")
             return redirect(request.referrer)
-        if tag_names and tag_vals:
-            shows = functions.getResultsByTags(conn, tag_names, tag_vals)
+        if tag_name and tag_val:
+            shows = functions.getResultsByTags(conn, tag_name, tag_val)
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':
