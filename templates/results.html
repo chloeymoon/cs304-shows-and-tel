@@ -13,21 +13,29 @@
   {% endif %}
 {% endwith %}
 
-  <div class=results>
-    <table style="width:100%">
+  <!--<div class=results >-->
+  <!--or container-fluid-->
+  <div class="container"> 
+    <table style="width:100%" class="table table-bordered table-hover ">
       {% if shows%}
-      <tr>
-        <th>Title</th>
-        <th>Description</th> 
-        <th>Release Year</th>
-      </tr>
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Description</th> 
+          <th scope="col">Release Year</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for show in shows %}
         <tr>
           <th><a class="profile" href={{url_for('profile',sid=show.sid)}}>{{show.title}}</a></th>
-          <th>{{show.description}}</th>
-          <th>{{show.year}}</th>
+          <!--<th>{{show.description}}</th>-->
+          <!--<th>{{show.year}}</th>-->
+          <td>{{show.description}}</td>
+          <td>{{show.year}}</td>
         </tr>
         {% endfor %}
+      </tbody>
       {% else %}
       <tr>
         <th>Result doesn't exist</th>

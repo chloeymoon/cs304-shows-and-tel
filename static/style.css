@@ -12,15 +12,15 @@ body {
 
 #navbar {
   list-style-type: none;
-  margin: 0;
-  margin-left: -20px;
-  margin-top: -10px;
+  margin: 10;
+  margin-left: 0px;
+  margin-top: 0px;
   padding-left: 7px;
   padding-right: 7px;
   overflow: hidden;
   position: relative;
   top: 0;
-  width: 101%;
+  width: 100%;
   background-color: #6384b7;
   display: flex;
   justify-content: flex-start;
@@ -56,13 +56,13 @@ body {
 /*  background-color: #4CAF50;*/
 /*}*/
 
-/*div {*/
-/*  padding-top: 5px;*/
-/*}*/
+div {
+  padding-top: 5px;
+}
 
-/*p {*/
-/*  font-weight: bold;*/
-/*}*/
+p {
+  font-weight: bold;
+}
 
 /*.textbox {*/
 /*  padding-top: 16px;*/
@@ -86,13 +86,13 @@ body {
 
 
 /*#search, #input-uid, #searchterm {*/
-  /*float: right;*/
-  /*padding: 8px;
-  border: none;*/
-  /*margin-top: 8px;*/
-  /*margin-right: 16px;*/
-  /*margin-bottom: 10px;*/
-  /*font-size: 30px;*/
+/*  float: right;*/
+/*  padding: 8px;*/
+/*  border: none;*/
+/*  margin-top: 8px;*/
+/*  margin-right: 16px;*/
+/*  margin-bottom: 10px;*/
+/*  font-size: 30px;*/
 /*}*/
 
 .form {
@@ -107,8 +107,10 @@ body {
     text-align: left;
 }
 
-/*table, */
-th, td {
-  border: 1px solid black;
-  padding: 15px;
+.add-form{
+  margin-left: 30px;
 }
+/*table, th, td {*/
+  /*border: 1px solid black;*/
+/*  padding: 30px;*/
+/*}*/

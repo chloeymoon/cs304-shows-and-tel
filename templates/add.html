@@ -13,76 +13,99 @@
   {% endif %}
 {% endwith %}
 
-<form name="add" id="add" method=POST action={{url_for('add')}}>
-    <div class=form-inputs>
-        
-        <input type="hidden" name="uid" value="{{uid}}">
-        <p><label for=title>Title:
-            <input type="text" id="title" name="title" size="60"/>
-        </label></p>
+<div class="add-form" >
+    <form name="add" id="add" method=POST action={{url_for('add')}}>
+        <div class=form-inputs>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <input type="hidden" name="uid" value="{{uid}}">
+                <p><label for=title>Title
+                    <input type="text" class="form-control" id="title" name="title" size="60"/>
+                </label></p>
+            </div>
+            
+            <div class="form-group col-md-2">
+                <p><label for=network>Network
+                    <input type="text" id="network" name="network" class="form-control"/>
+                </label></p>
+            </div>
 
-        <div class="creator">
-            <label for=creator>Creator: </label>
-            <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+            <div class="form-group col-md-2">
+                <p><label for=year>Year Debuted
+                    <input type="text" id="year" name="year" class="form-control"/>
+                </label></p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <p><label for=genre>Genre
+                    <input type="text" id="genre" name="genre" class="form-control"/>
+                </label></p>
+            </div>
+            
+            <div class="form-group col-md-6">
+                <p><label for=script>Link to Script
+                    <input type="text" id="script" name="script" size="100" class="form-control"/>
+                </label></p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <div class="creator">
+                    <label for=creator><p>Creator</p></label>
+                    <input type="button" value="+" onclick="addCreators()" id="cbutton" name="cbutton" class="btn btn-light"/>
+                    <ul><input type="text" id="creator" name="creator" />
+                        <button type="button" onclick="deleteUl(this)" class="btn btn-light" name="delete" >X</button></ul>
+                </div>
+            </div>
+            
+            <div class="form-group col-md-5">
+                <div class="contentwarning">
+                    <label for=contentwarning><p>Content Warning</p></label>
+                    <select name="warning-dropdown" id="warning-dropdown" class="form-control" >
+                        {% for common in commonWarnings %}
+                            <option value={{common}} class="form-control">{{common}}</option>
+                        {% endfor %}
+                        {% for warning in contentwarnings %}
+                            {% if warning.name not in commonWarnings %}
+                                <option value="{{warning.name}}" class="form-control">{{warning.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                        <option value="Other" class="form-control">Other (Add a new warning)</option>
+                        <input type="button" value="+" id="cwbutton" name="cwbutton" class="btn btn-light"/>
+                        <span id="newwarning_placeholder"></span>
+                    </select>
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+
+            <div class="form-group">
+                <p><label for=description>Description<br>
+                    <textarea class="form-control" rows="3" cols="110" name='description'></textarea>
+                </label></p>
+            </div>
+            <div class="form-group">
+                <p><label for="tags">Tags
+                    <select id="tags" name="tags" class="form-control" >
+                        <option>Choose a tag</option>
+                        <option>Genre</option>
+                        <option>Pace</option>
+                        <option>Length</option>
+                        <option>Type</option>
+                    </select>
+                </label>
+                <label for="tag-arg">
+                    <input type="text" id="tag-arg" name="tag-arg" class="form-control" />
+                </label></p> 
+            </div>
+            <p><button type="submit" class="btn btn-primary">Submit</button></p>
         </div>
         
-        <p><label for=network>Network:
-            <input type="text" id="network" name="network" />
-        </label></p>
-        
-        <p><label for=year>Year Debuted:
-            <input type="text" id="year" name="year" />
-        </label></p>
-        
-        <p><label for=genre>Genre:
-            <input type="text" id="genre" name="genre" />
-        </label></p>
-        
-        <div class="contentwarning">
-            <label for=contentwarning>Content Warning: </label>
-            <select name="warning-dropdown" id="warning-dropdown">
-                {% for common in commonWarnings %}
-                    <option value={{common}}>{{common}}</option>
-                {% endfor %}
-                {% for warning in contentwarnings %}
-                    {% if warning.name not in commonWarnings %}
-                        <option value="{{warning.name}}">{{warning.name}}</option>
-                    {% endif %}
-                {% endfor %}
-                <option value="Other">Other (Add a new warning)</option>
-                <input type="button" value="Add" id="cwbutton" name="cwbutton"/>
-                <br><span id="newwarning_placeholder"></span>
-            </select>
-        </div>
-        
-        <p><label for=script>Link to Script:
-            <input type="text" id="script" name="script" size="100"/>
-        </label></p>
-        
-        <p><label for=description>Description:<br>
-            <!--<input type="text" id="description" name="description" />-->
-            <textarea rows="4" cols="110" name='description'></textarea>
-        </label></p>
-        
-
-        <p><label for="tags">Tags:
-            <select id="tags" name="tags">
-                <option>Choose a tag</option>
-                <option>Genre</option>
-                <option>Pace</option>
-                <option>Length</option>
-                <option>Type</option>
-            </select>
-        </label>
-        <label for="tag-arg">
-            <input type="text" id="tag-arg" name="tag-arg"/>
-        </label></p> 
-        
-        
-        <p><button type="submit">Submit</button></p>
-    </div>
-    
-</form>
+    </form>
+</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 
@@ -107,16 +130,15 @@ $("#cwbutton").on("click", function (e) {
                     '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
     } else {
         warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
-                     +'<button type="button" onclick="deleteCW(this)" name="delete">X</button></ul>'
+                     +'<button type="button" onclick="deleteUl(this)" class="btn btn-light" name="delete">X</button></ul>'
         $(warninghtml).appendTo(".contentwarning")
     }
 });
 
 
 function addCreators() {
-// 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
     creatorhtml = '<ul><input type="text" id="creator" name="creator"/>'
-            +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+            +'<button type="button" onclick="deleteUl(this)" class="btn btn-light" name="delete" >X</button></ul>'
     $(creatorhtml).appendTo(".creator")
 }
 

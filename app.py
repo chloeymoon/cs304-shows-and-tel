@@ -102,7 +102,7 @@ def edit(sid):
         newgenre = request.form['show-genre']
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
-        print newcwList
+        # print newcwList
         functions.update(conn, sid, newtitle, newyear,newnetwork, newgenre, newcwList, newscript, newdesc, newcreators)
         return redirect(url_for('edit', sid=sid))
 
@@ -133,7 +133,6 @@ def search():
             return redirect(request.referrer)
         # if tag_names and tag_vals:
         #     shows = functions.getResultsByTags(conn, tag_names, tag_vals)
-        print shows
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':

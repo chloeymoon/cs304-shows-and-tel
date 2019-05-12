@@ -199,7 +199,7 @@ def updateCreators(conn,sid,newCreators):
         curs.execute('insert into showsCreators (sid,cid) values (%s,%s)',[sid,cid])
 
 
-# would there be the case where we want to change the sid? -- not really?
+# would there be the case where we want to change the sid? -- not really
 def update(conn, sid, title, year, network, genre, cwList, script, description, creators):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # old show information
@@ -221,28 +221,6 @@ def update(conn, sid, title, year, network, genre, cwList, script, description, 
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
         
-
- 
- 
-# def update2(conn, sid, title, year, oldnetwork, network, genre, oldcwList, newcwList, script, description, creators):
-# curs = conn.cursor(MySQLdb.cursors.DictCursor)
-# oldshow = getShow(conn,sid)
-# print oldshow
-# if getNid(conn,network) is None:
-#     curs.execute('insert into networks (name) values(%s)', [network])
-# nid = getNid(conn,network)
-# curs.execute('''update shows set title=%s, year=%s, genre=%s, script=%s, 
-#                 description=%s, nid=%s where sid=%s''', 
-#                 [title, year, genre, script, description, nid, sid]) 
-# # if only this show has this network, delete network from networks table or not?
-# if len(getResultsByNetwork(conn,oldnetwork))==0:
-#     curs.execute('delete from networks where name=%s', [oldnetwork])
-# # for creator in creators:
-# #     if getCid(conn,creator) is None:
-# #         curs.execute('insert into creators (name) values(%s)', [creator])
-# #     cid = getCid(conn,creator)
-# #     # curs.execute('update creators set name=%s where sid=%s', [creator,sid])
-# #     curs.execute('update showsCreators set cid=%s where sid=%s',[cid,sid])
    
 
 if __name__ == '__main__':
