@@ -21,7 +21,7 @@ ENGINE = InnoDB;
 create table contentwarnings (
     cwid int auto_increment,
     primary key (cwid),
-    cw varchar(30)
+    name varchar(30)
 )
 ENGINE = InnoDB;
 

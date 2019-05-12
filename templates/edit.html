@@ -4,7 +4,7 @@
 {% block content %}
   <h1 show=show>Update Show: {{show.title}} (#{{show.sid}})</h1>
     
-  <!--<p style="text-align:center;">Use "None" or "null" to set a field to null. Only Title, Release Year and Director can be null.-->
+  <p>You may delete or add content warnings and creators. However, a show must have at least one content warning and creator.
 
     <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators warnings=warnings>
       <table>
@@ -32,34 +32,36 @@
           <td><label for="show-genre">Genre</label></td>
           <td><input name='show-genre' value='{{show.genre}}'></td>
         </tr>
-        {% for warning in warnings %}
-        <tr>
-            <td><label for="show-warning">Content Warning</label></td>
-            <td><input name='show-warning' value='{{warning.cw}}'></td>
-        </tr>
-        {% endfor %}
-        <tr>
-          <td><label for="show-tag">Tags</label></td>
-          <td>
-            {% for tag in tags %}
-            <div class=tags-row name={{tag.name}}>
-              <p><select id="tags" name=tags>
-                  <option value=''>Choose a tag</option>
-                  <option value='pace'>Pace</option>
-                  <option value='length'>Length</option>
-                  <option value='type'>Type</option>
-              </select>
-              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>
-            </div>
-            {% endfor %}
-          </td>
-        </tr>
-        {% for creator in creators %}
-        <tr>
-          <td><label for="show-creators">Creator</label></td>
-          <td><input name='show-creators' value='{{creator.name}}'></td>
-        </tr>
-        {% endfor %}
+        
+        <!--<div class="warning">-->
+          {% for warning in warnings %}
+          <tr class='warning'>
+              <td><label for="show-warnings">Content Warning</label></td>
+              <td><input name='show-warnings' value='{{warning.name}}'>
+              {% if warning == warnings[0] %}
+                <button type="button" id="addwarning">Add Warning</button>
+              {% elif warning != warnings[0] %}
+                <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+              </td>
+          </tr>
+          {% endfor %}
+        <!--</div>-->
+        
+        <!--<div class="creators">-->
+          {% for creator in creators %}
+          <tr class='creator'>
+            <td><label for="show-creators">Creator</label></td>
+            <td><input name='show-creators' value='{{creator.name}}'>
+              {% if creator == creators[0] %}
+                <button type="button" name="add" id="addcreator">Add Creator</button>
+              {% elif creator != creators[0] %}
+              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        <!--</div>-->
           
       </table>
       <input type="submit" name="submit" value="update">
@@ -72,6 +74,23 @@ $(document).ready(function() {
   var tag_name = $(".tags-row").attr("name");
   $('#tags option[value='+tag_name+']').prop('selected', true);
 });
+
+$("#addwarning").on('click', function(){
+  newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
+                    '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>'
+  $(newWarning).insertAfter($(this).closest('.warning'));
+})
+
+$("#addcreator").on('click', function(){
+  newCreatpr = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
+              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
+  $(newCreatpr).insertAfter($(this).closest('.creator'));
+})
+
+function deleteRow(elem){
+    console.log('deleting')
+    elem.closest('tr').remove();
+}
 
 </script>
 {% endblock %}

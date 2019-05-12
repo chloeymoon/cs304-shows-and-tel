@@ -36,6 +36,17 @@
                         </select>
                     </label></p>
                     
+                    
+                    <p><label for=contentwarning>Content Warning:
+                        <select id="contentwarning" name="contentwarning" />
+                                <option value="">Select Content Warning</option>
+                            {% for warning in contentwarnings %}
+                                <option>{{warning.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </label></p>
+                    
+                    
                     <p><label for="tags">Tags:</label>
                     <!--<button type="button" id="add-tag" name="tag-arg">-->
                     <!--    Add another tag-->

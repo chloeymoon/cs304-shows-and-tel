@@ -19,19 +19,25 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
 
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
+#a list of common contentwarnings
+#used in add() to allow users to choose from a set of warnings but also add new warnings
+commonWarnings = ["Sex & Nudity","Violence & Gore","Profanity","Alcohol, Drugs & Smoking"]
+        
 @app.route('/')
 def index():
     '''Main page'''
     conn = functions.getConn('final_project')
     networks = functions.getAllNetworks(conn)
-    return render_template('home.html',networks=networks)
+    contentwarnings = functions.getAllWarnings(conn)
+    return render_template('home.html',networks=networks, contentwarnings=contentwarnings)
     
 @app.route('/add/', methods=['GET','POST'])
 def add():
     '''Allows users to add a show to the database'''
     conn = functions.getConn('final_project')
     if request.method == 'GET':
-        return render_template('add.html')
+        contentwarnings = functions.getAllWarnings(conn)
+        return render_template('add.html',contentwarnings=contentwarnings, commonWarnings=commonWarnings)
     if request.method == 'POST':
         conn = functions.getConn('final_project')
         title = request.form.get('title')
@@ -39,18 +45,14 @@ def add():
         genre = request.form.get('genre')
         script = request.form.get('script')
         description = request.form.get('description')
-        # creator = request.form.get('creator')
         network = request.form.get('network')
-        # cw = request.form.get('contentwarning')
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
         # tag_names = request.form.getlist('tags')
         # tag_vals = request.form.getlist('tag-arg')
         tag_name = request.form['tags']
         tag_val = request.form['tag-arg']
-        filled = (title and year and genre and script and description 
-                    and creatorList[0] and network and cwList[0]
-                    and tag_name and tag_val)
+        filled = (title and year and genre and script and description and creatorList and network and cwList and tag_name and tag_val)
         if not(filled):
             flash("All fields should be completely filled")
             return redirect(request.referrer)
@@ -104,22 +106,21 @@ def edit(sid):
     if request.method == 'POST':
         oldshow = functions.getShow(conn,sid)
         newtitle = request.form['show-title']
-        oldnetwork = oldshow['network']
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
         newscript = request.form['show-script']
         newgenre = request.form['show-genre']
-        newcreators = request.form['show-creators']
+        newcreators = request.form.getlist('show-creators')
         oldcwList = functions.getWarnings(conn,sid)
-        newcwList = request.form.getlist('show-warning')
+        newcwList = request.form.getlist('show-warnings')
         tag_name = request.form['tags']
         tag_val = request.form['tag-vals']
         functions.update(conn, sid, newtitle, newyear, oldnetwork, newnetwork, 
                         newgenre, oldcwList, newcwList, newscript, newdesc,
                         newcreators, tag_name, tag_val)
         return redirect(url_for('profile', sid=sid))
-        
+
 @app.route('/search/', methods=['POST'])
 def search():
     '''Displays all the user requested search results'''
@@ -128,25 +129,28 @@ def search():
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']
+        contentwarning = request.form['contentwarning']
         tag_name = request.form['tags']
         tag_val = request.form['tag-arg']
-        print("*************************")
-        print(tag_name)
-        print(tag_val)
         # tag_names = request.form.getlist('tags')
         # tag_vals = request.form.getlist('tag-arg')
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-arg')
+
         if title:
             shows = functions.getResultsByTitle(conn,title)
         if network:
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
-        if (title=='' and network=='' and creator==''
+        if (title=='' and network=='' and creator=='' and and contentwarning==''
                       and tag_name=='' and tag_val==''):
             flash("Search using at least one criteria")
             return redirect(request.referrer)
         if tag_name and tag_val:
             shows = functions.getResultsByTags(conn, tag_name, tag_val)
+        if contentwarning:
+            shows = functions.getResultsByContentWarning(conn,contentwarning)
         return render_template('results.html', shows=shows)
 
 if __name__ == '__main__':
