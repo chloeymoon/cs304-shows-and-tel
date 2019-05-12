@@ -21,7 +21,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 #a list of common contentwarnings
 #used in add() to allow users to choose from a set of warnings but also add new warnings
-commonWarnings = ["Sex & Nudity","Violence & Gore","Profanity","Alcohol, Drugs & Smoking"]
+commonWarnings = ["Sex & Nudity","Violence & Gore","Profanity","Frightening & Intense Scenes"]
         
 @app.route('/')
 def index():

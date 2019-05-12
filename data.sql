@@ -20,14 +20,20 @@ values ("Game of Thrones", 2011, 1, "Fantasy",  "https://www.springfieldspringfi
         "Featuring stand-alone dramas -- sharp, suspenseful, satirical tales that explore techno-paranoia -- 'Black Mirror' is a contemporary reworking of 'The Twilight Zone' with stories that tap into the collective unease about the modern world. ")
         ;
 
+insert into contentwarnings(name)
+value("Sex & Nudity"),("Violence & Gore"),("Profanity"),("Alcohol"), ("Drugs & Smoking");
+
+insert into showsCWs(sid,cwid)
+values(1,1),(3,2),(2,5),(2,4),(4,2),(4,1),(4,5),(3,3);
+
 insert into creators(name)
 values('Mark Gatiss'),('Steven Moffat'),('Vince Gilligan'),('David Crane'),('Marta Kauffman'),('David Benioff'),('D. B. Weiss'),('Charlie Brooker');
 
-insert into showsCreators(sid, cid)
+insert into showsCreators(sid,cid)
 values (3,1),(3,2),(4,3),(2,4),(2,5),(1,6),(1,7),(5,8);
 
 -- Check
 -- select * from networks;
 -- select * from shows;
-select * from creators;
-select * from showsCreators;
+select * from contentwarnings;
+select * from showsCWs;
