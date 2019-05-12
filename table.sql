@@ -30,7 +30,7 @@ create table tags (
     tid int auto_increment,
     primary key (tid),
     sid int,
-    name ENUM('genre', 'length', 'pace', 'type'),
+    name ENUM('length', 'pace', 'type'),
     val varchar(30),
     foreign key(sid) references shows(sid) on delete cascade
 )
