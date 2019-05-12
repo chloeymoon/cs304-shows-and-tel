@@ -143,7 +143,7 @@ def search():
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
-        if (title=='' and network=='' and creator=='' and and contentwarning==''
+        if (title=='' and network=='' and creator=='' and contentwarning==''
                       and tag_name=='' and tag_val==''):
             flash("Search using at least one criteria")
             return redirect(request.referrer)
