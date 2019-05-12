@@ -95,19 +95,17 @@ def edit(sid):
     if request.method == 'POST':
         oldshow = functions.getShow(conn,sid)
         newtitle = request.form['show-title']
-        oldnetwork = oldshow['network']
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
         newscript = request.form['show-script']
         newgenre = request.form['show-genre']
-        newcreators = request.form['show-creators']
-        oldcwList = functions.getWarnings(conn,sid)
-        newcwList = request.form.getlist('show-warning')
-        functions.update(conn, sid, newtitle, newyear,oldnetwork,newnetwork, newgenre, oldcwList, newcwList, newscript, newdesc, newcreators)
+        newcreators = request.form.getlist('show-creators')
+        newcwList = request.form.getlist('show-warnings')
+        print newcwList
+        functions.update(conn, sid, newtitle, newyear,newnetwork, newgenre, newcwList, newscript, newdesc, newcreators)
         return redirect(url_for('edit', sid=sid))
-        
-        
+
     
 @app.route('/search/', methods=['POST'])
 def search():

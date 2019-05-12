@@ -32,26 +32,36 @@
           <td><label for="show-genre">Genre</label></td>
           <td><input name='show-genre' value='{{show.genre}}'></td>
         </tr>
-        {% for warning in warnings %}
-        <tr>
-            <td><label for="show-warning">Content Warning</label></td>
-            <td><input name='show-warning' value='{{warning.name}}'>
-            {% if warning != warnings[0]%}
+        
+        <!--<div class="warning">-->
+          {% for warning in warnings %}
+          <tr class='warning'>
+              <td><label for="show-warnings">Content Warning</label></td>
+              <td><input name='show-warnings' value='{{warning.name}}'>
+              {% if warning == warnings[0] %}
+                <button type="button" id="addwarning">Add Warning</button>
+              {% elif warning != warnings[0] %}
+                <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+              </td>
+          </tr>
+          {% endfor %}
+        <!--</div>-->
+        
+        <!--<div class="creators">-->
+          {% for creator in creators %}
+          <tr class='creator'>
+            <td><label for="show-creators">Creator</label></td>
+            <td><input name='show-creators' value='{{creator.name}}'>
+              {% if creator == creators[0] %}
+                <button type="button" name="add" id="addcreator">Add Creator</button>
+              {% elif creator != creators[0] %}
               <button type="button" name="delete" onclick="deleteRow(this)">X</button>
-            {% endif %}
+              {% endif %}
             </td>
-        </tr>
-        {% endfor %}
-        {% for creator in creators %}
-        <tr>
-          <td><label for="show-creators">Creator</label></td>
-          <td><input name='show-creators' value='{{creator.name}}'>
-            {% if creator != creators[0]%}
-            <button type="button" name="delete" onclick="deleteRow(this)">X</button>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
+          </tr>
+          {% endfor %}
+        <!--</div>-->
           
       </table>
       <input type="submit" name="submit" value="update">
@@ -60,6 +70,19 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+
+$("#addwarning").on('click', function(){
+  newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
+                    '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>'
+  $(newWarning).insertAfter($(this).closest('.warning'));
+})
+
+$("#addcreator").on('click', function(){
+  newCreatpr = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
+              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
+  $(newCreatpr).insertAfter($(this).closest('.creator'));
+})
+
 function deleteRow(elem){
     console.log('deleting')
     elem.closest('tr').remove();
