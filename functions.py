@@ -4,11 +4,9 @@ Written Spring 2019
 Chloe Moon, Catherine Chen
 '''
 
-
-
-'''multiple search criterka: caluses = [] and then '   '.join(clauses)'''
-'''select where (title = %)'''
-'''construct a view'''
+'''multiple search criteria: caluses = [] and then '   '.join(clauses)'''
+'''select * from table where (title = % or '')''' # title='' returns an empty string
+'''construct a view file'''
 '''lock for threads'''
 import sys
 import MySQLdb
