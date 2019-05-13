@@ -3,6 +3,13 @@
 Written Spring 2019
 Chloe Moon, Catherine Chen
 '''
+
+
+
+'''multiple search criterka: caluses = [] and then '   '.join(clauses)'''
+'''select where (title = %)'''
+'''construct a view'''
+'''lock for threads'''
 import sys
 import MySQLdb
 
@@ -108,7 +115,7 @@ def getNid(conn,networkName):
         return res['nid']
     else:
         return None
-        
+    
 def getCWid(conn,cw):
     '''Returns cwid based on contentwarning'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -135,11 +142,10 @@ def getCid(conn,creatorName):
     else:
         return None
 
-# helper functions for insertShows
-# many-to-many relationships (Contentwarnings, Creators)
-# inserts each creator/cw's id first if not already in the database
-# also inserts the relationship (e.g. showsCWs)
+# helper functions for insertShows: many-to-many relationships (Contentwarnings, Creators)
+
 def insertContentwarnings(conn,sid,cwList):
+    '''Inserts each creator's id first if not already in the database. Also inserts the relationship (e.g. showsCWs).'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for cw in cwList:
         if getCWid(conn,cw) is None:
@@ -148,6 +154,7 @@ def insertContentwarnings(conn,sid,cwList):
         curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
 
 def insertCreators(conn,sid,creatorList):
+    '''Inserts each cw's id first if not already in the database. Also inserts the relationship.'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for creator in creatorList:
         if getCid(conn,creator) is None:
@@ -179,13 +186,14 @@ def insertShows(conn, title, year, genre, cwList, script, description,
     #                 [sid, name, val])
 
 def updateWarnings(conn,sid,newwarnings):
+    '''Given a list of new warnings, compares it with old warnings and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     oldwarnings = [w['name'] for w in getWarnings(conn,sid)]
-    # newwarnings = [x.encode('UTF8') for x in newWarnings] #values from dropdowns are unicodes
     #because the number of new list is not necessarily the same as the old list,
     #decided to delete and insert the differences rather than updating
     toDelete = [w for w in oldwarnings if w not in newwarnings]
     toAdd = [w for w in newwarnings if w not in oldwarnings]
+    # use set
     for w in toDelete:
         cwid = getCWid(conn,w)
         curs.execute('delete from showsCWs where sid=%s and cwid=%s',[sid,cwid])
@@ -198,6 +206,7 @@ def updateWarnings(conn,sid,newwarnings):
         curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
     
 def updateCreators(conn,sid,newCreators):
+    ''''Given a list of new creators, compares it with old creators and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     oldCreators = [c['name'] for c in getCreators(conn,sid)]
     toDelete = [c for c in oldCreators if c not in newCreators]
@@ -216,6 +225,7 @@ def updateCreators(conn,sid,newCreators):
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, network, genre, cwList, script, 
            description, creators, tag_name, tag_val):
+    ''''Updates the show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # old show information
     oldshow = getShow(conn,sid) #returns network name, sid, nid, title, etc.

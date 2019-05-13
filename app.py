@@ -103,7 +103,6 @@ def edit(sid):
         return render_template('edit.html', show=show, creators=creators, 
                                 warnings=warnings, tags=tags)
     if request.method == 'POST':
-        oldshow = functions.getShow(conn,sid)
         newtitle = request.form['show-title']
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']

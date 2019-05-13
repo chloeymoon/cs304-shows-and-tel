@@ -43,6 +43,7 @@ create table creators (
 )
 ENGINE = InnoDB;
 
+-- might implement in beta
 create table streams (
     stid int auto_increment,
     primary key (stid),
@@ -50,12 +51,12 @@ create table streams (
 )
 ENGINE = InnoDB;
 
-create table actors (
-    aid int auto_increment,
-    primary key (aid),
-    name varchar(30)
-)
-ENGINE = InnoDB;
+-- create table actors (
+--     aid int auto_increment,
+--     primary key (aid),
+--     name varchar(30)
+-- )
+-- ENGINE = InnoDB;
 
 create table shows (
     sid int auto_increment,
@@ -72,15 +73,15 @@ create table shows (
 )
 ENGINE = InnoDB;
 
-create table interviews (
-    iid int auto_increment,
-    primary key (iid),
-    sid int,
-    link varchar(500),
-    foreign key (sid) references shows(sid) on delete cascade 
-        -- interview:show is many:one
-)
-ENGINE = InnoDB;
+-- create table interviews (
+--     iid int auto_increment,
+--     primary key (iid),
+--     sid int,
+--     link varchar(500),
+--     foreign key (sid) references shows(sid) on delete cascade 
+--         -- interview:show is many:one
+-- )
+-- ENGINE = InnoDB;
 
 
 -- TABLES FOR MANY TO MANY RELATIONSHIPS --
@@ -95,15 +96,15 @@ create table showsCreators (
 )
 ENGINE = InnoDB;
 
--- shows and streams
-create table showsStreams (
-    sid int,
-    stid int,
-    foreign key (sid) references shows(sid) on delete cascade,
-    foreign key (stid) references streams(stid) on delete cascade,
-    primary key(sid, stid)
-)
-ENGINE = InnoDB;
+-- -- shows and streams
+-- create table showsStreams (
+--     sid int,
+--     stid int,
+--     foreign key (sid) references shows(sid) on delete cascade,
+--     foreign key (stid) references streams(stid) on delete cascade,
+--     primary key(sid, stid)
+-- )
+-- ENGINE = InnoDB;
 
 create table showsCWs (
     sid int,
@@ -114,22 +115,22 @@ create table showsCWs (
 )
 ENGINE = InnoDB;
 
--- shows and actors
-create table showsActors (
-    sid int,
-    aid int,
-    foreign key (sid) references shows(sid) on delete cascade,
-    foreign key (aid) references actors(aid) on delete cascade,
-    primary key(sid, aid)
-)
-ENGINE = InnoDB;
+-- -- shows and actors
+-- create table showsActors (
+--     sid int,
+--     aid int,
+--     foreign key (sid) references shows(sid) on delete cascade,
+--     foreign key (aid) references actors(aid) on delete cascade,
+--     primary key(sid, aid)
+-- )
+-- ENGINE = InnoDB;
 
--- shows and tags
-create table showsTags (
-    sid int,
-    tid int,
-    foreign key (sid) references shows(sid) on delete cascade,
-    foreign key (tid) references tags(tid) on delete cascade,
-    primary key(sid, tid)
-)
-ENGINE = InnoDB;
+-- -- shows and tags
+-- create table showsTags (
+--     sid int,
+--     tid int,
+--     foreign key (sid) references shows(sid) on delete cascade,
+--     foreign key (tid) references tags(tid) on delete cascade,
+--     primary key(sid, tid)
+-- )
+-- ENGINE = InnoDB;
