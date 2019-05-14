@@ -2,9 +2,9 @@ create database if not exists final_project;
 use final_project;
 
 SET FOREIGN_KEY_CHECKS = 0;
-drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs;
+drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs, showsGenres;
 drop table if exists interviews, scripts, streams, networks, contentwarnings;
-drop table if exists shows, creators, streams, actors, tags; 
+drop table if exists shows, creators, streams, actors, tags, genres; 
 SET FOREIGN_KEY_CHECKS = 0;
 
 
@@ -43,6 +43,13 @@ create table creators (
 )
 ENGINE = InnoDB;
 
+create table genres (
+    gid int auto_increment,
+    primary key (gid),
+    name varchar(50)
+)
+ENGINE = InnoDB;
+
 -- might implement in beta
 create table streams (
     stid int auto_increment,
@@ -65,7 +72,7 @@ create table shows (
     title varchar(30),
     description varchar(1000),
     year int,
-    genre varchar(30), -- Q: enum(a,b,c)?? what is better?
+    -- genre varchar(30), -- Q: enum(a,b,c)?? what is better?
     -- cwid int, -- not right b/c many to many
     script varchar(100), -- adding scripts as an attribute in shows (link)
     foreign key(nid) references networks(nid) on delete cascade
@@ -93,6 +100,16 @@ create table showsCreators (
     foreign key (sid) references shows(sid) on delete cascade,
     foreign key (cid) references creators(cid) on delete cascade,
     primary key(sid, cid)
+)
+ENGINE = InnoDB;
+
+-- shows and genres
+create table showsGenres (
+    sid int,
+    gid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (gid) references genres(gid) on delete cascade,
+    primary key(sid, gid)
 )
 ENGINE = InnoDB;
 

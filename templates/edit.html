@@ -28,10 +28,24 @@
           <td><label for="show-script">Script</label></td>
           <td><input name='show-script' value='{{show.script}}' size="80"></td>
         </tr>
-        <tr>
-          <td><label for="show-genre">Genre</label></td>
-          <td><input name='show-genre' value='{{show.genre}}'></td>
-        </tr>
+        
+        <!--<tr>-->
+        <!--  <td><label for="show-genre">Genre</label></td>-->
+        <!--  <td><input name='show-genre' value='{{show.genre}}'></td>-->
+        <!--</tr>-->
+          {% for genre in genres %}
+          <tr class='genre'>
+            <td><label for="show-genres">Genre</label></td>
+            <td><input name='show-genres' value='{{genre.name}}'>
+              {% if genre == genres[0] %}
+                <button type="button" name="add" id="addgenre">Add Genre</button>
+              {% elif genre != genres[0] %}
+              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          
         
         <!--<div class="warning">-->
           {% for warning in warnings %}
@@ -97,9 +111,15 @@ $("#addwarning").on('click', function(){
 })
 
 $("#addcreator").on('click', function(){
-  var newCreatpr = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
+  var newCreator = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
               '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
-  $(newCreatpr).insertAfter($(this).closest('.creator'));
+  $(newCreator).insertAfter($(this).closest('.creator'));
+})
+
+$("#addgenre").on('click', function(){
+  var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="">'+
+              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
+  $(newGenre).insertAfter($(this).closest('.genre'));
 })
 
 function deleteRow(elem){

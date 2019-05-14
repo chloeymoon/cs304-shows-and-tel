@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div show={{show}} creators={{creators}} warnings={{warnings}}>
+<div show={{show}} creators={{creators}} warnings={{warnings}} genres={{genres}}>
     <h2>{{show.title}} ({{show.year}})</h2>
     <a class="active" href={{url_for('edit',sid=show.sid)}}>Edit</a>
     <p>{{show.description}}</p>
@@ -13,7 +13,15 @@
                 </ul>
             {% endfor %}
         </li>
-        <li>Genre: {{show.genre}}</li>
+
+        <li>Genre:
+            {% for genre in genres %}
+                <ul class="inside">
+                <li>{{genre.name}}</li>
+                </ul>
+            {% endfor %}
+        </li>
+        
         <li>Content Warning: 
             {% for warning in warnings %}
                 <ul class="inside">

@@ -34,9 +34,13 @@
             <input type="text" id="year" name="year" />
         </label></p>
         
-        <p><label for=genre>Genre:
-            <input type="text" id="genre" name="genre" />
-        </label></p>
+        <!--<p><label for=genre>Genre:-->
+        <!--    <input type="text" id="genre" name="genre" />-->
+        <!--</label></p>-->
+        <div class="genre">
+            <label for=genre>Genre: </label>
+            <input type="button" value="Add Genre" onclick="addGenres()" id="cbutton" name="cbutton"/>
+        </div><br>
         
         <div class="contentwarning">
             <label for=contentwarning>Content Warning: </label>
@@ -126,6 +130,12 @@ $("#add-tag").on("click", function (event) {
     $("ul#tags-list").append($("div.tag-input").html())
     console.log("Adding another tag input");
 });
+
+function addGenres() {
+    genrehtml = '<ul><input type="text" id="genre" name="genre"/>'
+            +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+    $(genrehtml).appendTo(".genre")
+}
 
 </script>
 
