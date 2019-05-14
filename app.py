@@ -50,6 +50,7 @@ def add():
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
+        genreList=request.form.getlist('genre')
         tag_name = request.form['tags'] #.getlist('tags')
         tag_val = request.form['tag-arg'] #.getlist('tag-arg')
         filled = (title and year and genre and script and description
@@ -60,7 +61,7 @@ def add():
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
-                functions.insertShows(conn, title, year, genre, cwList, script, 
+                functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 
                                         tag_name, tag_val)
                 flash("TV show: " + title + " successfully inserted")
@@ -87,9 +88,10 @@ def profile(sid):
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
+        genres = functions.getGenres(conn,sid)
         tags = functions.getTags(conn,sid)
         return render_template('profile.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags)
+                                warnings=warnings, tags=tags, genres=genres)
         
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
@@ -99,22 +101,23 @@ def edit(sid):
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
+        genres = functions.getGenres(conn,sid)
         tags = functions.getTags(conn, sid)
         return render_template('edit.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags)
+                                warnings=warnings, tags=tags, genres=genres)
     if request.method == 'POST':
         newtitle = request.form['show-title']
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
         newscript = request.form['show-script']
-        newgenre = request.form['show-genre']
+        newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
         tag_name = request.form['tags']
         tag_val = request.form['tag-vals']
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
-                        newgenre, newcwList, newscript, newdesc,
+                        newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_name, tag_val)
         return redirect(url_for('profile', sid=sid))
 
