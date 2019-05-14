@@ -129,6 +129,7 @@ def search():
         title = request.form['title']
         network = request.form['network']
         creator = request.form['creator']
+        genre = request.form['genre']
         contentwarning = request.form['contentwarning']
         tag_name = request.form['tags'] #.getlist('tags')
         tag_val = request.form['tag-arg'] #.getlist('tag-arg')
@@ -139,8 +140,10 @@ def search():
             shows = functions.getResultsByNetwork(conn,network)
         if creator:
             shows = functions.getResultsByCreator(conn,creator)
+        if genre:
+            shows = functions.getResultsByGenre(conn,genre)
         if (title=='' and network=='' and creator=='' and contentwarning==''
-                      and tag_name=='' and tag_val==''):
+                      and tag_name=='' and tag_val=='' and genre==''):
             flash("Search using at least one criteria")
             return redirect(request.referrer)
         if tag_name and tag_val:
