@@ -11,7 +11,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Tables
 
 create table networks (
-    nid int auto_increment,
+    nid int,
     primary key (nid),
     name varchar(30) not null
 )
@@ -19,32 +19,32 @@ ENGINE = InnoDB;
 
 -- many to many because one show can have multiple content warnings and one content warning can have many shows
 create table contentwarnings (
-    cwid int auto_increment,
+    cwid int,
     primary key (cwid),
-    name varchar(30)
+    name varchar(50)
 )
 ENGINE = InnoDB;
 
 
 create table tags (
-    tid int auto_increment,
+    tid int,
     primary key (tid),
-    sid int,
-    name ENUM('length', 'pace', 'type'),
     val varchar(30),
+    name ENUM('length', 'pace', 'type', 'N/a'),
+    sid int,
     foreign key(sid) references shows(sid) on delete cascade
 )
 ENGINE = InnoDB;
 
 create table creators (
-    cid int auto_increment,
+    cid int,
     primary key (cid),
-    name varchar(50)
+    name varchar(60)
 )
 ENGINE = InnoDB;
 
 create table genres (
-    gid int auto_increment,
+    gid int,
     primary key (gid),
     name varchar(50)
 )
@@ -66,15 +66,15 @@ ENGINE = InnoDB;
 -- ENGINE = InnoDB;
 
 create table shows (
-    sid int auto_increment,
+    sid int,
     primary key (sid),
-    nid int,
     title varchar(30),
     description varchar(1000),
     year int,
     -- genre varchar(30), -- Q: enum(a,b,c)?? what is better?
     -- cwid int, -- not right b/c many to many
     script varchar(100), -- adding scripts as an attribute in shows (link)
+    nid int,
     foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
 )
