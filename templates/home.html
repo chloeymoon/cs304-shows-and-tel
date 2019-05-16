@@ -2,10 +2,12 @@
 
 {% block content %}
 
+<div class="row justify-content-center">
+<div class="col-md-6">
     <div class=search>
         <div class=form>
-            <h1>Welcome to Shows & Tel</h1>
-            <p>Use the form to search for a TV show!</p>
+            <h1 align:"center">Welcome to Shows & Tel</h1>
+            <p align:"center">Use the form to search for a TV show!</p>
             
             {% with messages = get_flashed_messages() %}
               {% if messages %}
@@ -21,10 +23,10 @@
                 <div class=form-inputs>
                     <input type="hidden" name="uid" value="{{uid}}">
                     <p><label for=title>Title:
-                        <input type="text" id="title" name="title" />
+                        <input type="text"  class="form-control" id="title" name="title" />
                     </label></p>
                     <p><label for=creator>Creator:
-                        <input type="text" id="creator" name="creator" />
+                        <input type="text"  class="form-control" id="creator" name="creator" />
                     </label></p>
 
                     <p><label for=genre>Genre:
@@ -34,10 +36,10 @@
                         <!--        <option>{{genre.name}}</option>-->
                         <!--    {% endfor %}-->
                         <!--</select>-->
-                    </label><input type="text" id="genre" name="genre" /></p>
+                    </label><input type="text"  class="form-control" id="genre" name="genre" /></p>
                     
                     <p><label for=network>Network:
-                        <select id="network" name="network" />
+                        <select id="network" class="form-control" name="network" />
                                 <option value="">Select Network</option>
                             {% for network in networks %}
                                 <option>{{network.name}}</option>
@@ -47,7 +49,7 @@
                     
                     
                     <p><label for=contentwarning>Content Warning:
-                        <select id="contentwarning" name="contentwarning" />
+                        <select id="contentwarning" class="form-control" name="contentwarning" />
                                 <option value="">Select Content Warning</option>
                             {% for warning in contentwarnings %}
                                 <option>{{warning.name}}</option>
@@ -62,23 +64,23 @@
                     </button>  
                     <ul id="tags-list">
                         <div class=tag-input>
-                            <li>
-                            <select id="tags" name="tags">
+                            <select id="tags" class="form-control" name="tags">
                                 <option value=''>Choose a tag</option>
                                 <option value='pace'>Pace</option>
                                 <option value='length'>Length</option>
                                 <option value='type'>Type</option>
                             </select>
                             <label for="tag-args">
-                                <input type="text" id="tag-args" name="tag-args"/>
+                                <input type="text" class="form-control" id="tag-args" name="tag-args"/>
                             </label>
-                        </li></div>
-                    </ul>
-                    <p><button type="submit">Submit</button></p>
+                          </div>
+                    <p><button type="submit" class="btn btn-success">Submit</button></p>
                 </div>
             </form>
         </div>
     </div>
+</div>
+</div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
 <script>

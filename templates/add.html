@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Add Show</h1>
+<h1 align="center">Add Show</h1>
+
+<div class="row justify-content-center">
+<div class="col-md-7">
+
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -14,37 +18,48 @@
 {% endwith %}
 
 <form name="add" id="add" method=POST action={{url_for('add')}}>
-    <div class=form-inputs>
-        
+    
+<div class=form-inputs>
+    <div class="form-group">
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
-            <input type="text" id="title" name="title" size="60"/>
+            <input class="form-control" type="text" id="title" name="title" size="60"/>
         </label></p>
+    </div>
 
+    <div class="form-group">
         <div class="creator">
-            <label for=creator>Creator: </label>
-            <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+            <label for=creator>Creator: </label> <br>
+            <input type="button" class="btn btn-outline-primary" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
         </div>
-        
+    </div>
+
+    <div class="form-group">
         <p><label for=network>Network:
-            <input type="text" id="network" name="network" />
+            <input class="form-control" type="text" id="network" name="network" />
         </label></p>
-        
+    </div>
+
+    <div class="form-group">
         <p><label for=year>Year Debuted:
-            <input type="text" id="year" name="year" />
+            <input class="form-control" type="text" id="year" name="year" />
         </label></p>
+    </div>
         
         <!--<p><label for=genre>Genre:-->
         <!--    <input type="text" id="genre" name="genre" />-->
         <!--</label></p>-->
+    <div class="form-group">
         <div class="genre">
-            <label for=genre>Genre: </label>
-            <input type="button" value="Add Genre" onclick="addGenres()" id="cbutton" name="cbutton"/>
-        </div><br>
-        
+            <label for=genre>Genre: </label> <br>
+            <input type="button" class="btn btn-outline-primary" value="Add Genre" onclick="addGenres()" id="cbutton" name="cbutton"/>
+        </div>
+    </div>
+
+    <div class="form-group">
         <div class="contentwarning">
             <label for=contentwarning>Content Warning: </label>
-            <select name="warning-dropdown" id="warning-dropdown">
+            <select class="form-control" name="warning-dropdown" id="warning-dropdown"> 
                 {% for common in commonWarnings %}
                     <option value={{common}}>{{common}}</option>
                 {% endfor %}
@@ -53,55 +68,63 @@
                         <option value="{{warning.name}}">{{warning.name}}</option>
                     {% endif %}
                 {% endfor %}
-                <option value="Other">Other (Add a new warning)</option>
-                <input type="button" value="Add" id="cwbutton" name="cwbutton"/>
-                <br><span id="newwarning_placeholder"></span>
+                <option value="Other">Other (Add a new warning)</option> 
+                <input type="button" class="btn btn-outline-primary" value="Add" id="cwbutton" name="cwbutton"/>
+               <span id="newwarning_placeholder"></span>
             </select>
         </div>
-        
-        <p><label for="tags">Tags:</label>
+    </div>
+
+    <div class="form-group">
+       <label for="tags">Tags:</label>
             <button type="button" id="add-tag" name="add-tag">
                 Add another tag
             </button>  
-            <ul id="tags-list">
+            <div id="tags-list">
                 <div class=tag-input>
-                    <li>
-                    <select id="tags" name="tags">
+                    <select class="form-control" id="tags" name="tags">
                         <option value=''>Choose a tag</option>
                         <option value='pace'>Pace</option>
                         <option value='length'>Length</option>
                         <option value='type'>Type</option>
                     </select>
                     <label for="tag-args">
-                        <input type="text" id="tag-args" name="tag-args"/>
+                        <input class="form-control" type="text" id="tag-args" name="tag-args"/>
                     </label>
-                </li></div>
-            </ul></p>
+                </div>
+            </div>
+    </div>
         
+    <div class="form-group">
         <p><label for=script>Link to Script:
-            <input type="text" id="script" name="script" size="100"/>
+            <input class="form-control" type="text" id="script" name="script" size="100"/>
+        </label></p>
+    </div>
+
+    <div class="form-group">
+        <p><label for=description>Description:
+            <!--<input type="text" id="description" name="description" />-->
+            <textarea class="form-control" rows="4" cols="110" name='description'></textarea>
         </label></p>
         
-        <p><label for=description>Description:<br>
-            <!--<input type="text" id="description" name="description" />-->
-            <textarea rows="4" cols="110" name='description'></textarea>
-        </label></p>
-        <p><button type="submit">Submit</button></p>
+    </div>
+        <p><button type="submit" class="btn btn-success">Submit</button></p>
     </div>
     
 </form>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
 function addNewWarning(){
     var newwarning = $('#newcw').val();
-    var warninghtml = '<ul id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
-                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></ul>'
+    var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></div>'
     $(warninghtml).appendTo('.contentwarning')
 }
 
 function deleteUl(elem){
-    elem.closest('ul').remove();
+    elem.closest('div').remove();
 }
 
 
@@ -109,11 +132,11 @@ $("#cwbutton").on("click", function (e) {
     var selected = $("#warning-dropdown option:selected").text();
     if ($("#warning-dropdown option:selected").val()=="Other"){
         $("#newwarning_placeholder")
-        .append('<ul>Add a new warning: <input type="text" id="newcw"/>' +
-                    '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
+        .append('<div>Add a new warning: <input type="text" id="newcw"/>' +
+                    '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></div>');
     } else {
-        var warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
-                     +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+        var warninghtml = '<div id="warning"><input type="text"  id="cw" value="'+selected+'" name="cw"/>'
+                     +'<button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
         $(warninghtml).appendTo(".contentwarning")
     }
 });
@@ -121,8 +144,8 @@ $("#cwbutton").on("click", function (e) {
 
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
-    var creatorhtml = '<ul><input type="text" id="creator" name="creator"/>'
-            +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+    var creatorhtml = '<div><input type="text" id="creator" name="creator"/>'
+            +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(creatorhtml).appendTo(".creator")
 }
 
@@ -132,12 +155,13 @@ $("#add-tag").on("click", function (event) {
 });
 
 function addGenres() {
-    var genrehtml = '<ul><input type="text" id="genre" name="genre"/>'
-            +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+    var genrehtml = '<div><input type="text" id="genre" name="genre"/>'
+            +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
 }
 
 </script>
-
+</div>
+</div>
 {% endblock %}
 
