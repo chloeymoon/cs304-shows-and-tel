@@ -114,11 +114,11 @@ def edit(sid):
         newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
-        tag_name = request.form['tags']
-        tag_val = request.form['tag-vals']
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-vals')
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
-                        newcreators, tag_name, tag_val)
+                        newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
 
 @app.route('/search/', methods=['POST'])
