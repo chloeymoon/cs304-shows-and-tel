@@ -36,6 +36,19 @@ lines terminated by '\n'
 (name)
 set cid = NULL;
 
+load data local infile 'csv/ShowsCreators.csv' into table showsCreators
+fields terminated by ','
+lines terminated by '\n';
+
+load data local infile 'csv/ShowsCWs.csv' into table showsCWs
+fields terminated by ','
+lines terminated by '\n';
+
+
+load data local infile 'csv/ShowsGenres.csv' into table showsGenres
+fields terminated by ','
+lines terminated by '\n';
+
 
 -- load data local infile 'csv/Streams.csv' into table showsStreams
 -- fields terminated by ','

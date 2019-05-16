@@ -1,12 +1,15 @@
 '''Enables users to search and add TV shows to the database.
 
 Written Spring 2019
-Chloe Moon, Catherine Chen
+Chloe Moon, Catherine Chen, Alice Zhou
 '''
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug import secure_filename
 import functions, random, math
+
+import os
+import MySQLdb
 
 
 app = Flask(__name__)
@@ -151,6 +154,69 @@ def search():
         if contentwarning:
             shows = functions.getResultsByContentWarning(conn,contentwarning)
         return render_template('results.html', shows=shows)
+        
+@app.route('/signup/', methods=['GET', 'POST'])
+def signup():
+    '''
+    conn = functions.getConn('final_project')
+    curs = curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    
+    
+    username = request.form['username']
+    passwd1 = request.form['password1']
+    passwd2 = request.form['password2']
+    if passwd1 != passwd2:
+        flash('passwords do not match')
+        return redirect( url_for('signup'))
+    print passwd1, type(passwd1)
+    hashed = passwd1
+    
+    try:
+        curs.execute('INSERT into userpass(uid,username,hashed) VALUES(null,%s,%s)', [username, hashed])
+        
+    except MySQLdb.IntegrityError as err:
+        flash('That username is taken')
+        return redirect(url_for('index'))
+    
+        
+    return render_template('signup.html')'''
+    return render_template('signup.html')
+        
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    return render_template('login.html')
+    '''
+    try:
+        username = request.form['username']
+        passwd = request.form['password']
+        conn = functions.getConn('final_project')
+        curs = conn.cursor(MySQLdb.cursors.DictCursor)
+        curs.execute('SELECT uid,hashed FROM userpass WHERE username = %s',
+                     [username])
+        row = curs.fetchone()
+        if row is None:
+            # Same response as wrong password, so no information about what went wrong
+            flash('login incorrect. Try again or join')
+            return redirect( url_for('index'))
+        hashed = row['hashed']
+        if hashed == passwd:
+            flash('successfully logged in as '+username)
+            session['username'] = username
+            session['uid'] = row['uid']
+            session['logged_in'] = True
+            session['visits'] = 1
+            return redirect( url_for('user', username=username) )
+        else:
+            flash('login incorrect. Try again or join')
+            return redirect( url_for('index'))
+    except Exception as err:
+        flash('form submission error '+str(err))
+        return redirect( url_for('index') )'''
+    
+@app.route('/logout/', methods=['GET', 'POST'])
+def logout():
+    print "hello"
+    
 
 if __name__ == '__main__':
     app.debug = True
