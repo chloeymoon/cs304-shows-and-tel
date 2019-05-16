@@ -328,6 +328,7 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
-
+        
+    
 if __name__ == '__main__':
     conn = getConn('final_project')

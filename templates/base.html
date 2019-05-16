@@ -17,6 +17,16 @@
   <li><a class="active" href={{url_for('index')}}>Home</a></li>
   <li><a class="active" href={{url_for('displayAll')}}>All</a></li>
   <li><a class="active" href={{url_for('add')}}>Add</a></li>
+
+<!-- signup and login button -->
+  {% if not session['logged_in'] %}
+    <li><a class="active" href={{url_for('signup')}}>Sign Up</a></li>
+    <li><a class="active" href={{url_for('login')}}>Login </a></li>
+  {% else %}
+    <li><a class="active" href={{url_for('index')}}>Logout</a></li>
+  {% endif %}
+  
+  
 </ul>
 
 <br>

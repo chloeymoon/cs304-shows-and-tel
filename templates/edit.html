@@ -122,21 +122,21 @@ $(document).ready(function() {
 
 $("#addwarning").on('click', function(){
   var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
-                    '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>'
+                    '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
-})
+});
 
 $("#addcreator").on('click', function(){
   var newCreator = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
-              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
+              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newCreator).insertAfter($(this).closest('.creator'));
-})
+});
 
 $("#addgenre").on('click', function(){
   var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="">'+
-              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
+              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newGenre).insertAfter($(this).closest('.genre'));
-})
+});
 
 $("#add-tag").on('click', function(){
   var newTag = `<tr class='tag'>
@@ -159,9 +159,9 @@ $("#add-tag").on('click', function(){
 })
 
 function deleteRow(elem){
-    console.log('deleting')
+    console.log('deleting');
     elem.closest('tr').remove();
-}
+};
 
 </script>
 {% endblock %}
