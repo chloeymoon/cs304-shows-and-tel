@@ -109,11 +109,7 @@ def getResultsByTags(conn, tag_names, tag_vals):
     ''' Returns all shows based on the search term using tags. Expects an input
         of a tuple of pairs (tag_val, tag_name) '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    # val = '%' + tag_val + '%'
-    # curs.execute('''select * from shows where sid in (select sid from tags where
-    #                 name=%s and val like %s)''', (tag_name, val))
     tags = tuple(zip(tag_vals, tag_names))
-    print(tags)
     curs.execute('''select * from shows where sid in
                     (select sid from tags where (val, name) in %s)''', (tags,))
     return curs.fetchall()
@@ -203,8 +199,16 @@ def insertGenres(conn,sid,genreList):
         gid = getGid(conn,genre)
         curs.execute('insert into showsGenres (sid,gid) values(%s, %s)',[sid,gid])
         
+def insertTags(conn, sid, tag_names, tag_vals):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    for i in range(len(tag_names)):
+        name = tag_names[i]
+        val = tag_vals[i]
+        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, name, val])
+        
 def insertShows(conn, title, year, cwList, genreList, script, description, 
-                creatorList, network, tag_name, tag_val):
+                creatorList, network, tag_names, tag_vals):
     ''' Inserts show, creator, show&creator relationship etc. to the database, 
         given form values '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -217,15 +221,9 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
-    curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-                    [sid, tag_name, tag_val])
-    
-    # Support for multiple tags to be added in beta version
-    # for i in range(len(tag_names)):
-    #     name = tag_names[i]
-    #     val = tag_vals[i]
-    #     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-    #                 [sid, name, val])
+    insertTags(conn, sid, tag_names, tag_vals)
+    # curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+    #                 [sid, tag_names, tag_vals])
 
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''

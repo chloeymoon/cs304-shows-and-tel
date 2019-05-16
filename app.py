@@ -51,11 +51,11 @@ def add():
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
         genreList=request.form.getlist('genre')
-        tag_name = request.form['tags'] #.getlist('tags')
-        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-args')
         filled = (title and year and genre and script and description
-                and creatorList and network and cwList and tag_name and tag_val)
-        if not(filled):
+                and creatorList and network and cwList and tag_names and tag_vals)
+        if not(filled): # Should this be taken care on in front-end?
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
@@ -63,7 +63,7 @@ def add():
             if(len(databaseTitles)==0):
                 functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 
-                                        tag_name, tag_val)
+                                        tag_names, tag_vals)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else: 

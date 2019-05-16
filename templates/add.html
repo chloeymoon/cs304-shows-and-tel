@@ -60,9 +60,9 @@
         </div>
         
         <p><label for="tags">Tags:</label>
-            <!--<button type="button" id="add-tag" name="tag-arg">-->
-            <!--    Add another tag-->
-            <!--</button>  -->
+            <button type="button" id="add-tag" name="add-tag">
+                Add another tag
+            </button>  
             <ul id="tags-list">
                 <div class=tag-input>
                     <li>
@@ -72,8 +72,8 @@
                         <option value='length'>Length</option>
                         <option value='type'>Type</option>
                     </select>
-                    <label for="tag-arg">
-                        <input type="text" id="tag-arg" name="tag-arg"/>
+                    <label for="tag-args">
+                        <input type="text" id="tag-args" name="tag-args"/>
                     </label>
                 </li></div>
             </ul></p>
@@ -94,8 +94,8 @@
 <script language="javascript">
 /* global $ */
 function addNewWarning(){
-    newwarning = $('#newcw').val();
-    warninghtml = '<ul id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+    var newwarning = $('#newcw').val();
+    var warninghtml = '<ul id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
                 +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></ul>'
     $(warninghtml).appendTo('.contentwarning')
 }
@@ -106,13 +106,13 @@ function deleteUl(elem){
 
 
 $("#cwbutton").on("click", function (e) {
-    selected = $("#warning-dropdown option:selected").text();
+    var selected = $("#warning-dropdown option:selected").text();
     if ($("#warning-dropdown option:selected").val()=="Other"){
         $("#newwarning_placeholder")
         .append('<ul>Add a new warning: <input type="text" id="newcw"/>' +
                     '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
     } else {
-        warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
+        var warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
                      +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
         $(warninghtml).appendTo(".contentwarning")
     }
@@ -121,7 +121,7 @@ $("#cwbutton").on("click", function (e) {
 
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
-    creatorhtml = '<ul><input type="text" id="creator" name="creator"/>'
+    var creatorhtml = '<ul><input type="text" id="creator" name="creator"/>'
             +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
     $(creatorhtml).appendTo(".creator")
 }
@@ -132,7 +132,7 @@ $("#add-tag").on("click", function (event) {
 });
 
 function addGenres() {
-    genrehtml = '<ul><input type="text" id="genre" name="genre"/>'
+    var genrehtml = '<ul><input type="text" id="genre" name="genre"/>'
             +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
     $(genrehtml).appendTo(".genre")
 }
