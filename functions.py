@@ -303,6 +303,60 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
+        
+        
+# def multiplesearch(conn, title, network, creator, genre, warning, tag_name, tag_val):
+#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+#     print title
+#     print network
+#     print creator
+#     print genre
+#     print warning
+#     print tag_name
+#     print tag_val
+#     title = '%'+title+'%'
+#     creator = '%'+creator+'%'
+#     genre = '%'+genre+'%'
+#     nid = getNid(conn,network)
+#     # startquery = 'select * from shows where title like %s and nid=%s'
+#     startquery = 'select * from table where'
+#     # 1:1 relationships
 
+#     # many to many relationships
+#     endquery = ''
+#     query = startquery + endquery
+#     curs.execute(query,[title,nid])
+#     return curs.fetchall()
+
+# def multiplesearch(conn, title, network, creator, genre, warning, tag_name, tag_val):
+#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+#     # ind = 0
+#     # category = ['title','network','creator','genre','warning']
+#     title = '%'+title+'%'
+#     creator = '%'+creator+'%'
+#     genre = '%'+genre+'%'
+#     # startquery = 'select * from shows where title like %s and nid=%s'
+#     print list
+#     startquery = 'select * from shows where'
+#     middlequery = ''
+#     # 1:1 relationship query
+#     if title is not '':
+#         middlequery+='title like {} and '.format(title)
+#     if network is not '':
+#         nid = getNid(conn,network)
+#         middlequery+='nid={} and '.format(nid)
+#     if creator is not '':
+#         middlequery = middlequery[:-5] + 'inner join '
+#     # for criteria in list:
+#     #     if criteria is not '':
+#     #         middlequery+='{} like {} and '.format(category[ind],criteria)
+#     #         print middlequery
+#     #     ind +=1
+#     middlequery = middlequery[:-4]
+#     # many to many relationships
+#     query = startquery+middlequery
+#     curs.execute(query)
+#     return curs.fetchall()
+    
 if __name__ == '__main__':
     conn = getConn('final_project')
