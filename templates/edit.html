@@ -73,20 +73,39 @@
           {% endfor %}
         <!--</div>-->
         
-        <td><label for="show-tag">Tags</label></td>
-          <td>
-            {% for tag in tags %}
-            <div class=tags-row name={{tag.name}}>
-              <p><select id="tags" name=tags>
+          {% for tag in tags %}
+          <tr class='tag'>
+            <td><label for="tags">Tags</label></td>
+            <td><select id="tags" name=tags>
                   <option value=''>Choose a tag</option>
                   <option value='pace'>Pace</option>
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
-              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>
-            </div>
-            {% endfor %}
-          </td>
+              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'>
+              {% if tag == tags[0] %}
+                <button type="button" name="add" id="add-tag">Add Tag</button>
+              {% elif tag != tags[0] %}
+              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        
+        <!--<td><label for="show-tag">Tags</label></td>-->
+        <!--  <td>-->
+        <!--    {% for tag in tags %}-->
+        <!--    <div class=tags-row name={{tag.name}}>-->
+        <!--      <p><select id="tags" name=tags>-->
+        <!--          <option value=''>Choose a tag</option>-->
+        <!--          <option value='pace'>Pace</option>-->
+        <!--          <option value='length'>Length</option>-->
+        <!--          <option value='type'>Type</option>-->
+        <!--      </select>-->
+        <!--      <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>-->
+        <!--    </div>-->
+        <!--    {% endfor %}-->
+        <!--  </td>-->
           
       </table>
       <input type="submit" name="submit" value="update">
@@ -116,6 +135,26 @@ $("#addgenre").on('click', function(){
   var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="">'+
               '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
   $(newGenre).insertAfter($(this).closest('.genre'));
+})
+
+$("#add-tag").on('click', function(){
+  var newTag = `<tr class='tag'>
+            <td><label for="tags">Tags</label></td>
+            <td><select id="tags" name=tags>
+                  <option value=''>Choose a tag</option>
+                  <option value='pace'>Pace</option>
+                  <option value='length'>Length</option>
+                  <option value='type'>Type</option>
+              </select>
+              <input id="tag-vals" name='tag-vals' value=''>
+              {% if tag == tags[0] %}
+                <button type="button" name="add" id="add-tag">Add Tag</button>
+              {% elif tag != tags[0] %}
+              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+            </td>
+          </tr>`;
+  $(newTag).insertAfter($(this).closest('.tag'));
 })
 
 function deleteRow(elem){
