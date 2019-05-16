@@ -46,9 +46,6 @@
         </label></p>
     </div>
         
-        <!--<p><label for=genre>Genre:-->
-        <!--    <input type="text" id="genre" name="genre" />-->
-        <!--</label></p>-->
     <div class="form-group">
         <div class="genre">
             <label for=genre>Genre: </label> <br>
@@ -74,25 +71,12 @@
             </select>
         </div>
     </div>
-
+    
     <div class="form-group">
-       <label for="tags">Tags:</label>
-            <button type="button" id="add-tag" name="add-tag">
-                Add another tag
-            </button>  
-            <div id="tags-list">
-                <div class=tag-input>
-                    <select class="form-control" id="tags" name="tags">
-                        <option value=''>Choose a tag</option>
-                        <option value='pace'>Pace</option>
-                        <option value='length'>Length</option>
-                        <option value='type'>Type</option>
-                    </select>
-                    <label for="tag-args">
-                        <input class="form-control" type="text" id="tag-args" name="tag-args"/>
-                    </label>
-                </div>
-            </div>
+        <div class="tags">
+            <label for="tags">Tags:</label>
+            <input type="button" class="btn btn-outline-primary" value="Add Tags" onclick="addTag()"/>
+        </div>
     </div>
         
     <div class="form-group">
@@ -116,17 +100,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
-function addNewWarning(){
-    var newwarning = $('#newcw').val();
-    var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
-                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></div>'
-    $(warninghtml).appendTo('.contentwarning')
-}
-
 function deleteUl(elem){
     elem.closest('div').remove();
 }
-
 
 $("#cwbutton").on("click", function (e) {
     var selected = $("#warning-dropdown option:selected").text();
@@ -141,7 +117,6 @@ $("#cwbutton").on("click", function (e) {
     }
 });
 
-
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
     var creatorhtml = '<div><input type="text" id="creator" name="creator"/>'
@@ -149,15 +124,35 @@ function addCreators() {
     $(creatorhtml).appendTo(".creator")
 }
 
-$("#add-tag").on("click", function (event) {
-    $("ul#tags-list").append($("div.tag-input").html())
-    console.log("Adding another tag input");
-});
-
 function addGenres() {
     var genrehtml = '<div><input type="text" id="genre" name="genre"/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
+}
+
+function addNewWarning(){
+    var newwarning = $('#newcw').val();
+    var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></div>'
+    $(warninghtml).appendTo('.contentwarning')
+}
+
+// Adds a new tag drop down menu for tag type and text box for tag value
+// when 'Add Tags' button is clicked
+function addTag(){
+    var taghtml = ` <div class=tag-input>
+                        <select class="form-control" id="tags" name="tags">
+                            <option value=''>Choose a tag</option>
+                            <option value='pace'>Pace</option>
+                            <option value='length'>Length</option>
+                            <option value='type'>Type</option>
+                        </select>
+                        <label for="tag-args">
+                            <input class="form-control" type="text" id="tag-args" name="tag-args"/>
+                        </label>
+                        <button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>
+                    </div>`;
+    $(taghtml).appendTo(".tags");
 }
 
 </script>
