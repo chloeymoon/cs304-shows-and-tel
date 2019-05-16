@@ -206,9 +206,11 @@ def insertTags(conn, sid, tag_names, tag_vals):
     ''' Given a show's ID and lists of tag names and values, inserts the 
         information into the tags table. '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    print("IN INSERTTAGS")
     for i in range(len(tag_names)):
         name = tag_names[i]
         val = tag_vals[i]
+        print('INSERTING', name, ',', val)
         curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, name, val])
         
@@ -226,6 +228,9 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
+    print("IN INSERT SHOWS")
+    print(tag_names)
+    print(tag_vals)
     insertTags(conn, sid, tag_names, tag_vals)
 
 # Update functions for Edit page
