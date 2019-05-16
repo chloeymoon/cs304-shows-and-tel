@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div class="row justify-content-center">
+<div class="col-md-6">
 <div show={{show}} creators={{creators}} warnings={{warnings}} genres={{genres}}>
     <h2>{{show.title}} ({{show.year}})</h2>
-    <a class="active" href={{url_for('edit',sid=show.sid)}}>Edit</a>
     <p>{{show.description}}</p>
     <ul>
         <li>Creator(s): 
@@ -39,6 +40,9 @@
         <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
         <li>Network: {{show.network}}</li>  
     </ul>
-</div>
+    <a class="active" href={{url_for('edit',sid=show.sid)}}><button type="button" class="btn btn-outline-danger">Edit</button></a>
 
+</div>
+</div>
+</div>
 {% endblock %}
