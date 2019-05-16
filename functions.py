@@ -105,12 +105,17 @@ def getResultsByNetwork(conn,term):
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
     
-def getResultsByTags(conn, tag_name, tag_val):
-    '''Returns all shows based on the search term using tags'''
+def getResultsByTags(conn, tag_names, tag_vals):
+    ''' Returns all shows based on the search term using tags. Expects an input
+        of a tuple of pairs (tag_val, tag_name) '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    val = '%' + tag_val + '%'
-    curs.execute('''select * from shows where sid in (select sid from tags where
-                    name=%s and val like %s)''', (tag_name, val))
+    # val = '%' + tag_val + '%'
+    # curs.execute('''select * from shows where sid in (select sid from tags where
+    #                 name=%s and val like %s)''', (tag_name, val))
+    tags = tuple(zip(tag_vals, tag_names))
+    print(tags)
+    curs.execute('''select * from shows where sid in
+                    (select sid from tags where (val, name) in %s)''', (tags,))
     return curs.fetchall()
     
 def getResultsByTitle(conn,term):
