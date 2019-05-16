@@ -11,7 +11,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Tables
 
 create table networks (
-    nid int,
+    nid int auto_increment,
     primary key (nid),
     name varchar(30) not null
 )
@@ -19,7 +19,7 @@ ENGINE = InnoDB;
 
 -- many to many because one show can have multiple content warnings and one content warning can have many shows
 create table contentwarnings (
-    cwid int,
+    cwid int auto_increment,
     primary key (cwid),
     name varchar(50)
 )
@@ -27,24 +27,24 @@ ENGINE = InnoDB;
 
 
 create table tags (
-    tid int,
+    tid int auto_increment,
     primary key (tid),
-    val varchar(30),
-    name ENUM('length', 'pace', 'type', 'N/a'),
+    name varchar(50),
+    val ENUM('length', 'pace', 'type'),
     sid int,
     foreign key(sid) references shows(sid) on delete cascade
 )
 ENGINE = InnoDB;
 
 create table creators (
-    cid int,
+    cid int auto_increment,
     primary key (cid),
     name varchar(60)
 )
 ENGINE = InnoDB;
 
 create table genres (
-    gid int,
+    gid int auto_increment,
     primary key (gid),
     name varchar(50)
 )
@@ -66,7 +66,7 @@ ENGINE = InnoDB;
 -- ENGINE = InnoDB;
 
 create table shows (
-    sid int,
+    sid int auto_increment,
     primary key (sid),
     title varchar(30),
     description varchar(1000),
