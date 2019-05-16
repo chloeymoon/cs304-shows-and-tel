@@ -74,7 +74,7 @@
         <!--</div>-->
         
           {% for tag in tags %}
-          <tr class='tag'>
+          <tr class='tag' name={{tag.name}}>
             <td><label for="tags">Tags</label></td>
             <td><select id="tags" name=tags>
                   <option value=''>Choose a tag</option>
@@ -115,8 +115,9 @@
 <script language="javascript">
 /* global $ */
 $(document).ready(function() {
-  var tag_name = $(".tags-row").attr("name");
-  $('#tags option[value='+tag_name+']').prop('selected', true);
+  var tag_name = $(".tag").attr("name");
+  console.log(tag_name);
+  // $('#tags option[value='+tag_name+']').prop('selected', true);
 });
 
 $("#addwarning").on('click', function(){
