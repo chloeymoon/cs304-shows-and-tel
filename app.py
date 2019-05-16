@@ -154,29 +154,6 @@ def search():
             
         return render_template('results.html', shows=shows)
 
-
-# @app.route('/search/', methods=['POST'])
-# def search():
-#     '''Displays all the user requested search results'''
-#     if request.method == 'POST':
-#         conn = functions.getConn('final_project')
-#         title = request.form['title']
-#         network = request.form['network']
-#         creator = request.form['creator']
-#         genre = request.form['genre']
-#         warning = request.form['contentwarning']
-#         tag_name = request.form['tags'] #.getlist('tags')
-#         tag_val = request.form['tag-arg'] #.getlist('tag-arg')
-
-#         if (title=='' and network=='' and creator=='' and warning==''
-#                       and tag_name=='' and tag_val=='' and genre==''):
-#             flash("Search using at least one criteria")
-#             return redirect(request.referrer)
-        
-#         shows = functions.multiplesearch(conn, title, network, creator, genre, warning, tag_name, tag_val)
-#         # print shows
-#         return render_template('results.html', shows=shows)
-        
 if __name__ == '__main__':
     app.debug = True
     app.run('0.0.0.0',8081)
