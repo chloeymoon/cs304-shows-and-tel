@@ -18,16 +18,6 @@ create table userpass(
         primary key (uid)
 );
 
--- ask which is better
--- create table userpass(
---       uid int auto_increment,
---       username varchar(50) not null,
---       hashed char(60),
---       unique(username),
---       index(username),
---       primary key (uid)
--- );
-
 -- likes table
 create table likes (
     sid int(10) unsigned,
