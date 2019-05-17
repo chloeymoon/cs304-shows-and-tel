@@ -21,6 +21,7 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                            for i in range(20) ])
 
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+app.config['UPLOADS'] = 'uploads'
 
 #a list of common contentwarnings
 #used in add() to allow users to choose from a set of warnings but also add new warnings
@@ -49,6 +50,7 @@ def add():
         year = request.form.get('year')
         genre = request.form.get('genre')
         script = request.form.get('script')
+        script_file = request.files['file']
         description = request.form.get('description')
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
@@ -56,17 +58,26 @@ def add():
         genreList=request.form.getlist('genre')
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-args')
-        print("IN ADD IN APP.PY")
-        print(tag_names)
-        print(tag_vals)
-        filled = (title and year and genre and script and description
-                and creatorList and network and cwList)
+        filled = (title and year and genre and (script or script_file)
+                and description and creatorList and network and cwList)
         if not(filled): # Should this be taken care on in front-end?
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
+                # Check to see if script file upload is a valid type
+                if script_file:
+                    mimetype = script_file.content_type.split('/')[1]
+                    if mimetype.lower() not in ['doc','docx','pdf']:
+                        msg = 'Not a DOC, DOCX or PDF: {}'.format(mimetype)
+                        flash(msg)
+                        return render_template('add.html')
+                    # If valid file type, then continue with file upload
+                    filename = secure_filename('{}.{}'.format(title,mimetype))
+                    pathname = os.path.join(app.config['UPLOADS'],filename)
+                    script_file.save(pathname)
+                    script = filename
                 functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 
                                         tag_names, tag_vals)
@@ -126,6 +137,13 @@ def edit(sid):
                         newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
+        
+@app.route('/script/<sid>')
+def script(sid):
+    conn = functions.getConn('final_project')
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    script = functions.getScript(conn, sid)
+    return script
 
 @app.route('/search/', methods=['POST'])
 def search():

@@ -8,8 +8,17 @@ Chloe Moon, Catherine Chen
 '''select * from table where (title = % or '')''' # title='' returns an empty string
 '''construct a view file'''
 '''lock for threads'''
+from flask import Flask, send_from_directory
 import sys
 import MySQLdb
+import functions, random, math
+
+app = Flask(__name__)
+app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                          'abcdefghijklmnopqrstuvxyz' +
+                                          '0123456789'))
+                           for i in range(20) ])
+app.config['UPLOADS'] = 'uploads'
 
 def getConn(db):
     '''Connects to local host'''
@@ -50,6 +59,14 @@ def getGenres(conn,sid):
                 +'where showsGenres.sid=shows.sid'+
                 ' and showsGenres.gid=genres.gid and shows.sid=%s', (sid,))
     return curs.fetchall()
+    
+def getScript(conn, sid):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    numrows = curs.execute('select script from shows where sid=%s', (sid,))
+    row =  curs.fetchone()
+    val = send_from_directory(app.config['UPLOADS'],
+                              row['script'])
+    return val
 
 def getShow(conn,sid):
     '''Returns show with network name given sid'''
@@ -206,11 +223,9 @@ def insertTags(conn, sid, tag_names, tag_vals):
     ''' Given a show's ID and lists of tag names and values, inserts the 
         information into the tags table. '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    print("IN INSERTTAGS")
     for i in range(len(tag_names)):
         name = tag_names[i]
         val = tag_vals[i]
-        print('INSERTING', name, ',', val)
         curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, name, val])
         
@@ -228,9 +243,6 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
-    print("IN INSERT SHOWS")
-    print(tag_names)
-    print(tag_vals)
     if tag_names and tag_vals: # If tags info exists, insert into database
         insertTags(conn, sid, tag_names, tag_vals)
 

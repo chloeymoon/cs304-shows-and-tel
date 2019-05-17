@@ -37,7 +37,7 @@
                 </ul>
             {% endfor %}
         </li>
-        <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
+        <li>Script: <a href="{{url_for('script',sid=show.sid)}}">{{show.script}}</a> </li>
         <li>Network: {{show.network}}</li>  
     </ul>
     <a class="active" href={{url_for('edit',sid=show.sid)}}><button type="button" class="btn btn-outline-danger">Edit</button></a>
