@@ -4,7 +4,7 @@ use final_project;
 drop table if exists ratings, logins;
 -- alter table movie drop column rating;
 
-create table ratings (
+create table likes (
     sid int(10) unsigned,
     uid int(10) unsigned,
     rating double,
