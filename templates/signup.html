@@ -9,16 +9,6 @@
 
 <p>Sign up using the form below:</p>
 
- {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div id="flashes">
-        {% for msg in messages %}
-            <p>{{msg}}</p>
-        {% endfor %}
-        </div>
-    {% endif %}
- {% endwith %}
-
 
 <form id="signupform" action="{{url_for('signup')}}" method="post">
     <p><label>Username: <input type="text" class="form-control" name="username" required pattern="^\w+$"></label></p>

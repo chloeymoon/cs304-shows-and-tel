@@ -24,7 +24,7 @@ body {
   position: relative;
   top: 0;
   width: 101%;
-  background-color: #6384b7;
+/*  background-color: #6384b7;*/
   display: flex;
   justify-content: flex-start;
 }

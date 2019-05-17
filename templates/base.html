@@ -16,22 +16,24 @@
 <ul id="navbar" class="navbar navbar-dark bg-dark" uid={{uid}}>
   <li><a class="active" href={{url_for('index')}}>Home</a></li>
   <li><a class="active" href={{url_for('displayAll')}}>All</a></li>
-  <li><a class="active" href={{url_for('add')}}>Add</a></li>
 
 <!-- signup and login button -->
-  {% if not session['logged_in'] %}
+<!--when user is not logged in-->
+  {% if not session['logged_in'] %} 
     <li><a class="active" href={{url_for('signup')}}>Sign Up</a></li>
     <li><a class="active" href={{url_for('login')}}>Login </a></li>
   {% else %}
-    <li><a class="active" href={{url_for('index')}}>Logout</a></li>
+<!--when user is logged in-->
+    <li><a class="active" href={{url_for('add')}}>Add</a></li>
+    <li><a class="active" href={{url_for('logout')}}>Logout</a></li>
   {% endif %}
   
   
 </ul>
-
 <br>
 </div>
 
+<div>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <div id="flashes">
@@ -41,11 +43,12 @@
     </div>
   {% endif %}
 {% endwith %}
+</div>
 
 {% block content %}
 
 {% endblock %}
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

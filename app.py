@@ -9,6 +9,7 @@ from werkzeug import secure_filename
 import functions, random, math
 
 import os
+import bcrypt
 import MySQLdb
 
 
@@ -186,68 +187,78 @@ def search():
         
 @app.route('/signup/', methods=['GET', 'POST'])
 def signup():
-    '''
-    conn = functions.getConn('final_project')
-    curs = curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    
-    
-    username = request.form['username']
-    passwd1 = request.form['password1']
-    passwd2 = request.form['password2']
-    if passwd1 != passwd2:
-        flash('passwords do not match')
-        return redirect( url_for('signup'))
-    print passwd1, type(passwd1)
-    hashed = passwd1
-    
-    try:
-        curs.execute('INSERT into userpass(uid,username,hashed) VALUES(null,%s,%s)', [username, hashed])
-        
-    except MySQLdb.IntegrityError as err:
-        flash('That username is taken')
-        return redirect(url_for('index'))
-    
-        
-    return render_template('signup.html')'''
-    return render_template('signup.html')
+    '''lets a user to sign up/join'''
+    if request.method=='GET':
+        return render_template('signup.html')
+    if request.method=='POST':
+        try:
+            username = request.form['username']
+            passwd1 = request.form['password1']
+            passwd2 = request.form['password2']
+            if passwd1 != passwd2:
+                flash('passwords do not match')
+                return redirect( url_for('signup'))
+            hashed = bcrypt.hashpw(passwd1.encode('utf-8'), bcrypt.gensalt())
+            conn = functions.getConn('final_project')
+            userRow = functions.checkUsername(conn,username)
+            if userRow is not None: #check if username exists in the database
+                flash('That username is taken')
+                return redirect( url_for('signup') )
+            functions.insertUser(conn,username,hashed)
+            session['username'] = username
+            session['logged_in'] = True
+            ###### decide and change this later ########
+            return redirect(url_for('login', username=username))
+        except Exception as err:
+            flash('form submission error '+str(err))
+            return redirect( url_for('signup') )
         
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
-    '''
-    try:
-        username = request.form['username']
-        passwd = request.form['password']
-        conn = functions.getConn('final_project')
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute('SELECT uid,hashed FROM userpass WHERE username = %s',
-                     [username])
-        row = curs.fetchone()
-        if row is None:
-            # Same response as wrong password, so no information about what went wrong
-            flash('login incorrect. Try again or join')
-            return redirect( url_for('index'))
-        hashed = row['hashed']
-        if hashed == passwd:
-            flash('successfully logged in as '+username)
-            session['username'] = username
-            session['uid'] = row['uid']
-            session['logged_in'] = True
-            session['visits'] = 1
-            return redirect( url_for('user', username=username) )
-        else:
-            flash('login incorrect. Try again or join')
-            return redirect( url_for('index'))
-    except Exception as err:
-        flash('form submission error '+str(err))
-        return redirect( url_for('index') )'''
-    
-@app.route('/logout/', methods=['GET', 'POST'])
+    if request.method=='GET':
+        return render_template('login.html')
+    if request.method=='POST':
+        try:
+            username = request.form['username']
+            passwd = request.form['password']
+            conn = functions.getConn('final_project')
+            userRow = functions.checkPW(conn,username)
+            if userRow is None:
+                flash('login incorrect (app.py 201). Try again or join')
+                return redirect(url_for('login'))
+            hashed = userRow['hashed']
+            #strings always come out as unicode, so have to encode
+            if bcrypt.hashpw(passwd.encode('utf-8'),hashed.encode('utf-8')) == hashed:
+                flash('successfully logged in as '+username)
+                session['username'] = username
+                session['logged_in'] = True
+                #### change this later
+                return redirect(url_for('login'))
+            else:
+                flash('login incorrect. Try again or join')
+                return redirect(url_for('login'))
+        except Exception as err:
+            flash('form submission error '+str(err))
+            return redirect( url_for('login') )
+            
+            
+@app.route('/logout/', methods=['POST','GET'])
 def logout():
-    print "hello"
-    
-
-
+    try:
+        if 'username' in session:
+            print session
+            username = session['username']
+            session.pop('username')
+            session.pop('logged_in')
+            flash('You are logged out')
+            print session
+            return redirect(url_for('index'))
+        else:
+            flash('you are not logged in. Please login or join')
+            return redirect( url_for('login') )
+    except Exception as err:
+        flash('some kind of error '+str(err))
+        return redirect( url_for('index') )
 
 if __name__ == '__main__':
     app.debug = True
