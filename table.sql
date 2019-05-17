@@ -22,7 +22,6 @@ create table userpass(
 create table likes (
     sid int(10) unsigned,
     uid int(10) unsigned,
-    num double,
     foreign key (sid) references shows (sid),
     foreign key (uid) references userpass (uid),
     primary key (sid, uid)

@@ -11,9 +11,9 @@
 
 
 <form id="signupform" action="{{url_for('signup')}}" method="post">
-    <p><label>Username: <input type="text" class="form-control" name="username" required pattern="^\w+$"></label></p>
-    <p><label>Password: <input type="password" class="form-control" name="password1" required> </label></p>
-    <p><label>Confirm Password: <input type="password" class="form-control" name="password2" required> </label></p>
+    <p><label for="username">Username: <input type="text" id="username" class="form-control" name="username" required pattern="^\w+$"></label></p>
+    <p><label for="password">Password: <input type="password" id="password" class="form-control" name="password1" required> </label></p>
+    <p><label for="confirm" >Confirm Password: <input type="password" id="confirm" class="form-control" name="password2" required> </label></p>
     <p><button type="submit" class="btn btn-success">Submit</button></p>
 </form>
 
