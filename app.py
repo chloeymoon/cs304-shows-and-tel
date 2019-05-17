@@ -146,6 +146,10 @@ def edit(sid):
                 return redirect(request.referrer)
         else:
             print("No new script")
+            if 'http' not in newscript:
+                flash('''Invalid script link. Please include http:// at the 
+                        beginning of the link.''')
+                return redirect(request.referrer)
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_names, tag_vals)
