@@ -24,12 +24,6 @@ lines terminated by '\n'
 (val, name, sid)
 set tid = NULL;
 
-load data local infile 'csv/Shows.csv' into table shows
-fields terminated by ';'
-lines terminated by '\n'
-(title, description, year, script, nid)
-set sid = NULL;
-
 load data local infile 'csv/Creators.csv' into table creators
 fields terminated by ','
 lines terminated by '\n'
@@ -49,6 +43,11 @@ load data local infile 'csv/ShowsGenres.csv' into table showsGenres
 fields terminated by ','
 lines terminated by '\n';
 
+load data local infile 'csv/Shows.csv' into table shows
+fields terminated by ';'
+lines terminated by '\n'
+(title, description, year, script, nid)
+set sid = NULL;
 
 -- load data local infile 'csv/Streams.csv' into table showsStreams
 -- fields terminated by ','
