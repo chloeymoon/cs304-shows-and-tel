@@ -162,7 +162,7 @@ def script(sid):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     script, is_local = functions.getScript(conn, sid)
     print("**************** IN SCRIPT ROUTE ****************")
-    print(script)
+    print(script, is_local)
     return script if (is_local=="local") else redirect(script)
 
 @app.route('/search/', methods=['POST'])
