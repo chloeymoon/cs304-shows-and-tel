@@ -38,7 +38,6 @@ load data local infile 'csv/ShowsCWs.csv' into table showsCWs
 fields terminated by ','
 lines terminated by '\n';
 
-
 load data local infile 'csv/ShowsGenres.csv' into table showsGenres
 fields terminated by ','
 lines terminated by '\n';
@@ -53,4 +52,4 @@ set sid = NULL;
 -- fields terminated by ','
 -- lines terminated by '\n';
 
-
+ALTER TABLE shows ADD COLUMN numLikes int not null default 0;

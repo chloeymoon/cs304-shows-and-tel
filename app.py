@@ -245,13 +245,14 @@ def logout():
 def likeShow():
     '''Uses Ajax; return a json object instead of redirecting'''
     if request.method == 'POST': 
-        conn = functions.getConn('wmdb')
-        #2 pieces of information: 1) tt 2) rating
+        conn = functions.getConn('final_project')
+        #we need 2 pieces of information: 1) uid 2) showid (sid)
         uid= session.get('uid','')
-        rating = request.form.get('rating')
-        tt = request.form.get('tt')
-        # movie_updated = functions.addUserRating(conn,tt,rating,uid)
+        print uid
+        sid = request.form.get('sid')
+        # show_updated = functions.addUserLikes(conn,sid,uid)
         # return jsonify(tt=tt, avg=movie_updated['rating'])
+        
         
 if __name__ == '__main__':
     app.debug = True
