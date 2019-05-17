@@ -12,10 +12,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- For Log in
 create table userpass(
-       -- uid int auto_increment,
-       username varchar(50) not null primary key,
-       hashed char(60)
-       -- primary key (uid)
+        uid int auto_increment,
+        username varchar(50) not null,
+        hashed char(60) not null,
+        primary key (uid)
 );
 
 -- ask which is better
@@ -27,6 +27,16 @@ create table userpass(
 --       index(username),
 --       primary key (uid)
 -- );
+
+-- likes table
+create table likes (
+    sid int(10) unsigned,
+    uid int(10) unsigned,
+    num double,
+    foreign key (sid) references shows (sid),
+    foreign key (uid) references userpass (uid),
+    primary key (sid, uid)
+); 
 
 
 create table networks (
