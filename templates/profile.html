@@ -5,7 +5,8 @@
 <div class="col-md-6">
 <div show={{show}} creators={{creators}} warnings={{warnings}} genres={{genres}}>
     {% if not session['logged_in'] %}
-        <p style="color: red;">You can't edit this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
+        <p style="color: red;">You can't edit this show because you are not 
+            logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
         <br>
     {% endif %}
     <h1>{{show.title}} ({{show.year}})</h1>
@@ -50,7 +51,9 @@
     </ul>
     
     {% if session['logged_in'] %}
-    <a class="active" href={{url_for('edit',sid=show.sid)}}><button type="button" class="btn btn-outline-danger">Edit</button></a>
+    <a class="active" href={{url_for('edit',sid=show.sid)}}>
+        <button type="button" class="btn btn-outline-danger">Edit</button>
+    </a>
     {% endif %}
 </div>
 </div>

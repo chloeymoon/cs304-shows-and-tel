@@ -12,15 +12,11 @@ import os
 import bcrypt
 import MySQLdb
 
-
 app = Flask(__name__)
-
-
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                                           'abcdefghijklmnopqrstuvxyz' +
                                           '0123456789'))
                            for i in range(20) ])
-
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 app.config['UPLOADS'] = 'uploads'
 
@@ -65,8 +61,6 @@ def add():
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
-            # databaseTitles = functions.getResultsByTitle(conn, title)
-            # if(len(databaseTitles)==0):
             # Check to see if script file upload is a valid type
             filename = functions.isValidScriptType(script_file, title)
             if filename:
@@ -84,7 +78,6 @@ def add():
                 insert
                 flash("TV show: " + title + " successfully inserted")
             return render_template('add.html')
-
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
@@ -94,20 +87,6 @@ def displayAll():
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
 
-@app.route('/profile/<int:sid>/', methods=['GET'])
-def profile(sid):
-    '''Displays profile page of the show based on show id (sid)'''
-    if request.method == 'GET':
-        conn = functions.getConn('final_project')
-        show = functions.getShow(conn,sid)
-        print(show["script"])
-        creators = functions.getCreators(conn,sid)
-        warnings = functions.getWarnings(conn,sid)
-        genres = functions.getGenres(conn,sid)
-        tags = functions.getTags(conn,sid)
-        return render_template('profile.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags, genres=genres)
-        
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
     '''Edits/updates profile page of the show based on show id (sid)'''
@@ -154,20 +133,20 @@ def edit(sid):
                         newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
-        
-@app.route('/script/<sid>')
-def script(sid):
-    ''' This may be a kinda hacky thing to do, but if a script is local, aka
-        stored in our filesystem, then we render it the normal way by passing
-        the filepath to our profile template. If the script is external, aka
-        we stored a http link in our database, then we do a straight redirect
-        to that stored URL. '''
-    conn = functions.getConn('final_project')
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    script, is_local = functions.getScript(conn, sid)
-    print("**************** IN SCRIPT ROUTE ****************")
-    print(script, is_local)
-    return script if (is_local=="local") else redirect(script)
+
+@app.route('/profile/<int:sid>/', methods=['GET'])
+def profile(sid):
+    '''Displays profile page of the show based on show id (sid)'''
+    if request.method == 'GET':
+        conn = functions.getConn('final_project')
+        show = functions.getShow(conn,sid)
+        print(show["script"])
+        creators = functions.getCreators(conn,sid)
+        warnings = functions.getWarnings(conn,sid)
+        genres = functions.getGenres(conn,sid)
+        tags = functions.getTags(conn,sid)
+        return render_template('profile.html', show=show, creators=creators, 
+                                warnings=warnings, tags=tags, genres=genres)
 
 @app.route('/search/', methods=['POST'])
 def search():
@@ -202,34 +181,7 @@ def search():
             shows = functions.getResultsByContentWarning(conn,contentwarning)
         return render_template('results.html', shows=shows)
         
-@app.route('/signup/', methods=['GET', 'POST'])
-def signup():
-    '''lets a user to sign up/join'''
-    if request.method=='GET':
-        return render_template('signup.html')
-    if request.method=='POST':
-        try:
-            username = request.form['username']
-            passwd1 = request.form['password1']
-            passwd2 = request.form['password2']
-            if passwd1 != passwd2:
-                flash('passwords do not match')
-                return redirect( url_for('signup'))
-            hashed = bcrypt.hashpw(passwd1.encode('utf-8'), bcrypt.gensalt())
-            conn = functions.getConn('final_project')
-            userRow = functions.checkUsername(conn,username)
-            if userRow is not None: #check if username exists in the database
-                flash('That username is taken')
-                return redirect( url_for('signup') )
-            functions.insertUser(conn,username,hashed)
-            session['username'] = username
-            session['logged_in'] = True
-            flash('signed up and logged in as '+username)
-            return redirect(url_for('index'))
-        except Exception as err:
-            flash('form submission error '+str(err))
-            return redirect( url_for('signup') )
-        
+# User session routes
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method=='GET':
@@ -258,7 +210,6 @@ def login():
             print 'form submission error '+str(err)
             return redirect( url_for('login') )
             
-            
 @app.route('/logout/', methods=['POST','GET'])
 def logout():
     try:
@@ -277,7 +228,35 @@ def logout():
         flash('some kind of error '+str(err))
         return redirect( url_for('index') )
 
+@app.route('/signup/', methods=['GET', 'POST'])
+def signup():
+    '''lets a user to sign up/join'''
+    if request.method=='GET':
+        return render_template('signup.html')
+    if request.method=='POST':
+        try:
+            username = request.form['username']
+            passwd1 = request.form['password1']
+            passwd2 = request.form['password2']
+            if passwd1 != passwd2:
+                flash('passwords do not match')
+                return redirect( url_for('signup'))
+            hashed = bcrypt.hashpw(passwd1.encode('utf-8'), bcrypt.gensalt())
+            conn = functions.getConn('final_project')
+            userRow = functions.checkUsername(conn,username)
+            if userRow is not None: #check if username exists in the database
+                flash('That username is taken')
+                return redirect( url_for('signup') )
+            functions.insertUser(conn,username,hashed)
+            session['username'] = username
+            session['logged_in'] = True
+            flash('signed up and logged in as '+username)
+            return redirect(url_for('index'))
+        except Exception as err:
+            flash('form submission error '+str(err))
+            return redirect( url_for('signup') )
 
+# Other routes for non-templated pages
 @app.route('/likeShow/', methods=['POST'])
 def likeShow():
     '''Uses Ajax; return a json object instead of redirecting'''
@@ -289,6 +268,20 @@ def likeShow():
         tt = request.form.get('tt')
         # movie_updated = functions.addUserRating(conn,tt,rating,uid)
         # return jsonify(tt=tt, avg=movie_updated['rating'])
+        
+@app.route('/script/<sid>')
+def script(sid):
+    ''' This may be a kinda hacky thing to do, but if a script is local, aka
+        stored in our filesystem, then we render it the normal way by passing
+        the filepath to our profile template. If the script is external, aka
+        we stored a http link in our database, then we do a straight redirect
+        to that stored URL. '''
+    conn = functions.getConn('final_project')
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    script, is_local = functions.getScript(conn, sid)
+    print("**************** IN SCRIPT ROUTE ****************")
+    print(script, is_local)
+    return script if (is_local=="local") else redirect(script)
 
 if __name__ == '__main__':
     app.debug = True

@@ -9,12 +9,11 @@ Chloe Moon, Catherine Chen
 '''construct a view file'''
 '''lock for threads'''
 from flask import Flask, flash, send_from_directory
+from threading import Lock
 from werkzeug import secure_filename
 import os, sys
 import MySQLdb
 import functions, random, math
-from threading import Lock
-import time
 
 app = Flask(__name__)
 app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
@@ -150,16 +149,16 @@ def getResultsByTitle(conn,term):
     return curs.fetchall()
 
 # ID Getters
-def getNid(conn,networkName):
-    '''Returns nid based on network name'''
+def getCid(conn,creatorName):
+    '''Returns cid based on creator name'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select nid from networks where name = %s',[networkName])
+    curs.execute('select cid from creators where name = %s',[creatorName])
     res = curs.fetchone()
     if res:
-        return res['nid']
+        return res['cid']
     else:
         return None
-    
+        
 def getCWid(conn,cw):
     '''Returns cwid based on contentwarning'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -167,6 +166,26 @@ def getCWid(conn,cw):
     res = curs.fetchone()
     if res:
         return res['cwid']
+    else:
+        return None
+        
+def getGid(conn,genre):
+    '''Returns cid based on creator name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select gid from genres where name = %s',[genre])
+    res = curs.fetchone()
+    if res:
+        return res['gid']
+    else:
+        return None
+        
+def getNid(conn,networkName):
+    '''Returns nid based on network name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select nid from networks where name = %s',[networkName])
+    res = curs.fetchone()
+    if res:
+        return res['nid']
     else:
         return None
     
@@ -179,29 +198,8 @@ def getSid(conn,showTitle):
         return res['sid']
     else:
         return None
-
-def getCid(conn,creatorName):
-    '''Returns cid based on creator name'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select cid from creators where name = %s',[creatorName])
-    res = curs.fetchone()
-    if res:
-        return res['cid']
-    else:
-        return None
-
-def getGid(conn,genre):
-    '''Returns cid based on creator name'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select gid from genres where name = %s',[genre])
-    res = curs.fetchone()
-    if res:
-        return res['gid']
-    else:
-        return None
         
 # helper functions for insertShows: many-to-many relationships (Contentwarnings, Creators)
-
 def insertContentwarnings(conn,sid,cwList):
     '''Inserts each creator's id first if not already in the database. Also inserts the relationship (e.g. showsCWs).'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -228,16 +226,6 @@ def insertGenres(conn,sid,genreList):
             curs.execute('insert into genres (name) values(%s)', [genre])
         gid = getGid(conn,genre)
         curs.execute('insert into showsGenres (sid,gid) values(%s, %s)',[sid,gid])
-
-def insertTags(conn, sid, tag_names, tag_vals):
-    ''' Given a show's ID and lists of tag names and values, inserts the 
-        information into the tags table. '''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    for i in range(len(tag_names)):
-        name = tag_names[i]
-        val = tag_vals[i]
-        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-                    [sid, name, val])
                     
 def insertShows(conn, title, year, cwList, genreList, script, description, 
                 creatorList, network, tag_names, tag_vals):
@@ -264,6 +252,16 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     lock.release()
     return True
     
+def insertTags(conn, sid, tag_names, tag_vals):
+    ''' Given a show's ID and lists of tag names and values, inserts the 
+        information into the tags table. '''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    for i in range(len(tag_names)):
+        name = tag_names[i]
+        val = tag_vals[i]
+        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, name, val])
+                    
 # Helper function for script upload
 def isValidScriptType(script_file, title):
     ''' Given a document from a file upload, check to see if it is a valid 
@@ -282,6 +280,7 @@ def isValidScriptType(script_file, title):
     print(" *** NEW SCRIPT SAVED *** ")
     return filename 
 
+# Update functions
 def updateCreators(conn,sid,newCreators):
     ''''Given a list of new creators, compares it with old creators and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)

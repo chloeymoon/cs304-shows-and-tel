@@ -15,10 +15,12 @@
                 <div class=form-inputs>
                     <input type="hidden" name="uid" value="{{uid}}">
                     <p><label for=title>Title:
-                        <input type="text"  class="form-control" id="title" name="title" />
+                        <input type="text" class="form-control" id="title" 
+                                name="title" />
                     </label></p>
                     <p><label for=creator>Creator:
-                        <input type="text"  class="form-control" id="creator" name="creator" />
+                        <input type="text" class="form-control" id="creator" 
+                                name="creator" />
                     </label></p>
 
                     <p><label for=genre>Genre:
@@ -33,7 +35,6 @@
                             {% endfor %}
                         </select>
                     </label></p>
-                    
                     
                     <p><label for=contentwarning>Content Warning:
                         <select id="contentwarning" class="form-control" name="contentwarning" />
@@ -57,11 +58,13 @@
                             </select>
                             
                         <label for=tag-args>Tag Name
-                                <input type="text" class="form-control" id="tag-args" name="tag-args"/>
+                                <input type="text" class="form-control" 
+                                        id="tag-args" name="tag-args"/>
                          </label>
                     </div>
                     </ul>
-                     <button type="button" class="btn btn-outline-primary" id="add-tag" name="add-tag">
+                     <button type="button" class="btn btn-outline-primary" 
+                            id="add-tag" name="add-tag">
                         Add another tag
                     </button>  
                     <br> <br>

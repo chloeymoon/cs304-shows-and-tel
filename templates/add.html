@@ -60,7 +60,8 @@
                     {% endif %}
                 {% endfor %}
                 <option value="Other">Other (Add a new warning)</option> 
-                <input type="button" class="btn btn-outline-primary" value="Add" id="cwbutton" name="cwbutton"/>
+                <input type="button" class="btn btn-outline-primary" value="Add" 
+                        id="cwbutton" name="cwbutton"/>
                <span id="newwarning_placeholder"></span>
             </select>
         </div>
@@ -88,7 +89,8 @@
 
     <div class="form-group">
         <p><label for=description>Description:</label>
-            <textarea class="form-control" id="description" rows="4" cols="110" name='description'></textarea>
+            <textarea class="form-control" id="description" rows="4" cols="110"
+                        name='description'></textarea>
         </p>
         
     </div>
@@ -102,6 +104,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+// Helper function to remove input
 function deleteUl(elem){
     elem.closest('div').remove();
 }
@@ -119,6 +122,7 @@ $("#cwbutton").on("click", function (e) {
     }
 });
 
+// Adds a new input for creator on button click
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
     var creatorhtml = '<div><input type="text" id="creator" name="creator" required/>'
@@ -126,12 +130,14 @@ function addCreators() {
     $(creatorhtml).appendTo(".creator")
 }
 
+// Adds a new input for genre on button click
 function addGenres() {
     var genrehtml = '<div><input type="text" id="genre" name="genre" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
 }
 
+// Adds a new input for content warning on button click
 function addNewWarning(){
     var newwarning = $('#newcw').val();
     var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
