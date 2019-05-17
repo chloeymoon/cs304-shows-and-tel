@@ -54,11 +54,14 @@ def add():
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
         genreList=request.form.getlist('genre')
-        tag_name = request.form['tags'] #.getlist('tags')
-        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-args')
+        print("IN ADD IN APP.PY")
+        print(tag_names)
+        print(tag_vals)
         filled = (title and year and genre and script and description
-                and creatorList and network and cwList and tag_name and tag_val)
-        if not(filled):
+                and creatorList and network and cwList)
+        if not(filled): # Should this be taken care on in front-end?
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
@@ -66,7 +69,7 @@ def add():
             if(len(databaseTitles)==0):
                 functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 
-                                        tag_name, tag_val)
+                                        tag_names, tag_vals)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else: 
@@ -117,11 +120,11 @@ def edit(sid):
         newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
-        tag_name = request.form['tags']
-        tag_val = request.form['tag-vals']
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-vals')
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
-                        newcreators, tag_name, tag_val)
+                        newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
 
 @app.route('/search/', methods=['POST'])
@@ -134,11 +137,11 @@ def search():
         creator = request.form['creator']
         genre = request.form['genre']
         contentwarning = request.form['contentwarning']
-        tag_name = request.form['tags'] #.getlist('tags')
-        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-args')
 
         if (title=='' and network=='' and creator=='' and contentwarning==''
-                      and tag_name=='' and tag_val=='' and genre==''):
+                      and tag_names=='' and tag_vals=='' and genre==''):
             flash("Search using at least one criteria")
             return redirect(request.referrer)
             
@@ -150,8 +153,8 @@ def search():
             shows = functions.getResultsByCreator(conn,creator)
         if genre:
             shows = functions.getResultsByGenre(conn,genre)
-        if tag_name and tag_val:
-            shows = functions.getResultsByTags(conn, tag_name, tag_val)
+        if tag_names and tag_vals:
+            shows = functions.getResultsByTags(conn, tag_names, tag_vals)
         if contentwarning:
             shows = functions.getResultsByContentWarning(conn,contentwarning)
             
