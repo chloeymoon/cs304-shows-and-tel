@@ -12,33 +12,12 @@
    <!-- <link href="floating-labels.css" rel="stylesheet"> -->
 </head>
 <body>
-<!--
-<nav class="navbar navbar-dark bg-dark">
-  <div class="navbar-nav">
-  <a class="nav-item nav-link active" href={{url_for('index')}}>Home</a>
-  <a class="nav-item nav-link active" href={{url_for('displayAll')}}>All</a>
-
-
-
-  {% if not session['logged_in'] %} 
-    <a class="nav-item nav-link active" href={{url_for('signup')}}>Sign Up</a>
-    <a class="nav-item nav-link active" href={{url_for('login')}}>Login </a>
-  {% else %}
-    <a class="nav-item nav-link active" href={{url_for('add')}}>Add</a>
-    <a class="nav-item nav-link active" href={{url_for('logout')}}>Logout</a>
-  {% endif %}
-
-  </div>
-  </div>
-</nav>
-<br>
--->
 
 
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="">Shows & Tel</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
-        <span class="navbar-toggler-icon"></span>
+    <button value="toggle" name="toggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
+        <span class="navbar-toggler-icon"></span>"
     </button>
     <div class="navbar-collapse collapse" id="collapsingNavbar">
         <ul class="navbar-nav">

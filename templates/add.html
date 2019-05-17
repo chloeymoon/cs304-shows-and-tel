@@ -29,7 +29,7 @@
 
     <div class="form-group">
         <div class="creator">
-            <label for=creator>Creator: </label> <br>
+            <label for="creator">Creator: </label> <br>
             <input type="button" class="btn btn-outline-primary" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
         </div>
     </div>
@@ -55,7 +55,7 @@
 
     <div class="form-group">
         <div class="contentwarning">
-            <label for=contentwarning>Content Warning: </label>
+            <label for=warning-dropdown>Content Warning: </label>
             <select class="form-control" name="warning-dropdown" id="warning-dropdown"> 
                 {% for common in commonWarnings %}
                     <option value={{common}}>{{common}}</option>
@@ -74,8 +74,8 @@
     
     <div class="form-group">
         <div class="tags">
-            <label for="tags">Tags:</label>
-            <input type="button" class="btn btn-outline-primary" value="Add Tags" onclick="addTag()"/>
+            <label for=tag>Tags:</label>
+            <input type="button" id="tag" class="btn btn-outline-primary" name="tag" value="Add Tags" onclick="addTag()"/>
         </div>
     </div>
         
@@ -86,10 +86,10 @@
     </div>
 
     <div class="form-group">
-        <p><label for=description>Description:
+        <p><label for=description>Description:</label>
             <!--<input type="text" id="description" name="description" />-->
-            <textarea class="form-control" rows="4" cols="110" name='description'></textarea>
-        </label></p>
+            <textarea class="form-control" id="description" rows="4" cols="110" name='description'></textarea>
+        </p>
         
     </div>
         <p><button type="submit" class="btn btn-success">Submit</button></p>
