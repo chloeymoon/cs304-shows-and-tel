@@ -10,6 +10,9 @@ Chloe Moon, Catherine Chen
 '''lock for threads'''
 import sys
 import MySQLdb
+from threading import Lock
+
+lock = Lock()
 
 def getConn(db):
     '''Connects to local host'''
@@ -173,30 +176,35 @@ def insertContentwarnings(conn,sid,cwList):
     '''Inserts each creator's id first if not already in the database. Also inserts the relationship (e.g. showsCWs).'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for cw in cwList:
+        lock.acquire()
         if getCWid(conn,cw) is None:
             curs.execute('insert into contentwarnings (name) values(%s)', [cw])
         cwid=getCWid(conn,cw)
         curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
+        lock.release()
+        
 
 def insertCreators(conn,sid,creatorList):
     '''Inserts each cw's id first if not already in the database. Also inserts the relationship.'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for creator in creatorList:
+        lock.acquire()
         if getCid(conn,creator) is None:
             curs.execute('insert into creators (name) values(%s)', [creator])
         cid = getCid(conn,creator)
         curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+        lock.release()
 
 def insertGenres(conn,sid,genreList):
     '''Inserts each cw's id first if not already in the database. Also inserts the relationship.'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for genre in genreList:
+        lock.acquire()
         if getGid(conn,genre) is None:
             curs.execute('insert into genres (name) values(%s)', [genre])
-        print "------- genre here --------"
-        print genre
         gid = getGid(conn,genre)
         curs.execute('insert into showsGenres (sid,gid) values(%s, %s)',[sid,gid])
+        lock.release()
         
 def insertShows(conn, title, year, cwList, genreList, script, description, 
                 creatorList, network, tag_name, tag_val):
@@ -204,6 +212,7 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
         given form values '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # check if network exists and, if not, inserts the network in the networks table
+    lock.acquire()
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
@@ -214,6 +223,7 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertGenres(conn,sid, genreList)
     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, tag_name, tag_val])
+    lock.release()
     
     # Support for multiple tags to be added in beta version
     # for i in range(len(tag_names)):
