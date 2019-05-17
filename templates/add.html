@@ -101,6 +101,10 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
+
+//for unique ids for accessibility
+var counter = 0;
+
 /* global $ */
 function deleteUl(elem){
     elem.closest('div').remove();
@@ -113,7 +117,7 @@ $("#cwbutton").on("click", function (e) {
         .append('<div>Add a new warning: <input type="text" id="newcw"/>' +
                     '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></div>');
     } else {
-        var warninghtml = '<div id="warning"><input type="text"  id="cw" value="'+selected+'" name="cw"/>'
+        var warninghtml = '<div id="warning"><label for="' + counter.toString() + '">CW</label><input type="text"  id="' + counter.toString() + '" value="'+selected+'" name="cw"/>'
                      +'<button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
         $(warninghtml).appendTo(".contentwarning")
     }
@@ -121,40 +125,45 @@ $("#cwbutton").on("click", function (e) {
 
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
-    var creatorhtml = '<div><input type="text" id="creator" name="creator" required/>'
+    var creatorhtml = '<div><label for="' + counter.toString() + '">Creator</label><input id="' + counter.toString() + '" type="text" id="creator" name="creator" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(creatorhtml).appendTo(".creator")
+    counter++;
 }
 
 function addGenres() {
-    var genrehtml = '<div><input type="text" id="genre" name="genre" required/>'
+    var genrehtml = '<div><label for="' + counter.toString() + '">Genre</label><input id="' + counter.toString() + '" type="text" id="genre" name="genre" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
+    counter++;
 }
 
 function addNewWarning(){
     var newwarning = $('#newcw').val();
-    var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+    var warninghtml = '<div id="warning"><label for="' + counter.toString() + '">Warning</label><input id="' + counter.toString() + '" type="text" value="'+newwarning+'" name="cw"/>'
                 +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></div>'
     $(warninghtml).appendTo('.contentwarning')
+    counter++;
 }
 
 // Adds a new tag drop down menu for tag type and text box for tag value
 // when 'Add Tags' button is clicked
 function addTag(){
     var taghtml = ` <div class=tag-input>
-                        <select class="form-control" id="tags" name="tags">
+                        <label for="` + (counter+1).toString() + `">Tag</label>
+                        <select class="form-control" id="` + (counter+1).toString() + `" name="tags">
                             <option value=''>Choose a tag</option>
                             <option value='pace'>Pace</option>
                             <option value='length'>Length</option>
                             <option value='type'>Type</option>
                         </select>
-                        <label for="tag-args">
-                            <input class="form-control" type="text" id="tag-args" name="tag-args" required/>
+                        <label for="` + counter.toString() + `">Tag
+                            <input class="form-control" type="text" id="` + counter.toString() + `" name="tag-args" required/>
                         </label>
                         <button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>
                     </div>`;
     $(taghtml).appendTo(".tags");
+    counter=counter+2;
 }
 
 </script>

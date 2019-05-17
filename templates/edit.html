@@ -122,6 +122,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+
+//for unique ids for accessibility
 var counter = 0;
 
 $(document).ready(function() {
@@ -131,21 +133,21 @@ $(document).ready(function() {
 });
 
 $("#addwarning").on('click', function(){
-  var newWarning = '<tr><td><label for=' + counter.toString() + '>Content Warning</label></td><td><input id=' + counter.toString() + 'name="show-warnings" id="show-warnings" value="">' +
+  var newWarning = '<tr><td><label for=' + counter.toString() + '>Content Warning</label></td><td><input id="' + counter.toString() + '" name="show-warnings" id="show-warnings" value="">' +
                     '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
   counter++;
 });
 
 $("#addcreator").on('click', function(){
-  var newCreator = ('<tr><td><label for=' + counter.toString() + '>Creator</label></td><td><input id=' + counter.toString() + 'name="show-creators" id="show-creators" value="">'+
+  var newCreator = ('<tr><td><label for=' + counter.toString() + '>Creator</label></td><td><input id="' + counter.toString() + '" name="show-creators" id="show-creators" value="">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newCreator).insertAfter($(this).closest('.creator'));
   counter++;
 });
 
 $("#addgenre").on('click', function(){
-  var newGenre = ('<tr><td><label for=' + counter.toString() + '>Genre</label></td><td><input id=' + counter.toString() + 'name="show-genres" value="" id="show-genres">'+
+  var newGenre = ('<tr><td><label for=' + counter.toString() + '>Genre</label></td><td><input id="' + counter.toString() + '" name="show-genres" value="" id="show-genres">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newGenre).insertAfter($(this).closest('.genre'));
   counter++;
@@ -154,14 +156,14 @@ $("#addgenre").on('click', function(){
 $("#add-tag").on('click', function(){
   var newTag = `<tr class='tag'>
             <td><label for="tags">Tags</label></td>
-            <td><select id="tags" name=tags>
+            <td><select id="tags" class="form-control" name=tags>
                   <option value=''>Choose a tag</option>
                   <option value='pace'>Pace</option>
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
-              <input id="tag-vals" name='tag-vals' value='' required>
-              {% if tag == tags[0] %}
+              <label for="` + counter.toString() + `">Tags</label>
+              <input id="` + counter.toString() + `" name='tag-vals' value='' required>
                 <button type="button" name="add" id="add-tag">Add Tag</button>
               {% elif tag != tags[0] %}
               <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
