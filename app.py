@@ -22,6 +22,7 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
                            for i in range(20) ])
 
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+app.config['UPLOADS'] = 'uploads'
 
 #a list of common contentwarnings
 #used in add() to allow users to choose from a set of warnings but also add new warnings
@@ -50,6 +51,7 @@ def add():
         year = request.form.get('year')
         genre = request.form.get('genre')
         script = request.form.get('script')
+        script_file = request.files['file']
         description = request.form.get('description')
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
@@ -57,14 +59,20 @@ def add():
         genreList=request.form.getlist('genre')
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-args')
-        filled = (title and year and genre and script and description
-                and creatorList and network and cwList)
+        filled = (title and year and genre and (script or script_file)
+                and description and creatorList and network and cwList)
         if not(filled): # Should this be taken care on in front-end?
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
             # databaseTitles = functions.getResultsByTitle(conn, title)
             # if(len(databaseTitles)==0):
+            # Check to see if script file upload is a valid type
+            filename = functions.isValidScriptType(script_file, title)
+            if filename:
+                script = filename
+            else: # file is not a valid type
+                return redirect(request.referrer)
             insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
                                 description, creatorList, network, 
                                 tag_names, tag_vals)
@@ -92,6 +100,7 @@ def profile(sid):
     if request.method == 'GET':
         conn = functions.getConn('final_project')
         show = functions.getShow(conn,sid)
+        print(show["script"])
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
         genres = functions.getGenres(conn,sid)
@@ -117,15 +126,48 @@ def edit(sid):
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
         newscript = request.form['show-script']
+        try:
+            newfile = request.files['file']
+        except:
+            newfile = False
         newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-vals')
+        if newfile:
+            filename = functions.isValidScriptType(newfile, newtitle)
+            if filename:
+                newscript = filename
+                print("*** NEW SCRIPT FILE ***")
+                flash('''New script uploaded. Please hit SHIFT-REFRESH to refresh 
+                the cache and see the new script if it has not updated.''')
+            else: # file is not a valid type
+                return redirect(request.referrer)
+        else:
+            print("No new script")
+            if 'http' not in newscript:
+                flash('''Invalid script link. Please include http:// at the 
+                        beginning of the link.''')
+                return redirect(request.referrer)
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
+        
+@app.route('/script/<sid>')
+def script(sid):
+    ''' This may be a kinda hacky thing to do, but if a script is local, aka
+        stored in our filesystem, then we render it the normal way by passing
+        the filepath to our profile template. If the script is external, aka
+        we stored a http link in our database, then we do a straight redirect
+        to that stored URL. '''
+    conn = functions.getConn('final_project')
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    script, is_local = functions.getScript(conn, sid)
+    print("**************** IN SCRIPT ROUTE ****************")
+    print(script, is_local)
+    return script if (is_local=="local") else redirect(script)
 
 @app.route('/search/', methods=['POST'])
 def search():
@@ -247,7 +289,7 @@ def likeShow():
         tt = request.form.get('tt')
         # movie_updated = functions.addUserRating(conn,tt,rating,uid)
         # return jsonify(tt=tt, avg=movie_updated['rating'])
-        
+
 if __name__ == '__main__':
     app.debug = True
     app.run('0.0.0.0',8082)

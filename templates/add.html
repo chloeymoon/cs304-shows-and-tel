@@ -6,18 +6,8 @@
 <div class="row justify-content-center">
 <div class="col-md-5">
 
-
-<!--{% with messages = get_flashed_messages() %}-->
-<!--  {% if messages %}-->
-<!--    <div id="flashes">-->
-<!--    {% for msg in messages %}-->
-<!--      <p>{{msg}}</p>-->
-<!--    {% endfor %}-->
-<!--    </div>-->
-<!--  {% endif %}-->
-<!--{% endwith %}-->
-
-<form name="add" id="add" method=POST action={{url_for('add')}}>
+<form name="add" id="add" method=POST 
+    enctype = "multipart/form-data" action={{url_for('add')}}>
     
 <div class=form-inputs>
     <div class="form-group">
@@ -81,13 +71,16 @@
         
     <div class="form-group">
         <p><label for=script>Link to Script:
-            <input class="form-control" type="text" id="script" name="script" size="100"/>
+            <input class="form-control" type="text" id="script" name="script" 
+                    size="100" placeholder="http://"/>
+            <p>Or upload a file (.doc, .docx, or .pdf):
+                <input type="file" name ="file" />
+            </p>
         </label></p>
     </div>
 
     <div class="form-group">
         <p><label for=description>Description:</label>
-            <!--<input type="text" id="description" name="description" />-->
             <textarea class="form-control" id="description" rows="4" cols="110" name='description'></textarea>
         </p>
         
