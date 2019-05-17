@@ -5,7 +5,7 @@
 <div class="col-md-6">
 <div show={{show}} creators={{creators}} warnings={{warnings}} genres={{genres}}>
     {% if not session['logged_in'] %}
-        <p>You can't edit this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
+        <p style="color: red;">You can't edit this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
         <br>
     {% endif %}
     <h2>{{show.title}} ({{show.year}})</h2>
@@ -37,7 +37,7 @@
         <li>Tags:
             {% for tag in tags %}
                 <ul class="inside">
-                <li>{{tag.val}}: {{tag.name}}</li>
+                <li>{{tag.name}}: {{tag.val}}</li>
                 </ul>
             {% endfor %}
         </li>

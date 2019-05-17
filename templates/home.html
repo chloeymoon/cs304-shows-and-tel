@@ -48,23 +48,25 @@
                     </label></p>
                     
                     
-                    <p><label for="tags">Tags:</label>
-                    <button type="button" id="add-tag" name="add-tag">
-                        Add another tag
-                    </button>  
+                    <label for=tags>Tags:</label>
                     <ul id="tags-list">
                         <div class=tag-input>
                             <select id="tags" class="form-control" name="tags">
-                                <option value=''>Choose a tag</option>
+                                <option value=''>Choose a tag type</option>
                                 <option value='pace'>Pace</option>
                                 <option value='length'>Length</option>
                                 <option value='type'>Type</option>
                             </select>
-                            <label for="tag-args">
+                            
+                        <label for=tag-args>Tag Name
                                 <input type="text" class="form-control" id="tag-args" name="tag-args"/>
-                            </label>
-                          </div>
+                         </label>
+                    </div>
                     </ul>
+                     <button type="button" class="btn btn-outline-primary" id="add-tag" name="add-tag">
+                        Add another tag
+                    </button>  
+                    <br> <br>
                     <p><button type="submit" class="btn btn-success">Submit</button></p>
                 </div>
             </form>

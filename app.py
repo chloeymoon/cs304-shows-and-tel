@@ -65,23 +65,25 @@ def add():
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
-            databaseTitles = functions.getResultsByTitle(conn, title)
-            if(len(databaseTitles)==0):
-                # Check to see if script file upload is a valid type
-                filename = functions.isValidScriptType(script_file, title)
-                if filename:
-                    script = filename
-                else: # file is not a valid type
-                    return redirect(request.referrer)
-                functions.insertShows(conn, title, year, cwList, genreList, script, 
-                                        description, creatorList, network, 
-                                        tag_names, tag_vals)
+            # databaseTitles = functions.getResultsByTitle(conn, title)
+            # if(len(databaseTitles)==0):
+            # Check to see if script file upload is a valid type
+            filename = functions.isValidScriptType(script_file, title)
+            if filename:
+                script = filename
+            else: # file is not a valid type
+                return redirect(request.referrer)
+            insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
+                                description, creatorList, network, 
+                                tag_names, tag_vals)
+            # locking failed
+            if insert is False:
+                flash("I'm sorry. Seems like someone inserted this show just now.")
+            # locking succeeded
+            else:
+                insert
                 flash("TV show: " + title + " successfully inserted")
-                return render_template('add.html')
-            else: 
-                flash("TV Show already exists in database")
-                return render_template('add.html')
-        return render_template('add.html')
+            return render_template('add.html')
 
     
 @app.route('/displayAll/', methods=['GET'])
@@ -172,17 +174,17 @@ def search():
             
         if title:
             shows = functions.getResultsByTitle(conn,title)
-        if network:
+            print shows
+        elif network:
             shows = functions.getResultsByNetwork(conn,network)
-        if creator:
+        elif creator:
             shows = functions.getResultsByCreator(conn,creator)
-        if genre:
+        elif genre:
             shows = functions.getResultsByGenre(conn,genre)
-        if tag_names and tag_vals:
+        elif tag_names and tag_vals:
             shows = functions.getResultsByTags(conn, tag_names, tag_vals)
-        if contentwarning:
+        elif contentwarning:
             shows = functions.getResultsByContentWarning(conn,contentwarning)
-            
         return render_template('results.html', shows=shows)
         
 @app.route('/signup/', methods=['GET', 'POST'])
@@ -207,8 +209,8 @@ def signup():
             functions.insertUser(conn,username,hashed)
             session['username'] = username
             session['logged_in'] = True
-            ###### decide and change this later ########
-            return redirect(url_for('login', username=username))
+            flash('signed up and logged in as '+username)
+            return redirect(url_for('index'))
         except Exception as err:
             flash('form submission error '+str(err))
             return redirect( url_for('signup') )
@@ -233,12 +235,12 @@ def login():
                 session['username'] = username
                 session['logged_in'] = True
                 #### change this later
-                return redirect(url_for('login'))
+                return redirect(url_for('index'))
             else:
                 flash('login incorrect. Try again or join')
                 return redirect(url_for('login'))
         except Exception as err:
-            flash('form submission error '+str(err))
+            print 'form submission error '+str(err)
             return redirect( url_for('login') )
             
             
@@ -260,6 +262,19 @@ def logout():
         flash('some kind of error '+str(err))
         return redirect( url_for('index') )
 
+
+@app.route('/likeShow/', methods=['POST'])
+def likeShow():
+    '''Uses Ajax; return a json object instead of redirecting'''
+    if request.method == 'POST': 
+        conn = functions.getConn('wmdb')
+        #2 pieces of information: 1) tt 2) rating
+        uid= session.get('uid','')
+        rating = request.form.get('rating')
+        tt = request.form.get('tt')
+        # movie_updated = functions.addUserRating(conn,tt,rating,uid)
+        # return jsonify(tt=tt, avg=movie_updated['rating'])
+        
 if __name__ == '__main__':
     app.debug = True
-    app.run('0.0.0.0',8081)
+    app.run('0.0.0.0',8082)
