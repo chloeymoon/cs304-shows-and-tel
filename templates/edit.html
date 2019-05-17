@@ -4,9 +4,12 @@
 {% block content %}
   <h1 show=show>Update Show: {{show.title}} (#{{show.sid}})</h1>
     
-  <p>You may delete or add content warnings and creators. However, a show must have at least one content warning and creator.
+  <p>You may delete or add content warnings and creators. However, a show must 
+    have at least one content warning and creator.</p>
 
-    <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators warnings=warnings>
+    <form method=POST action="{{url_for('edit',sid=show.sid)}}" 
+      enctype = "multipart/form-data" show=show creators=creators
+      warnings=warnings>
       <table>
         <tr>
           <td><label for="show-title">Title</label></td>
@@ -26,7 +29,12 @@
         </tr>
         <tr>
           <td><label for="show-script">Script</label></td>
-          <td><input name='show-script' value='{{show.script}}' size="80"></td>
+          <td>
+            <input name='show-script' value='{{show.script}}' size="80">
+            <p>Or upload a file (.doc, .docx, or .pdf):
+                <input type = "file" name = "file" />
+            </p>
+          </td>
         </tr>
         
           {% for genre in genres %}
@@ -91,21 +99,6 @@
             </td>
           </tr>
           {% endfor %}
-        
-        <!--<td><label for="show-tag">Tags</label></td>-->
-        <!--  <td>-->
-        <!--    {% for tag in tags %}-->
-        <!--    <div class=tags-row name={{tag.name}}>-->
-        <!--      <p><select id="tags" name=tags>-->
-        <!--          <option value=''>Choose a tag</option>-->
-        <!--          <option value='pace'>Pace</option>-->
-        <!--          <option value='length'>Length</option>-->
-        <!--          <option value='type'>Type</option>-->
-        <!--      </select>-->
-        <!--      <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>-->
-        <!--    </div>-->
-        <!--    {% endfor %}-->
-        <!--  </td>-->
           
       </table>
       <input type="submit" name="submit" value="update">

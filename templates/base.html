@@ -32,6 +32,16 @@
 <br>
 </div>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 {% block content %}
 
 {% endblock %}

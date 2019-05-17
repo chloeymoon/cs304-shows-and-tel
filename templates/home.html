@@ -8,16 +8,6 @@
         <div class=form>
             <h1 align:"center">Welcome to Shows & Tel</h1>
             <p align:"center">Use the form to search for a TV show!</p>
-            
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                <div id="flashes">
-                {% for msg in messages %}
-                  <p>{{msg}}</p>
-                {% endfor %}
-                </div>
-              {% endif %}
-            {% endwith %}
 
             <form id="search" method=POST action="{{url_for('search')}}">
                 <div class=form-inputs>

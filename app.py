@@ -67,17 +67,11 @@ def add():
             databaseTitles = functions.getResultsByTitle(conn, title)
             if(len(databaseTitles)==0):
                 # Check to see if script file upload is a valid type
-                if script_file:
-                    mimetype = script_file.content_type.split('/')[1]
-                    if mimetype.lower() not in ['doc','docx','pdf']:
-                        msg = 'Not a DOC, DOCX or PDF: {}'.format(mimetype)
-                        flash(msg)
-                        return render_template('add.html')
-                    # If valid file type, then continue with file upload
-                    filename = secure_filename('{}.{}'.format(title,mimetype))
-                    pathname = os.path.join(app.config['UPLOADS'],filename)
-                    script_file.save(pathname)
+                filename = functions.isValidScriptType(script_file, title)
+                if filename:
                     script = filename
+                else: # file is not a valid type
+                    return redirect(request.referrer)
                 functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 
                                         tag_names, tag_vals)
@@ -128,11 +122,18 @@ def edit(sid):
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
         newscript = request.form['show-script']
+        newfile = request.files['file']
         newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-vals')
+        if newfile:
+            filename = functions.isValidScriptType(newfile, newtitle)
+            if filename:
+                newscript = filename
+            else: # file is not a valid type
+                return redirect(request.referrer)
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_names, tag_vals)

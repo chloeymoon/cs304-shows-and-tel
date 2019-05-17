@@ -8,8 +8,9 @@ Chloe Moon, Catherine Chen
 '''select * from table where (title = % or '')''' # title='' returns an empty string
 '''construct a view file'''
 '''lock for threads'''
-from flask import Flask, send_from_directory
-import sys
+from flask import Flask, flash, send_from_directory
+from werkzeug import secure_filename
+import os, sys
 import MySQLdb
 import functions, random, math
 
@@ -254,6 +255,23 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertGenres(conn,sid, genreList)
     if tag_names and tag_vals: # If tags info exists, insert into database
         insertTags(conn, sid, tag_names, tag_vals)
+        
+# Helper function for script upload
+def isValidScriptType(script_file, title):
+    ''' Given a document from a file upload, check to see if it is a valid 
+        type (.doc, .docx, .pdf). If it is, save the document to the 
+        filesystem and return the filename. Otherwise flash an error message
+        and return false. '''
+    mimetype = script_file.content_type.split('/')[1]
+    if mimetype.lower() not in ['doc','docx','pdf']:
+        msg = 'ERROR: File type not a DOC, DOCX or PDF: {}'.format(mimetype)
+        flash(msg)
+        return False
+    # If valid file type, then continue with file upload
+    filename = secure_filename('{}.{}'.format(title,mimetype))
+    pathname = os.path.join(app.config['UPLOADS'],filename)
+    script_file.save(pathname)
+    return filename 
 
 # Update functions for Edit page
 def updateCreators(conn,sid,newCreators):
