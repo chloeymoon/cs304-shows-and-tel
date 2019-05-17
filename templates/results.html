@@ -2,16 +2,7 @@
 
 {% block content %}
   <h1 align="center">Search Results</h1>
-  
-  {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div id="flashes">
-    {% for msg in messages %}
-      <p>{{msg}}</p>
-    {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+
 
   <div class="table table-bordered table-hover">
     <table class= "mx-auto" style="width:80%">

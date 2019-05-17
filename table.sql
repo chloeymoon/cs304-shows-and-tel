@@ -50,13 +50,13 @@ create table genres (
 )
 ENGINE = InnoDB;
 
--- might implement in beta
-create table streams (
-    stid int auto_increment,
-    primary key (stid),
-    source varchar(50)
-)
-ENGINE = InnoDB;
+-- -- might implement in beta
+-- create table streams (
+--     stid int auto_increment,
+--     primary key (stid),
+--     source varchar(50)
+-- )
+-- ENGINE = InnoDB;
 
 -- create table actors (
 --     aid int auto_increment,

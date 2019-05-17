@@ -334,7 +334,22 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
-        
+
+#username & joins
+
+def checkUsername(conn, username):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('''select username from userpass where username=%s''', [username])
+    return curs.fetchone()
     
+def insertUser(conn,username,hashed):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('insert into userpass(username,hashed) values (%s,%s)',[username,hashed])
+
+def checkPW(conn,username):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select hashed from userpass where username=%s',[username])
+    return curs.fetchone()
+
 if __name__ == '__main__':
     conn = getConn('final_project')
