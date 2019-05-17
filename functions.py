@@ -264,13 +264,6 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     if tag_names and tag_vals: # If tags info exists, insert into database
         insertTags(conn, sid, tag_names, tag_vals)
     lock.release()
-    
-    # Support for multiple tags to be added in beta version
-    # for i in range(len(tag_names)):
-    #     name = tag_names[i]
-    #     val = tag_vals[i]
-    #     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-    #                 [sid, name, val])
 
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''
