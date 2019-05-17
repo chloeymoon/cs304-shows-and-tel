@@ -12,6 +12,11 @@
         <th>Title</th>
         <th>Description</th> 
         <th>Release Year</th>
+        
+        <!--Number of likes-->
+        <th># of Likes</th>
+        <!--Like button column -->
+        <th>Like</th>
       </tr>
       </thead>
         {% for show in shows %}
@@ -19,6 +24,9 @@
           <th><a class="profile" href={{url_for('profile',sid=show.sid)}}>{{show.title}}</a></th>
           <th>{{show.description}}</th>
           <th>{{show.year}}</th>
+          
+          <th>{{show.likes}}</th>
+          <th><button type="button" class="btn btn-success" onclick="loadDoc()">Like</button></th>
         </tr>
         {% endfor %}
       {% else %}

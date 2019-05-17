@@ -10,6 +10,13 @@
     {% endif %}
     <h2>{{show.title}} ({{show.year}})</h2>
     <p>{{show.description}}</p>
+    
+    <!--likes-->
+    <p>Number of Likes: {{show.likes}}</p>
+    <button type="button" class="btn btn-success" onclick="loadDoc()">Like</button>
+    
+    <br><br>
+
     <ul>
         <li>Creator(s): 
             {% for creator in creators %}
