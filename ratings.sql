@@ -13,15 +13,8 @@ create table ratings (
     primary key (sid, uid)
 ); 
 
-create table logins(
-    uid int(10) auto_increment,
-    username varchar(20),
-    password varchar(20),
-    primary key(uid)
-);
 
 -- Example
-insert into logins (username,password) values ('chloeymoon','123123'),('catocity','123123');
 insert into ratings (sid, uid, rating) values (1, 1, 1), (1, 2, 2);
 
 ALTER TABLE movie ADD COLUMN rating double;
