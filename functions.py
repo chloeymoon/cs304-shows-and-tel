@@ -61,12 +61,21 @@ def getGenres(conn,sid):
     return curs.fetchall()
     
 def getScript(conn, sid):
+    ''' Given a show ID, return the URL for the script and whether the URL is
+        for a script that is stored locally or externally. Context: A script 
+        can be stored one of two ways: either as a URL for an external website 
+        (external) or as a  filepath that leads to a document that was uploaded 
+        to the filesystem (local). '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     numrows = curs.execute('select script from shows where sid=%s', (sid,))
     row =  curs.fetchone()
-    val = send_from_directory(app.config['UPLOADS'],
-                              row['script'])
-    return val
+    print(row)
+    if "http" in row['script']:
+        return row['script'], "external"
+    else:
+        val = send_from_directory(app.config['UPLOADS'],
+                                  row['script'])
+        return val, "local"
 
 def getShow(conn,sid):
     '''Returns show with network name given sid'''

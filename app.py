@@ -140,10 +140,15 @@ def edit(sid):
         
 @app.route('/script/<sid>')
 def script(sid):
+    ''' This may be a kinda hacky thing to do, but if a script is local, aka
+        stored in our filesystem, then we render it the normal way by passing
+        the filepath to our profile template. If the script is external, aka
+        we stored a http link in our database, then we do a straight redirect
+        to that stored URL. '''
     conn = functions.getConn('final_project')
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    script = functions.getScript(conn, sid)
-    return script
+    script, is_local = functions.getScript(conn, sid)
+    return script if (is_local=="local") else redirect(script)
 
 @app.route('/search/', methods=['POST'])
 def search():
