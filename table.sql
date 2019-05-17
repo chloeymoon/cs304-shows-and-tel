@@ -4,11 +4,30 @@ use final_project;
 SET FOREIGN_KEY_CHECKS = 0;
 drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs, showsGenres;
 drop table if exists interviews, scripts, streams, networks, contentwarnings;
-drop table if exists shows, creators, streams, actors, tags, genres; 
+drop table if exists shows, creators, streams, actors, tags, genres, userpass; 
 SET FOREIGN_KEY_CHECKS = 0;
 
 
 -- Tables
+
+-- For Log in
+create table userpass(
+       -- uid int auto_increment,
+       username varchar(50) not null primary key,
+       hashed char(60)
+       -- primary key (uid)
+);
+
+-- ask which is better
+-- create table userpass(
+--       uid int auto_increment,
+--       username varchar(50) not null,
+--       hashed char(60),
+--       unique(username),
+--       index(username),
+--       primary key (uid)
+-- );
+
 
 create table networks (
     nid int auto_increment,
