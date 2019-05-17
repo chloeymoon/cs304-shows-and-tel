@@ -13,8 +13,13 @@ body {
     /*margin:0;*/
 }
 
+.nav-item nav-link active {
+  color: red;
+}
+/*
 #navbar {
-  list-style-type: none;
+  overflow: hidden;
+  color: #333;
   margin: 0;
   margin-left: -20px;
   margin-top: -10px;
@@ -29,17 +34,19 @@ body {
   justify-content: flex-start;
 }
 
-/*li {*/
-/*  float: left;*/
-/*}*/
+#navbar a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
 
-/*li a {*/
-/*  display: block;*/
-/*  color: white;*/
-/*  text-align: center;*/
-/*  padding: 14px 16px;*/
-/*  text-decoration: none;*/
-/*}*/
+.topnav-right {
+  float: right;
+}
+
 
 
 #navbar li a{
@@ -49,7 +56,7 @@ body {
   padding: 14px 16px;
   text-decoration: none;
 }
-
+*/
 
 /*.navbar li a:hover:not(.active) {*/
 /*  background-color: #111;*/

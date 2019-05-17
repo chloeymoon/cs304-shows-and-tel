@@ -4,11 +4,30 @@ use final_project;
 SET FOREIGN_KEY_CHECKS = 0;
 drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs, showsGenres;
 drop table if exists interviews, scripts, streams, networks, contentwarnings;
-drop table if exists shows, creators, streams, actors, tags, genres; 
+drop table if exists shows, creators, streams, actors, tags, genres, userpass; 
 SET FOREIGN_KEY_CHECKS = 0;
 
 
 -- Tables
+
+-- For Log in
+create table userpass(
+       -- uid int auto_increment,
+       username varchar(50) not null primary key,
+       hashed char(60)
+       -- primary key (uid)
+);
+
+-- ask which is better
+-- create table userpass(
+--       uid int auto_increment,
+--       username varchar(50) not null,
+--       hashed char(60),
+--       unique(username),
+--       index(username),
+--       primary key (uid)
+-- );
+
 
 create table networks (
     nid int auto_increment,
@@ -29,8 +48,8 @@ ENGINE = InnoDB;
 create table tags (
     tid int auto_increment,
     primary key (tid),
-    name varchar(50),
-    val ENUM('length', 'pace', 'type'),
+    val varchar(50),
+    name ENUM('length', 'pace', 'type'),
     sid int,
     foreign key(sid) references shows(sid) on delete cascade
 )

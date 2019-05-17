@@ -23,6 +23,7 @@ def getConn(db):
     conn.autocommit(True) 
     return conn
 
+# Getters for Profile page
 def getAllNetworks(conn):
     '''Returns all the networks in the database, for the dropdown menu in the home page'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -44,6 +45,14 @@ def getCreators(conn,sid):
                     +'where showsCreators.sid=shows.sid'+
                     ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
     return curs.fetchall()
+    
+def getGenres(conn,sid):
+    '''Returns all genres of the show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select genres.name from genres, shows, showsGenres '
+                +'where showsGenres.sid=shows.sid'+
+                ' and showsGenres.gid=genres.gid and shows.sid=%s', (sid,))
+    return curs.fetchall()
 
 def getShow(conn,sid):
     '''Returns show with network name given sid'''
@@ -64,14 +73,6 @@ def getWarnings(conn,sid):
     curs.execute('select contentwarnings.name from contentwarnings, shows, showsCWs '
                     +'where showsCWs.sid=shows.sid'+
                     ' and showsCWs.cwid=contentwarnings.cwid and shows.sid=%s', (sid,))
-    return curs.fetchall()
-
-def getGenres(conn,sid):
-    '''Returns all genres of the show'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select genres.name from genres, shows, showsGenres '
-                +'where showsGenres.sid=shows.sid'+
-                ' and showsGenres.gid=genres.gid and shows.sid=%s', (sid,))
     return curs.fetchall()
 
 # By Search Terms
@@ -108,12 +109,13 @@ def getResultsByNetwork(conn,term):
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
     
-def getResultsByTags(conn, tag_name, tag_val):
-    '''Returns all shows based on the search term using tags'''
+def getResultsByTags(conn, tag_names, tag_vals):
+    ''' Returns all shows based on the search term using tags. Expects an input
+        of a tuple of pairs (tag_val, tag_name) '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    val = '%' + tag_val + '%'
-    curs.execute('''select * from shows where sid in (select sid from tags where
-                    name=%s and val like %s)''', (tag_name, val))
+    tags = tuple(zip(tag_vals, tag_names))
+    curs.execute('''select * from shows where sid in
+                    (select sid from tags where (val, name) in %s)''', (tags,))
     return curs.fetchall()
     
 def getResultsByTitle(conn,term):
@@ -170,10 +172,10 @@ def getGid(conn,genre):
     else:
         return None
         
-# helper functions for insertShows: many-to-many relationships (Contentwarnings, Creators)
-
+# Insert functions
 def insertContentwarnings(conn,sid,cwList):
-    '''Inserts each creator's id first if not already in the database. Also inserts the relationship (e.g. showsCWs).'''
+    ''' Inserts each creator's id first if not already in the database. 
+        Also inserts the relationship (e.g. showsCWs). '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for cw in cwList:
         if getCWid(conn,cw) is None:
@@ -183,7 +185,8 @@ def insertContentwarnings(conn,sid,cwList):
 
 
 def insertCreators(conn,sid,creatorList):
-    '''Inserts each cw's id first if not already in the database. Also inserts the relationship.'''
+    ''' Inserts each cw's id first if not already in the database. 
+        Also inserts the relationship. '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for creator in creatorList:
         if getCid(conn,creator) is None:
@@ -192,7 +195,8 @@ def insertCreators(conn,sid,creatorList):
         curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
 
 def insertGenres(conn,sid,genreList):
-    '''Inserts each cw's id first if not already in the database. Also inserts the relationship.'''
+    ''' Inserts each cw's id first if not already in the database. 
+        Also inserts the relationship. '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for genre in genreList:
         if getGid(conn,genre) is None:
@@ -200,8 +204,21 @@ def insertGenres(conn,sid,genreList):
         gid = getGid(conn,genre)
         curs.execute('insert into showsGenres (sid,gid) values(%s, %s)',[sid,gid])
 
+        
+def insertTags(conn, sid, tag_names, tag_vals):
+    ''' Given a show's ID and lists of tag names and values, inserts the 
+        information into the tags table. '''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    print("IN INSERTTAGS")
+    for i in range(len(tag_names)):
+        name = tag_names[i]
+        val = tag_vals[i]
+        print('INSERTING', name, ',', val)
+        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, name, val])
+        
 def insertShows(conn, title, year, cwList, genreList, script, description, 
-                creatorList, network, tag_name, tag_val):
+                creatorList, network, tag_names, tag_vals):
     ''' Inserts show, creator, show&creator relationship etc. to the database, 
         given form values '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -214,15 +231,12 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
-    curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-                    [sid, tag_name, tag_val])
-
-    # Support for multiple tags to be added in beta version
-    # for i in range(len(tag_names)):
-    #     name = tag_names[i]
-    #     val = tag_vals[i]
-    #     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-    #                 [sid, name, val])
+    print("IN INSERT SHOWS")
+    print(tag_names)
+    print(tag_vals)
+    if tag_names and tag_vals: # If tags info exists, insert into database
+        insertTags(conn, sid, tag_names, tag_vals)
+    
 
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''
@@ -243,7 +257,8 @@ def updateWarnings(conn,sid,newwarnings):
             curs.execute('insert into contentwarnings (name) values(%s)', [w])
         cwid = getCWid(conn,w)  
         curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
-
+        
+# Update functions for Edit page
 def updateCreators(conn,sid,newCreators):
     ''''Given a list of new creators, compares it with old creators and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -278,9 +293,28 @@ def updateGenres(conn,sid,newGenres):
         gid = getGid(conn,g)  
         curs.execute('insert into showsGenres (sid,gid) values (%s,%s)',[sid,gid])
 
+        
+def updateTags(conn, sid, tag_names, tag_vals):
+    ''' Given lists of tag names and values, update the database with new 
+        tags if they do not already exist. '''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    oldTags = [(tag['name'], tag['val']) for tag in getTags(conn, sid)]
+    newTags = zip(tag_names, tag_vals)
+    print("Old tags:", oldTags)
+    toDelete = [tag for tag in oldTags if tag not in newTags]
+    toAdd = [tag for tag in newTags if tag not in oldTags]
+    print("Deleting:", toDelete)
+    for tag in toDelete:
+        curs.execute('''delete from tags where sid=%s 
+                        and name=%s and val=%s''', (sid, tag[0], tag[1]))
+    print("Adding:", toAdd)
+    for tag in toAdd:
+        curs.execute('''insert into tags (sid, name, val) 
+                        values (%s, %s, %s)''', (sid, tag[0], tag[1]))
+
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, network, genreList, cwList, script, 
-           description, creators, tag_name, tag_val):
+           description, creators, tag_names, tag_vals):
     ''''Updates the show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # old show information
@@ -289,6 +323,7 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     updateWarnings(conn,sid,cwList)
     updateCreators(conn,sid,creators)
     updateGenres(conn,sid,genreList)
+    updateTags(conn, sid, tag_names, tag_vals)
 
     #insert if values don't exist already
     if getNid(conn,network) is None:
@@ -298,8 +333,8 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     curs.execute('''update shows set title=%s, year=%s, script=%s, 
                     description=%s, nid=%s where sid=%s''', 
                     [title, year, script, description, nid, sid]) 
-    curs.execute('update tags set name=%s, val=%s where sid=%s', 
-                  (tag_name, tag_val, sid))
+    # curs.execute('update tags set name=%s, val=%s where sid=%s', 
+    #               (tag_name, tag_val, sid))
                     
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
