@@ -231,7 +231,8 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     print("IN INSERT SHOWS")
     print(tag_names)
     print(tag_vals)
-    insertTags(conn, sid, tag_names, tag_vals)
+    if tag_names and tag_vals: # If tags info exists, insert into database
+        insertTags(conn, sid, tag_names, tag_vals)
 
 # Update functions for Edit page
 def updateCreators(conn,sid,newCreators):
