@@ -129,19 +129,19 @@ $(document).ready(function() {
 });
 
 $("#addwarning").on('click', function(){
-  var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
+  var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" id="show-warnings" value="">' +
                     '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
 });
 
 $("#addcreator").on('click', function(){
-  var newCreator = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
+  var newCreator = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" id="show-creators" value="">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newCreator).insertAfter($(this).closest('.creator'));
 });
 
 $("#addgenre").on('click', function(){
-  var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="">'+
+  var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="" id="show-genres">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newGenre).insertAfter($(this).closest('.genre'));
 });
