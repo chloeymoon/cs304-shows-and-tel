@@ -238,6 +238,19 @@ def logout():
         flash('some kind of error '+str(err))
         return redirect( url_for('index') )
 
+
+@app.route('/likeShow/', methods=['POST'])
+def likeShow():
+    '''Uses Ajax; return a json object instead of redirecting'''
+    if request.method == 'POST': 
+        conn = functions.getConn('wmdb')
+        #2 pieces of information: 1) tt 2) rating
+        uid= session.get('uid','')
+        rating = request.form.get('rating')
+        tt = request.form.get('tt')
+        movie_updated = functions.addUserRating(conn,tt,rating,uid)
+        return jsonify(tt=tt, avg=movie_updated['rating'])
+        
 if __name__ == '__main__':
     app.debug = True
     app.run('0.0.0.0',8081)
