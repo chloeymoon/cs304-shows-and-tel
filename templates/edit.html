@@ -10,6 +10,14 @@
     
   <p>You may delete or add content warnings and creators. However, a show must 
     have at least one content warning and creator.</p>
+  <p>Note about tags: if you would like to update a show's tags, use the 
+    dropdown menu to choose a new tag type and enter a value into the 
+    corresponding textbox. However, if you would like to leave a tag unchanged,
+    you need to re-enter the tag type in the dropdown menu. For your reference, 
+    here are this show's tags:</p>
+    {% for tag in tags %}
+    <p>{{tag.name}}, {{tag.val}}</p>
+    {% endfor %}
 
     <form method=POST action="{{url_for('edit',sid=show.sid)}}" 
       enctype = "multipart/form-data" show=show creators=creators
@@ -36,7 +44,7 @@
           <td>
             <input name='show-script' id="show-script" value='{{show.script}}' size="80">
                 <label for="show-upload">Or upload a file (.doc, .docx, or .pdf):</label>
-                <input id="show-upload" type = "file" name = "file" />
+                <input id="show-upload" type="file" name="file" />
             </p>
           </td>
         </tr>
@@ -118,12 +126,15 @@
 //accessibility
 var counter = 0;
 
+ // Attempted to load previous tag types into the dropdown menus, but
+// didn't have time to finish it
 $(document).ready(function() {
   var tag_name = $(".tag").attr("name");
   console.log(tag_name);
   // $('#tags option[value='+tag_name+']').prop('selected', true);
 });
 
+// Adds a new input for a content warning on button click
 $("#addwarning").on('click', function(){
   var newWarning = '<tr><td><label for="' + counter.toString() + '">Content Warning</label></td><td><input name="' + counter.toString() +'" id="show-warnings" value="">' +
                     '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
@@ -131,6 +142,7 @@ $("#addwarning").on('click', function(){
   counter++;
 });
 
+// Adds a new input for a creator on button click
 $("#addcreator").on('click', function(){
   var newCreator = ('<tr><td><label for="' + counter.toString() + '">Creator</label></td><td><input name="show-creators" id="' + counter.toString() + '" value="">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
@@ -138,6 +150,7 @@ $("#addcreator").on('click', function(){
   counter++;
 });
 
+// Adds a new input for a genre on button click
 $("#addgenre").on('click', function(){
   var newGenre = ('<tr><td><label for="' + counter.toString() + '">Genre</label></td><td><input name="show-genres" value="" id="' + counter.toString() + '">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
@@ -145,6 +158,7 @@ $("#addgenre").on('click', function(){
   counter++;
 });
 
+// Adds new inputs for tag name (type) and value on button click
 $("#add-tag").on('click', function(){
   var newTag = `<tr class='tag'>
             <td><label for="tags">Tags</label></td>
@@ -165,6 +179,7 @@ $("#add-tag").on('click', function(){
   $(newTag).insertAfter($(this).closest('.tag'));
 })
 
+// Helper function to delete an input 
 function deleteRow(elem){
     console.log('deleting');
     elem.closest('tr').remove();
