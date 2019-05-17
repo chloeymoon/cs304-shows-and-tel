@@ -108,12 +108,12 @@ def getResultsByNetwork(conn,term):
                 'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
     return curs.fetchall()
     
-def getResultsByTags(conn, tag_name, tag_val):
+def getResultsByTags(conn, tag_names, tag_vals):
     '''Returns all shows based on the search term using tags'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    val = '%' + tag_val + '%'
-    curs.execute('''select * from shows where sid in (select sid from tags where
-                    name=%s and val like %s)''', (tag_name, val))
+    tags = tuple(zip(tag_names, tag_vals))
+    curs.execute('''select * from shows where sid in
+                    (select sid from tags where (name, val) in %s)''', (tags,))
     return curs.fetchall()
     
 def getResultsByTitle(conn,term):
@@ -207,11 +207,9 @@ def insertTags(conn, sid, tag_names, tag_vals):
     ''' Given a show's ID and lists of tag names and values, inserts the 
         information into the tags table. '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    print("IN INSERTTAGS")
     for i in range(len(tag_names)):
         name = tag_names[i]
         val = tag_vals[i]
-        print('INSERTING', name, ',', val)
         curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, name, val])
                     
