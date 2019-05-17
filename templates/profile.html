@@ -42,15 +42,6 @@
             {% endfor %}
         </li>
         <li>Script: 
-             <!--Hacky fix because below href was not working :( -->
-            <!--{% if show.script != 'NULL' %}-->
-            <!--    {% if "http" in show.script or "www" in show.script %}-->
-            <!--    <a href={{show.script}}>{{show.script}}</a>-->
-            <!--    {% else %}-->
-            <!--    <a href={{url_for('script',sid=show.sid)}}>{{show.script}}</a>-->
-            <!--    {% endif%}-->
-            <!--{% endif %}-->
-            
             {% if show.script != 'NULL' %}
             <a href={{url_for('script', sid=show.sid)}}>{{show.script}}</a> 
             {% endif %}
