@@ -23,7 +23,7 @@
     <div class="form-group">
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
-            <input class="form-control" type="text" id="title" name="title" size="60"/>
+            <input class="form-control" type="text" id="title" name="title" size="60" required/>
         </label></p>
     </div>
 
@@ -36,19 +36,16 @@
 
     <div class="form-group">
         <p><label for=network>Network:
-            <input class="form-control" type="text" id="network" name="network" />
+            <input class="form-control" type="text" id="network" name="network" required/>
         </label></p>
     </div>
 
     <div class="form-group">
         <p><label for=year>Year Debuted:
-            <input class="form-control" type="text" id="year" name="year" />
+            <input class="form-control" type="text" id="year" name="year" required/>
         </label></p>
     </div>
         
-        <!--<p><label for=genre>Genre:-->
-        <!--    <input type="text" id="genre" name="genre" />-->
-        <!--</label></p>-->
     <div class="form-group">
         <div class="genre">
             <label for=genre>Genre: </label> <br>
@@ -74,26 +71,12 @@
             </select>
         </div>
     </div>
-
+    
     <div class="form-group">
-       <label for="tags">Tags:</label>
-            <!--<button type="button" id="add-tag" name="tag-arg">-->
-            <!--    Add another tag-->
-            <!--</button>  -->
-            <div id="tags-list">
-                <div class=tag-input>
-                  
-                    <select class="form-control" id="tags" name="tags">
-                        <option value=''>Choose a tag</option>
-                        <option value='pace'>Pace</option>
-                        <option value='length'>Length</option>
-                        <option value='type'>Type</option>
-                    </select>
-                    <label for="tag-arg">
-                        <input class="form-control" type="text" id="tag-arg" name="tag-arg"/>
-                    </label>
-                </div>
-            </div>
+        <div class="tags">
+            <label for="tags">Tags:</label>
+            <input type="button" class="btn btn-outline-primary" value="Add Tags" onclick="addTag()"/>
+        </div>
     </div>
         
     <div class="form-group">
@@ -119,48 +102,59 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
-function addNewWarning(){
-    newwarning = $('#newcw').val();
-    warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
-                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></div>'
-    $(warninghtml).appendTo('.contentwarning')
-}
-
 function deleteUl(elem){
     elem.closest('div').remove();
 }
 
-
 $("#cwbutton").on("click", function (e) {
-    selected = $("#warning-dropdown option:selected").text();
+    var selected = $("#warning-dropdown option:selected").text();
     if ($("#warning-dropdown option:selected").val()=="Other"){
         $("#newwarning_placeholder")
         .append('<div>Add a new warning: <input type="text" id="newcw"/>' +
                     '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></div>');
     } else {
-        warninghtml = '<div id="warning"><input type="text"  id="cw" value="'+selected+'" name="cw"/>'
+        var warninghtml = '<div id="warning"><input type="text"  id="cw" value="'+selected+'" name="cw"/>'
                      +'<button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
         $(warninghtml).appendTo(".contentwarning")
     }
 });
 
-
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
-    creatorhtml = '<div><input type="text" id="creator" name="creator"/>'
+    var creatorhtml = '<div><input type="text" id="creator" name="creator" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(creatorhtml).appendTo(".creator")
 }
 
-$("#add-tag").on("click", function (event) {
-    $("ul#tags-list").append($("div.tag-input").html())
-    console.log("Adding another tag input");
-});
-
 function addGenres() {
-    genrehtml = '<div><input type="text" id="genre" name="genre"/>'
+    var genrehtml = '<div><input type="text" id="genre" name="genre" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
+}
+
+function addNewWarning(){
+    var newwarning = $('#newcw').val();
+    var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></div>'
+    $(warninghtml).appendTo('.contentwarning')
+}
+
+// Adds a new tag drop down menu for tag type and text box for tag value
+// when 'Add Tags' button is clicked
+function addTag(){
+    var taghtml = ` <div class=tag-input>
+                        <select class="form-control" id="tags" name="tags">
+                            <option value=''>Choose a tag</option>
+                            <option value='pace'>Pace</option>
+                            <option value='length'>Length</option>
+                            <option value='type'>Type</option>
+                        </select>
+                        <label for="tag-args">
+                            <input class="form-control" type="text" id="tag-args" name="tag-args" required/>
+                        </label>
+                        <button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>
+                    </div>`;
+    $(taghtml).appendTo(".tags");
 }
 
 </script>

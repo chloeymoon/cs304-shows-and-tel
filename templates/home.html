@@ -59,10 +59,10 @@
                     
                     
                     <p><label for="tags">Tags:</label>
-                    <!--<button type="button" id="add-tag" name="tag-arg">-->
-                    <!--    Add another tag-->
-                    <!--</button>  -->
-                    <id="tags-list">
+                    <button type="button" id="add-tag" name="add-tag">
+                        Add another tag
+                    </button>  
+                    <ul id="tags-list">
                         <div class=tag-input>
                             <select id="tags" class="form-control" name="tags">
                                 <option value=''>Choose a tag</option>
@@ -70,10 +70,11 @@
                                 <option value='length'>Length</option>
                                 <option value='type'>Type</option>
                             </select>
-                            <label for="tag-arg">
-                                <input type="text" class="form-control" id="tag-arg" name="tag-arg"/>
+                            <label for="tag-args">
+                                <input type="text" class="form-control" id="tag-args" name="tag-args"/>
                             </label>
                           </div>
+                    </ul>
                     <p><button type="submit" class="btn btn-success">Submit</button></p>
                 </div>
             </form>
