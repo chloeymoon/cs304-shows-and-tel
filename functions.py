@@ -237,7 +237,6 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
-<<<<<<< HEAD
     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, tag_name, tag_val])
     lock.release()
@@ -269,17 +268,14 @@ def updateWarnings(conn,sid,newwarnings):
             curs.execute('insert into contentwarnings (name) values(%s)', [w])
         cwid = getCWid(conn,w)  
         curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
-    lock.release()
-    
-=======
     print("IN INSERT SHOWS")
     print(tag_names)
     print(tag_vals)
     if tag_names and tag_vals: # If tags info exists, insert into database
         insertTags(conn, sid, tag_names, tag_vals)
-
+    lock.release()
+    
 # Update functions for Edit page
->>>>>>> c32ef3f965ab77451f8a986ca0ed65c831fe44f0
 def updateCreators(conn,sid,newCreators):
     ''''Given a list of new creators, compares it with old creators and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -316,9 +312,7 @@ def updateGenres(conn,sid,newGenres):
             curs.execute('insert into genres (name) values(%s)', [g])
         gid = getGid(conn,g)  
         curs.execute('insert into showsGenres (sid,gid) values (%s,%s)',[sid,gid])
-<<<<<<< HEAD
     lock.release()
-=======
         
 def updateTags(conn, sid, tag_names, tag_vals):
     ''' Given lists of tag names and values, update the database with new 
@@ -337,27 +331,6 @@ def updateTags(conn, sid, tag_names, tag_vals):
     for tag in toAdd:
         curs.execute('''insert into tags (sid, name, val) 
                         values (%s, %s, %s)''', (sid, tag[0], tag[1]))
-        
-def updateWarnings(conn,sid,newwarnings):
-    '''Given a list of new warnings, compares it with old warnings and updates'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    oldwarnings = [w['name'] for w in getWarnings(conn,sid)]
-    #because the number of new list is not necessarily the same as the old list,
-    #decided to delete and insert the differences rather than updating
-    toDelete = [w for w in oldwarnings if w not in newwarnings]
-    toAdd = [w for w in newwarnings if w not in oldwarnings]
-    # use set
-    for w in toDelete:
-        cwid = getCWid(conn,w)
-        curs.execute('delete from showsCWs where sid=%s and cwid=%s',[sid,cwid])
-        if len(getResultsByContentWarning(conn,w))==0:
-            curs.execute('delete from contentwarnings where name=%s', [w])
-    for w in toAdd:
-        if getCWid(conn,w) is None:
-            curs.execute('insert into contentwarnings (name) values(%s)', [w])
-        cwid = getCWid(conn,w)  
-        curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
->>>>>>> c32ef3f965ab77451f8a986ca0ed65c831fe44f0
         
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, network, genreList, cwList, script, 
@@ -387,13 +360,8 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
-<<<<<<< HEAD
     lock.release()
  
- 
-=======
-
->>>>>>> c32ef3f965ab77451f8a986ca0ed65c831fe44f0
 #username & joins
 
 def checkUsername(conn, username):
