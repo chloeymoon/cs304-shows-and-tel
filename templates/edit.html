@@ -147,7 +147,7 @@ $("#add-tag").on('click', function(){
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
-              <input id="tag-vals" name='tag-vals' value=''>
+              <input id="tag-vals" name='tag-vals' value='' required>
               {% if tag == tags[0] %}
                 <button type="button" name="add" id="add-tag">Add Tag</button>
               {% elif tag != tags[0] %}

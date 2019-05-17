@@ -23,7 +23,7 @@
     <div class="form-group">
         <input type="hidden" name="uid" value="{{uid}}">
         <p><label for=title>Title:
-            <input class="form-control" type="text" id="title" name="title" size="60"/>
+            <input class="form-control" type="text" id="title" name="title" size="60" required/>
         </label></p>
     </div>
 
@@ -36,13 +36,13 @@
 
     <div class="form-group">
         <p><label for=network>Network:
-            <input class="form-control" type="text" id="network" name="network" />
+            <input class="form-control" type="text" id="network" name="network" required/>
         </label></p>
     </div>
 
     <div class="form-group">
         <p><label for=year>Year Debuted:
-            <input class="form-control" type="text" id="year" name="year" />
+            <input class="form-control" type="text" id="year" name="year" required/>
         </label></p>
     </div>
         
@@ -121,13 +121,13 @@ $("#cwbutton").on("click", function (e) {
 
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
-    var creatorhtml = '<div><input type="text" id="creator" name="creator"/>'
+    var creatorhtml = '<div><input type="text" id="creator" name="creator" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(creatorhtml).appendTo(".creator")
 }
 
 function addGenres() {
-    var genrehtml = '<div><input type="text" id="genre" name="genre"/>'
+    var genrehtml = '<div><input type="text" id="genre" name="genre" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
 }
@@ -150,7 +150,7 @@ function addTag(){
                             <option value='type'>Type</option>
                         </select>
                         <label for="tag-args">
-                            <input class="form-control" type="text" id="tag-args" name="tag-args"/>
+                            <input class="form-control" type="text" id="tag-args" name="tag-args" required/>
                         </label>
                         <button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>
                     </div>`;

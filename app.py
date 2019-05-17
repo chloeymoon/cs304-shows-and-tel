@@ -60,7 +60,7 @@ def add():
         print(tag_names)
         print(tag_vals)
         filled = (title and year and genre and script and description
-                and creatorList and network and cwList and tag_names and tag_vals)
+                and creatorList and network and cwList)
         if not(filled): # Should this be taken care on in front-end?
             flash("All fields should be completely filled")
             return redirect(request.referrer)
