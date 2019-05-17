@@ -57,9 +57,6 @@ def add():
         genreList=request.form.getlist('genre')
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-args')
-        # print("IN ADD IN APP.PY")
-        # print(tag_names)
-        # print(tag_vals)
         filled = (title and year and genre and script and description
                 and creatorList and network and cwList)
         if not(filled): # Should this be taken care on in front-end?
@@ -142,8 +139,6 @@ def search():
         contentwarning = request.form['contentwarning']
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-args')
-        # print tag_names
-        # print tag_vals
 
         if (title=='' and network=='' and creator=='' and contentwarning==''
                       and tag_names=='' and tag_vals=='' and genre==''):

@@ -35,8 +35,8 @@
         
           {% for genre in genres %}
           <tr class='genre'>
-            <td><label for="show-genres">Genre</label></td>
-            <td><input id="show-genres" name='show-genres' value='{{genre.name}}'>
+            <td><label for="{{genre.name}}">Genre</label></td>
+            <td><input id="{{genre.name}}" name='show-genres' value='{{genre.name}}'>
               {% if genre == genres[0] %}
                 <button type="button" class="btn btn-outline-primary" name="add" id="addgenre">Add Genre</button>
               {% elif genre != genres[0] %}
@@ -50,8 +50,8 @@
         <!--<div class="warning">-->
           {% for warning in warnings %}
           <tr class='warning'>
-              <td><label for="show-warnings">Content Warning</label></td>
-              <td><input id="show-warnings" name='show-warnings' value='{{warning.name}}'>
+              <td><label for='{{warning.name}}'>Content Warning</label></td>
+              <td><input id='{{warning.name}}' name='show-warnings' value='{{warning.name}}'>
               {% if warning == warnings[0] %}
                 <button type="button" class="btn btn-outline-primary" id="addwarning">Add Warning</button>
               {% elif warning != warnings[0] %}
@@ -65,8 +65,8 @@
         <!--<div class="creators">-->
           {% for creator in creators %}
           <tr class='creator'>
-            <td><label for="show-creators">Creator</label></td>
-            <td><input id="show-creators" name='show-creators' value='{{creator.name}}'>
+            <td><label for='{{creator.name}}'>Creator</label></td>
+            <td><input id='{{creator.name}}' name='show-creators' value='{{creator.name}}'>
               {% if creator == creators[0] %}
                 <button type="button" class="btn btn-outline-primary" name="add" id="addcreator">Add Creator</button>
               {% elif creator != creators[0] %}
@@ -86,8 +86,8 @@
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
-              <label for="tag-vals">Tags</label>
-              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'>
+              <label for='{{tag.val}}'>Tags</label>
+              <input id='{{tag.val}}' name='tag-vals' value='{{tag.val}}'>
               {% if tag == tags[0] %}
                 <button type="button" class="btn btn-outline-primary" name="add" id="add-tag">Add Tag</button>
               {% elif tag != tags[0] %}
@@ -122,6 +122,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+var counter = 0;
+
 $(document).ready(function() {
   var tag_name = $(".tag").attr("name");
   console.log(tag_name);
@@ -129,21 +131,24 @@ $(document).ready(function() {
 });
 
 $("#addwarning").on('click', function(){
-  var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" id="show-warnings" value="">' +
+  var newWarning = '<tr><td><label for=' + counter.toString() + '>Content Warning</label></td><td><input id=' + counter.toString() + 'name="show-warnings" id="show-warnings" value="">' +
                     '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
+  counter++;
 });
 
 $("#addcreator").on('click', function(){
-  var newCreator = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" id="show-creators" value="">'+
+  var newCreator = ('<tr><td><label for=' + counter.toString() + '>Creator</label></td><td><input id=' + counter.toString() + 'name="show-creators" id="show-creators" value="">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newCreator).insertAfter($(this).closest('.creator'));
+  counter++;
 });
 
 $("#addgenre").on('click', function(){
-  var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="" id="show-genres">'+
+  var newGenre = ('<tr><td><label for=' + counter.toString() + '>Genre</label></td><td><input id=' + counter.toString() + 'name="show-genres" value="" id="show-genres">'+
               '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newGenre).insertAfter($(this).closest('.genre'));
+  counter++;
 });
 
 $("#add-tag").on('click', function(){
@@ -164,6 +169,7 @@ $("#add-tag").on('click', function(){
             </td>
           </tr>`;
   $(newTag).insertAfter($(this).closest('.tag'));
+  counter++;
 })
 
 function deleteRow(elem){
