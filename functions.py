@@ -264,6 +264,23 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     if tag_names and tag_vals: # If tags info exists, insert into database
         insertTags(conn, sid, tag_names, tag_vals)
     lock.release()
+    
+# Helper function for script upload
+def isValidScriptType(script_file, title):
+    ''' Given a document from a file upload, check to see if it is a valid 
+        type (.doc, .docx, .pdf). If it is, save the document to the 
+        filesystem and return the filename. Otherwise flash an error message
+        and return false. '''
+    mimetype = script_file.content_type.split('/')[1]
+    if mimetype.lower() not in ['doc','docx','pdf']:
+        msg = 'ERROR: File type not a DOC, DOCX or PDF: {}'.format(mimetype)
+        flash(msg)
+        return False
+    # If valid file type, then continue with file upload
+    filename = secure_filename('{}.{}'.format(title,mimetype))
+    pathname = os.path.join(app.config['UPLOADS'],filename)
+    script_file.save(pathname)
+    return filename 
 
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''
@@ -286,23 +303,6 @@ def updateWarnings(conn,sid,newwarnings):
         cwid = getCWid(conn,w)  
         curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
     lock.release() 
-        
-# Helper function for script upload
-def isValidScriptType(script_file, title):
-    ''' Given a document from a file upload, check to see if it is a valid 
-        type (.doc, .docx, .pdf). If it is, save the document to the 
-        filesystem and return the filename. Otherwise flash an error message
-        and return false. '''
-    mimetype = script_file.content_type.split('/')[1]
-    if mimetype.lower() not in ['doc','docx','pdf']:
-        msg = 'ERROR: File type not a DOC, DOCX or PDF: {}'.format(mimetype)
-        flash(msg)
-        return False
-    # If valid file type, then continue with file upload
-    filename = secure_filename('{}.{}'.format(title,mimetype))
-    pathname = os.path.join(app.config['UPLOADS'],filename)
-    script_file.save(pathname)
-    return filename 
 
 # Update functions for Edit page
 def updateCreators(conn,sid,newCreators):

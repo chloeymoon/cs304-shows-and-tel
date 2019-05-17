@@ -42,7 +42,9 @@
             {% endfor %}
         </li>
         <li>Script: 
+            {% if show.script != 'NULL' %}
             <a href={{url_for('script',sid=show.sid)}}>{{show.script}}</a> 
+            {% endif %}
         </li>
         <li>Network: {{show.network}}</li>  
     </ul>
