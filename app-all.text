@@ -1,0 +1,1110 @@
+'''Enables users to search and add TV shows to the database.
+
+Written Spring 2019
+Chloe Moon, Catherine Chen
+'''
+from flask import (Flask, render_template, make_response, url_for, request,
+                   redirect, flash, session, send_from_directory, jsonify)
+from werkzeug import secure_filename
+import functions, random, math
+
+
+app = Flask(__name__)
+
+
+app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                          'abcdefghijklmnopqrstuvxyz' +
+                                          '0123456789'))
+                           for i in range(20) ])
+
+app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+
+#a list of common contentwarnings
+#used in add() to allow users to choose from a set of warnings but also add new warnings
+commonWarnings = ["Sex & Nudity","Violence & Gore","Profanity","Frightening & Intense Scenes"]
+        
+@app.route('/')
+def index():
+    '''Main page'''
+    conn = functions.getConn('final_project')
+    networks = functions.getAllNetworks(conn)
+    contentwarnings = functions.getAllWarnings(conn)
+    return render_template('home.html', networks=networks, 
+                                        contentwarnings=contentwarnings)
+    
+@app.route('/add/', methods=['GET','POST'])
+def add():
+    '''Allows users to add a show to the database'''
+    conn = functions.getConn('final_project')
+    if request.method == 'GET':
+        contentwarnings = functions.getAllWarnings(conn)
+        return render_template('add.html',contentwarnings=contentwarnings, 
+                                commonWarnings=commonWarnings)
+    if request.method == 'POST':
+        conn = functions.getConn('final_project')
+        title = request.form.get('title')
+        year = request.form.get('year')
+        genre = request.form.get('genre')
+        script = request.form.get('script')
+        description = request.form.get('description')
+        network = request.form.get('network')
+        cwList = request.form.getlist('cw')
+        creatorList=request.form.getlist('creator')
+        tag_name = request.form['tags'] #.getlist('tags')
+        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+        filled = (title and year and genre and script and description
+                and creatorList and network and cwList and tag_name and tag_val)
+        if not(filled):
+            flash("All fields should be completely filled")
+            return redirect(request.referrer)
+        else:
+            databaseTitles = functions.getResultsByTitle(conn, title)
+            if(len(databaseTitles)==0):
+                functions.insertShows(conn, title, year, genre, cwList, script, 
+                                        description, creatorList, network, 
+                                        tag_name, tag_val)
+                flash("TV show: " + title + " successfully inserted")
+                return render_template('add.html')
+            else: 
+                flash("TV Show already exists in database")
+                return render_template('add.html')
+        return render_template('add.html')
+
+    
+@app.route('/displayAll/', methods=['GET'])
+def displayAll():
+    '''Displays all shows in the database'''
+    if request.method == 'GET': # return all results
+        conn = functions.getConn('final_project')
+        shows = functions.getResultsByTitle(conn,"")
+        return render_template('results.html', shows=shows)
+
+@app.route('/profile/<int:sid>/', methods=['GET'])
+def profile(sid):
+    '''Displays profile page of the show based on show id (sid)'''
+    if request.method == 'GET':
+        conn = functions.getConn('final_project')
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        warnings = functions.getWarnings(conn,sid)
+        tags = functions.getTags(conn,sid)
+        return render_template('profile.html', show=show, creators=creators, 
+                                warnings=warnings, tags=tags)
+        
+@app.route('/edit/<int:sid>/', methods=['GET','POST'])
+def edit(sid):
+    '''Edits/updates profile page of the show based on show id (sid)'''
+    conn = functions.getConn('final_project')
+    if request.method == 'GET':
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        warnings = functions.getWarnings(conn,sid)
+        tags = functions.getTags(conn, sid)
+        return render_template('edit.html', show=show, creators=creators, 
+                                warnings=warnings, tags=tags)
+    if request.method == 'POST':
+        oldshow = functions.getShow(conn,sid)
+        newtitle = request.form['show-title']
+        newnetwork = request.form['show-network']
+        newyear = request.form['show-release']
+        newdesc = request.form['show-description']
+        newscript = request.form['show-script']
+        newgenre = request.form['show-genre']
+        newcreators = request.form.getlist('show-creators')
+        newcwList = request.form.getlist('show-warnings')
+        tag_name = request.form['tags']
+        tag_val = request.form['tag-vals']
+        functions.update(conn, sid, newtitle, newyear, newnetwork, 
+                        newgenre, newcwList, newscript, newdesc,
+                        newcreators, tag_name, tag_val)
+        return redirect(url_for('profile', sid=sid))
+
+@app.route('/search/', methods=['POST'])
+def search():
+    '''Displays all the user requested search results'''
+    if request.method == 'POST':
+        conn = functions.getConn('final_project')
+        title = request.form['title']
+        network = request.form['network']
+        creator = request.form['creator']
+        contentwarning = request.form['contentwarning']
+        tag_name = request.form['tags'] #.getlist('tags')
+        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+
+        if title:
+            shows = functions.getResultsByTitle(conn,title)
+        if network:
+            shows = functions.getResultsByNetwork(conn,network)
+        if creator:
+            shows = functions.getResultsByCreator(conn,creator)
+        if (title=='' and network=='' and creator=='' and contentwarning==''
+                      and tag_name=='' and tag_val==''):
+            flash("Search using at least one criteria")
+            return redirect(request.referrer)
+        if tag_name and tag_val:
+            shows = functions.getResultsByTags(conn, tag_name, tag_val)
+        if contentwarning:
+            shows = functions.getResultsByContentWarning(conn,contentwarning)
+        return render_template('results.html', shows=shows)
+
+if __name__ == '__main__':
+    app.debug = True
+    app.run('0.0.0.0',8082)
+'''Functions interacting with the backend that will be used in app.py.
+
+Written Spring 2019
+Chloe Moon, Catherine Chen
+'''
+import sys
+import MySQLdb
+
+def getConn(db):
+    '''Connects to local host'''
+    conn = MySQLdb.connect(host='localhost',
+                           user='ubuntu',
+                           passwd='',
+                           db=db)
+    conn.autocommit(True) 
+    return conn
+
+def getAllNetworks(conn):
+    '''Returns all the networks in the database, for the dropdown menu in the home page'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # curs.execute('select name from networks group by networks.name')
+    curs.execute('select name from networks')
+    return curs.fetchall()
+    
+def getAllWarnings(conn):
+    '''Returns all the content warnings in the database, for the dropdown menu in the home page'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # curs.execute('select name from networks group by networks.name')
+    curs.execute('select name from contentwarnings')
+    return curs.fetchall()
+    
+def getCreators(conn,sid):
+    '''Returns all creators of the show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select creators.name from creators, shows, showsCreators '
+                    +'where showsCreators.sid=shows.sid'+
+                    ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
+    return curs.fetchall()
+
+def getShow(conn,sid):
+    '''Returns show with network name given sid'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select networks.name as network, shows.* from shows inner join networks on '+
+                    'networks.nid = shows.nid where sid = %s', (sid,))
+    return curs.fetchone()
+    
+def getTags(conn,sid):
+    '''Returns all tags associated with a given show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select name, val from tags where sid=%s', (sid,))
+    return curs.fetchall()
+    
+def getWarnings(conn,sid):
+    '''Returns all contentwarnings of the show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select contentwarnings.name from contentwarnings, shows, showsCWs '
+                    +'where showsCWs.sid=shows.sid'+
+                    ' and showsCWs.cwid=contentwarnings.cwid and shows.sid=%s', (sid,))
+    return curs.fetchall()
+
+# By Search Terms
+def getResultsByContentWarning(conn,term):
+    '''Returns all shows based on the search term using network'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select * from shows, showsCWs, contentwarnings '
+                +'where showsCWs.sid=shows.sid and contentwarnings.cwid=showsCWs.cwid '
+                +'and contentwarnings.name=%s', (term,))
+    return curs.fetchall()
+    
+def getResultsByCreator(conn,term):
+    '''Returns all shows based on the search term using creator'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    term = '%' + term + '%'
+    curs.execute('select * from shows, showsCreators, creators '
+                +'where showsCreators.sid=shows.sid and creators.cid=showsCreators.cid '
+                +'and creators.name like %s group by shows.title', (term,))
+    return curs.fetchall()
+    
+def getResultsByNetwork(conn,term):
+    '''Returns all shows based on the search term using network'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select networks.name as network, shows.* from shows '+
+                'inner join networks on networks.nid=shows.nid where networks.name= %s', (term,))
+    return curs.fetchall()
+    
+def getResultsByTags(conn, tag_name, tag_val):
+    '''Returns all shows based on the search term using tags'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    val = '%' + tag_val + '%'
+    curs.execute('''select * from shows where sid in (select sid from tags where
+                    name=%s and val like %s)''', (tag_name, val))
+    return curs.fetchall()
+    
+def getResultsByTitle(conn,term):
+    '''Returns all shows based on the search term using title'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    term = '%' + term + '%'
+    curs.execute('select * from shows where title like %s', (term,))
+    return curs.fetchall()
+
+# ID Getters
+def getNid(conn,networkName):
+    '''Returns nid based on network name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select nid from networks where name = %s',[networkName])
+    res = curs.fetchone()
+    if res:
+        return res['nid']
+    else:
+        return None
+        
+def getCWid(conn,cw):
+    '''Returns cwid based on contentwarning'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select cwid from contentwarnings where name = %s',[cw])
+    res = curs.fetchone()
+    if res:
+        return res['cwid']
+    else:
+        return None
+    
+def getSid(conn,showTitle):
+    '''Returns sid based on show name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select sid from shows where title = %s',[showTitle])
+    return curs.fetchone()['sid']
+
+def getCid(conn,creatorName):
+    '''Returns cid based on creator name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select cid from creators where name = %s',[creatorName])
+    res = curs.fetchone()
+    if res:
+        return res['cid']
+    else:
+        return None
+
+# helper functions for insertShows
+# many-to-many relationships (Contentwarnings, Creators)
+# inserts each creator/cw's id first if not already in the database
+# also inserts the relationship (e.g. showsCWs)
+def insertContentwarnings(conn,sid,cwList):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    for cw in cwList:
+        if getCWid(conn,cw) is None:
+            curs.execute('insert into contentwarnings (name) values(%s)', [cw])
+        cwid=getCWid(conn,cw)
+        curs.execute('insert into showsCWs (sid,cwid) values (%s, %s)',[sid,cwid])
+
+def insertCreators(conn,sid,creatorList):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    for creator in creatorList:
+        if getCid(conn,creator) is None:
+            curs.execute('insert into creators (name) values(%s)', [creator])
+        cid = getCid(conn,creator)
+        curs.execute('insert into showsCreators (sid,cid) values(%s, %s)',[sid,cid])
+        
+def insertShows(conn, title, year, genre, cwList, script, description, 
+                creatorList, network, tag_name, tag_val):
+    ''' Inserts show, creator, show&creator relationship etc. to the database, 
+        given form values '''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # check if network exists and, if not, inserts the network in the networks table
+    if getNid(conn,network) is None:
+        curs.execute('insert into networks (name) values(%s)', [network])
+    nid = getNid(conn,network)
+    curs.execute('insert into shows (title, nid, year, genre, script, description) values(%s, %s, %s, %s, %s, %s)', [title, nid, year, genre, script, description])
+    sid = getSid(conn,title)
+    insertContentwarnings(conn,sid,cwList)
+    insertCreators(conn,sid,creatorList)
+    curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, tag_name, tag_val])
+    
+    # Support for multiple tags to be added in beta version
+    # for i in range(len(tag_names)):
+    #     name = tag_names[i]
+    #     val = tag_vals[i]
+    #     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+    #                 [sid, name, val])
+
+def updateWarnings(conn,sid,newwarnings):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    oldwarnings = [w['name'] for w in getWarnings(conn,sid)]
+    # newwarnings = [x.encode('UTF8') for x in newWarnings] #values from dropdowns are unicodes
+    #because the number of new list is not necessarily the same as the old list,
+    #decided to delete and insert the differences rather than updating
+    toDelete = [w for w in oldwarnings if w not in newwarnings]
+    toAdd = [w for w in newwarnings if w not in oldwarnings]
+    for w in toDelete:
+        cwid = getCWid(conn,w)
+        curs.execute('delete from showsCWs where sid=%s and cwid=%s',[sid,cwid])
+        if len(getResultsByContentWarning(conn,w))==0:
+            curs.execute('delete from contentwarnings where name=%s', [w])
+    for w in toAdd:
+        if getCWid(conn,w) is None:
+            curs.execute('insert into contentwarnings (name) values(%s)', [w])
+        cwid = getCWid(conn,w)  
+        curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
+    
+def updateCreators(conn,sid,newCreators):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    oldCreators = [c['name'] for c in getCreators(conn,sid)]
+    toDelete = [c for c in oldCreators if c not in newCreators]
+    toAdd = [c for c in newCreators if c not in oldCreators]
+    for c in toDelete:
+        cid = getCid(conn,c)
+        curs.execute('delete from showsCreators where sid=%s and cid=%s',[sid,cid])
+        if len(getResultsByCreator(conn,c))==0:
+            curs.execute('delete from creators where name=%s', [c])
+    for c in toAdd:
+        if getCid(conn,c) is None:
+            curs.execute('insert into creators (name) values(%s)', [c])
+        cid = getCid(conn,c)  
+        curs.execute('insert into showsCreators (sid,cid) values (%s,%s)',[sid,cid])
+
+# would there be the case where we want to change the sid? -- not really?
+def update(conn, sid, title, year, network, genre, cwList, script, 
+           description, creators, tag_name, tag_val):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # old show information
+    oldshow = getShow(conn,sid) #returns network name, sid, nid, title, etc.
+    # Update intermediate tables first
+    updateWarnings(conn,sid,cwList)
+    updateCreators(conn,sid,creators)
+
+    #insert if values don't exist already
+    if getNid(conn,network) is None:
+        curs.execute('insert into networks (name) values(%s)', [network])
+    nid = getNid(conn,network)
+    
+    curs.execute('''update shows set title=%s, year=%s, genre=%s, script=%s, 
+                    description=%s, nid=%s where sid=%s''', 
+                    [title, year, genre, script, description, nid, sid]) 
+    curs.execute('update tags set name=%s, val=%s where sid=%s', 
+                  (tag_name, tag_val, sid))
+                    
+    #delete values if none of the left shows has them
+    if len(getResultsByNetwork(conn,oldshow['network']))==0:
+        curs.execute('delete from networks where name=%s', [oldshow['network']])
+
+if __name__ == '__main__':
+    conn = getConn('final_project'){% extends "base.html" %}
+
+{% block content %}
+<h1>Add Show</h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form name="add" id="add" method=POST action={{url_for('add')}}>
+    <div class=form-inputs>
+        
+        <input type="hidden" name="uid" value="{{uid}}">
+        <p><label for=title>Title:
+            <input type="text" id="title" name="title" size="60"/>
+        </label></p>
+
+        <div class="creator">
+            <label for=creator>Creator: </label>
+            <input type="button" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+        </div>
+        
+        <p><label for=network>Network:
+            <input type="text" id="network" name="network" />
+        </label></p>
+        
+        <p><label for=year>Year Debuted:
+            <input type="text" id="year" name="year" />
+        </label></p>
+        
+        <p><label for=genre>Genre:
+            <input type="text" id="genre" name="genre" />
+        </label></p>
+        
+        <div class="contentwarning">
+            <label for=contentwarning>Content Warning: </label>
+            <select name="warning-dropdown" id="warning-dropdown">
+                {% for common in commonWarnings %}
+                    <option value={{common}}>{{common}}</option>
+                {% endfor %}
+                {% for warning in contentwarnings %}
+                    {% if warning.name not in commonWarnings %}
+                        <option value="{{warning.name}}">{{warning.name}}</option>
+                    {% endif %}
+                {% endfor %}
+                <option value="Other">Other (Add a new warning)</option>
+                <input type="button" value="Add" id="cwbutton" name="cwbutton"/>
+                <br><span id="newwarning_placeholder"></span>
+            </select>
+        </div>
+        
+        <p><label for="tags">Tags:</label>
+            <!--<button type="button" id="add-tag" name="tag-arg">-->
+            <!--    Add another tag-->
+            <!--</button>  -->
+            <ul id="tags-list">
+                <div class=tag-input>
+                    <li>
+                    <select id="tags" name="tags">
+                        <option value=''>Choose a tag</option>
+                        <option value='pace'>Pace</option>
+                        <option value='length'>Length</option>
+                        <option value='type'>Type</option>
+                    </select>
+                    <label for="tag-arg">
+                        <input type="text" id="tag-arg" name="tag-arg"/>
+                    </label>
+                </li></div>
+            </ul></p>
+        
+        <p><label for=script>Link to Script:
+            <input type="text" id="script" name="script" size="100"/>
+        </label></p>
+        
+        <p><label for=description>Description:<br>
+            <!--<input type="text" id="description" name="description" />-->
+            <textarea rows="4" cols="110" name='description'></textarea>
+        </label></p>
+        <p><button type="submit">Submit</button></p>
+    </div>
+    
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script language="javascript">
+/* global $ */
+function addNewWarning(){
+    newwarning = $('#newcw').val();
+    warninghtml = '<ul id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
+                +'<button type="button" name="delete" onclick="deleteUl(this)">X</button></ul>'
+    $(warninghtml).appendTo('.contentwarning')
+}
+
+function deleteUl(elem){
+    elem.closest('ul').remove();
+}
+
+
+$("#cwbutton").on("click", function (e) {
+    selected = $("#warning-dropdown option:selected").text();
+    if ($("#warning-dropdown option:selected").val()=="Other"){
+        $("#newwarning_placeholder")
+        .append('<ul>Add a new warning: <input type="text" id="newcw"/>' +
+                    '<input type="button" value="Add" onclick="addNewWarning()" id="newcwbutton" name="newcwbutton"/></ul>');
+    } else {
+        warninghtml = '<ul id="warning"><input type="text" id="cw" value="'+selected+'" name="cw"/>'
+                     +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+        $(warninghtml).appendTo(".contentwarning")
+    }
+});
+
+
+function addCreators() {
+// 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
+    creatorhtml = '<ul><input type="text" id="creator" name="creator"/>'
+            +'<button type="button" onclick="deleteUl(this)" name="delete">X</button></ul>'
+    $(creatorhtml).appendTo(".creator")
+}
+
+$("#add-tag").on("click", function (event) {
+    $("ul#tags-list").append($("div.tag-input").html())
+    console.log("Adding another tag input");
+});
+
+</script>
+
+{% endblock %}
+
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name=author content="shows-and-tel">
+    {% block headstuff %}
+        <title>Shows-and-Tel</title>
+    {% endblock %}
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">-->
+    <link rel='stylesheet' href="/static/style.css">
+    <!-- Custom styles for this template -->
+    <link href="floating-labels.css" rel="stylesheet">
+</head>
+<body>
+
+<ul id="navbar" class="navbar" uid={{uid}}>
+  <li><a class="active" href={{url_for('index')}}>Home</a></li>
+  <li><a class="active" href={{url_for('displayAll')}}>All</a></li>
+  <li><a class="active" href={{url_for('add')}}>Add</a></li>
+</ul>
+
+<br>
+</div>
+
+{% block content %}
+
+{% endblock %}
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>{% extends "base.html" %}
+  {% block headstuff %}<title>Edit Show</title>{% endblock %}
+
+{% block content %}
+  <h1 show=show>Update Show: {{show.title}} (#{{show.sid}})</h1>
+    
+  <p>You may delete or add content warnings and creators. However, a show must have at least one content warning and creator.
+
+    <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators warnings=warnings>
+      <table>
+        <tr>
+          <td><label for="show-title">Title</label></td>
+          <td><input name='show-title' value='{{show.title}}'></td> 
+        </tr>
+        <tr>
+          <td><label for="show-network">Network</label></td>
+          <td><input name='show-network' value='{{show.network}}'></td>
+        </tr>
+        <tr>
+          <td><label for="show-release">Release year</label></td>
+          <td><input name='show-release' value='{{show.year}}'></td>
+        </tr>
+        <tr>
+          <td><label for="show-description">Description</label></td>
+          <td><textarea rows="4" cols="75" name='show-description'>{{show.description}}</textarea></td>
+        </tr>
+        <tr>
+          <td><label for="show-script">Script</label></td>
+          <td><input name='show-script' value='{{show.script}}' size="80"></td>
+        </tr>
+        <tr>
+          <td><label for="show-genre">Genre</label></td>
+          <td><input name='show-genre' value='{{show.genre}}'></td>
+        </tr>
+        
+        <!--<div class="warning">-->
+          {% for warning in warnings %}
+          <tr class='warning'>
+              <td><label for="show-warnings">Content Warning</label></td>
+              <td><input name='show-warnings' value='{{warning.name}}'>
+              {% if warning == warnings[0] %}
+                <button type="button" id="addwarning">Add Warning</button>
+              {% elif warning != warnings[0] %}
+                <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+              </td>
+          </tr>
+          {% endfor %}
+        <!--</div>-->
+        
+        <!--<div class="creators">-->
+          {% for creator in creators %}
+          <tr class='creator'>
+            <td><label for="show-creators">Creator</label></td>
+            <td><input name='show-creators' value='{{creator.name}}'>
+              {% if creator == creators[0] %}
+                <button type="button" name="add" id="addcreator">Add Creator</button>
+              {% elif creator != creators[0] %}
+              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        <!--</div>-->
+        
+        <td><label for="show-tag">Tags</label></td>
+          <td>
+            {% for tag in tags %}
+            <div class=tags-row name={{tag.name}}>
+              <p><select id="tags" name=tags>
+                  <option value=''>Choose a tag</option>
+                  <option value='pace'>Pace</option>
+                  <option value='length'>Length</option>
+                  <option value='type'>Type</option>
+              </select>
+              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>
+            </div>
+            {% endfor %}
+          </td>
+          
+      </table>
+      <input type="submit" name="submit" value="update">
+    </form>
+    
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script language="javascript">
+/* global $ */
+$(document).ready(function() {
+  var tag_name = $(".tags-row").attr("name");
+  $('#tags option[value='+tag_name+']').prop('selected', true);
+});
+
+$("#addwarning").on('click', function(){
+  var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
+                    '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>'
+  $(newWarning).insertAfter($(this).closest('.warning'));
+})
+
+$("#addcreator").on('click', function(){
+  var newCreatpr = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
+              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>')
+  $(newCreatpr).insertAfter($(this).closest('.creator'));
+})
+
+function deleteRow(elem){
+    console.log('deleting')
+    elem.closest('tr').remove();
+}
+
+</script>
+{% endblock %}{% extends "base.html" %}
+
+{% block content %}
+
+    <div class=search>
+        <div class=form>
+            <h1>Welcome to Shows & Tel</h1>
+            <p>Use the form to search for a TV show!</p>
+            
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div id="flashes">
+                {% for msg in messages %}
+                  <p>{{msg}}</p>
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form id="search" method=POST action="{{url_for('search')}}">
+                <div class=form-inputs>
+                    <input type="hidden" name="uid" value="{{uid}}">
+                    <p><label for=title>Title:
+                        <input type="text" id="title" name="title" />
+                    </label></p>
+                    <p><label for=creator>Creator:
+                        <input type="text" id="creator" name="creator" />
+                    </label></p>
+                    
+                    <p><label for=network>Network:
+                        <select id="network" name="network" />
+                                <option value="">Select Network</option>
+                            {% for network in networks %}
+                                <option>{{network.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </label></p>
+                    
+                    
+                    <p><label for=contentwarning>Content Warning:
+                        <select id="contentwarning" name="contentwarning" />
+                                <option value="">Select Content Warning</option>
+                            {% for warning in contentwarnings %}
+                                <option>{{warning.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </label></p>
+                    
+                    
+                    <p><label for="tags">Tags:</label>
+                    <!--<button type="button" id="add-tag" name="tag-arg">-->
+                    <!--    Add another tag-->
+                    <!--</button>  -->
+                    <ul id="tags-list">
+                        <div class=tag-input>
+                            <li>
+                            <select id="tags" name="tags">
+                                <option value=''>Choose a tag</option>
+                                <option value='pace'>Pace</option>
+                                <option value='length'>Length</option>
+                                <option value='type'>Type</option>
+                            </select>
+                            <label for="tag-arg">
+                                <input type="text" id="tag-arg" name="tag-arg"/>
+                            </label>
+                        </li></div>
+                    </ul>
+                    <p><button type="submit">Submit</button></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
+<script>
+/* global $ */
+
+$("#add-tag").on("click", function (event) {
+    $("ul#tags-list").append($("div.tag-input").html())
+    console.log("Adding another tag input");
+});
+
+</script>
+
+{% endblock %}{% extends "base.html" %}
+{% block content %}
+
+<div show={{show}} creators={{creators}} warnings={{warnings}}>
+    <h2>{{show.title}} ({{show.year}})</h2>
+    <a class="active" href={{url_for('edit',sid=show.sid)}}>Edit</a>
+    <p>{{show.description}}</p>
+    <ul>
+        <li>Creator(s): 
+            {% for creator in creators %}
+                <ul class="inside">
+                <li>{{creator.name}}</li>
+                </ul>
+            {% endfor %}
+        </li>
+        <li>Genre: {{show.genre}}</li>
+        <li>Content Warning: 
+            {% for warning in warnings %}
+                <ul class="inside">
+                <li>{{warning.name}}</li>
+                </ul>
+            {% endfor %}
+        </li>
+        <li>Tags:
+            {% for tag in tags %}
+                <ul class="inside">
+                <li>{{tag.name}}: {{tag.val}}</li>
+                </ul>
+            {% endfor %}
+        </li>
+        <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
+        <li>Network: {{show.network}}</li>  
+    </ul>
+</div>
+
+{% endblock %}{% extends "base.html" %}
+
+{% block content %}
+  <h1>Search Results</h1>
+  
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+  <div class=results>
+    <table style="width:100%">
+      {% if shows%}
+      <tr>
+        <th>Title</th>
+        <th>Description</th> 
+        <th>Release Year</th>
+      </tr>
+        {% for show in shows %}
+        <tr>
+          <th><a class="profile" href={{url_for('profile',sid=show.sid)}}>{{show.title}}</a></th>
+          <th>{{show.description}}</th>
+          <th>{{show.year}}</th>
+        </tr>
+        {% endfor %}
+      {% else %}
+      <tr>
+        <th>Result doesn't exist</th>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+{% endblock %}#messages {
+    font-size: large;
+    color: red;
+}
+
+
+body {
+    background-color: #f7faff;
+    font-family: "Lato", sans-serif;
+    /*margin:0;*/
+}
+
+#navbar {
+  list-style-type: none;
+  margin: 0;
+  margin-left: -20px;
+  margin-top: -10px;
+  padding-left: 7px;
+  padding-right: 7px;
+  overflow: hidden;
+  position: relative;
+  top: 0;
+  width: 101%;
+  background-color: #6384b7;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/*li {*/
+/*  float: left;*/
+/*}*/
+
+/*li a {*/
+/*  display: block;*/
+/*  color: white;*/
+/*  text-align: center;*/
+/*  padding: 14px 16px;*/
+/*  text-decoration: none;*/
+/*}*/
+
+
+#navbar li a{
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+
+/*.navbar li a:hover:not(.active) {*/
+/*  background-color: #111;*/
+/*}*/
+
+/*.active {*/
+/*  background-color: #4CAF50;*/
+/*}*/
+
+/*div {*/
+/*  padding-top: 5px;*/
+/*}*/
+
+/*p {*/
+/*  font-weight: bold;*/
+/*}*/
+
+/*.textbox {*/
+/*  padding-top: 16px;*/
+/*  padding-bottom: 10px;*/
+/*  padding-left: 10px;*/
+/*  padding-right: 10px;*/
+/*} */
+
+/*.blurb {*/
+/*  box-sizing: border-box;*/
+/*  border: 10px solid lavender;*/
+/*  background-color: pink;*/
+/*  border-radius: 4px;*/
+/*  text-align: center;*/
+/*  position: relative;*/
+/*  left: 50%;*/
+/*  transform: translate(-50%, 50%);*/
+/*  width: 40%;*/
+/*}*/
+
+
+
+/*#search, #input-uid, #searchterm {*/
+  /*float: right;*/
+  /*padding: 8px;
+  border: none;*/
+  /*margin-top: 8px;*/
+  /*margin-right: 16px;*/
+  /*margin-bottom: 10px;*/
+  /*font-size: 30px;*/
+/*}*/
+
+.form {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+.form-inputs {
+    display: inline-block;
+    text-align: left;
+}
+
+/*table, */
+th, td {
+  border: 1px solid black;
+  padding: 15px;
+}create database if not exists final_project;
+use final_project;
+
+SET FOREIGN_KEY_CHECKS = 0;
+drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs;
+drop table if exists interviews, scripts, streams, networks, contentwarnings;
+drop table if exists shows, creators, streams, actors, tags; 
+SET FOREIGN_KEY_CHECKS = 0;
+
+
+-- Tables
+
+create table networks (
+    nid int auto_increment,
+    primary key (nid),
+    name varchar(30) not null
+)
+ENGINE = InnoDB;
+
+-- many to many because one show can have multiple content warnings and one content warning can have many shows
+create table contentwarnings (
+    cwid int auto_increment,
+    primary key (cwid),
+    name varchar(30)
+)
+ENGINE = InnoDB;
+
+
+create table tags (
+    tid int auto_increment,
+    primary key (tid),
+    sid int,
+    name ENUM('length', 'pace', 'type'),
+    val varchar(30),
+    foreign key(sid) references shows(sid) on delete cascade
+)
+ENGINE = InnoDB;
+
+create table creators (
+    cid int auto_increment,
+    primary key (cid),
+    name varchar(50)
+)
+ENGINE = InnoDB;
+
+create table streams (
+    stid int auto_increment,
+    primary key (stid),
+    source varchar(50)
+)
+ENGINE = InnoDB;
+
+create table actors (
+    aid int auto_increment,
+    primary key (aid),
+    name varchar(30)
+)
+ENGINE = InnoDB;
+
+create table shows (
+    sid int auto_increment,
+    primary key (sid),
+    nid int,
+    title varchar(30),
+    description varchar(1000),
+    year int,
+    genre varchar(30), -- Q: enum(a,b,c)?? what is better?
+    -- cwid int, -- not right b/c many to many
+    script varchar(100), -- adding scripts as an attribute in shows (link)
+    foreign key(nid) references networks(nid) on delete cascade
+        -- one show can have one network, but one network can have many shows
+)
+ENGINE = InnoDB;
+
+create table interviews (
+    iid int auto_increment,
+    primary key (iid),
+    sid int,
+    link varchar(500),
+    foreign key (sid) references shows(sid) on delete cascade 
+        -- interview:show is many:one
+)
+ENGINE = InnoDB;
+
+
+-- TABLES FOR MANY TO MANY RELATIONSHIPS --
+
+-- shows and creators
+create table showsCreators (
+    sid int,
+    cid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (cid) references creators(cid) on delete cascade,
+    primary key(sid, cid)
+)
+ENGINE = InnoDB;
+
+-- shows and streams
+create table showsStreams (
+    sid int,
+    stid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (stid) references streams(stid) on delete cascade,
+    primary key(sid, stid)
+)
+ENGINE = InnoDB;
+
+create table showsCWs (
+    sid int,
+    cwid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (cwid) references contentwarnings(cwid) on delete cascade,
+    primary key(sid, cwid)
+)
+ENGINE = InnoDB;
+
+-- shows and actors
+create table showsActors (
+    sid int,
+    aid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (aid) references actors(aid) on delete cascade,
+    primary key(sid, aid)
+)
+ENGINE = InnoDB;
+
+-- shows and tags
+create table showsTags (
+    sid int,
+    tid int,
+    foreign key (sid) references shows(sid) on delete cascade,
+    foreign key (tid) references tags(tid) on delete cascade,
+    primary key(sid, tid)
+)
+ENGINE = InnoDB;
+use final_project;
+
+-- TRUNCATE TABLE networks, shows, creators, showsCreators;
+
+-- Inserting sample data
+
+insert into networks (name)
+values ("HBO"), ("NBC"), ("BBC"), ("AMC"), ("Netflix");
+
+insert into shows (title, year, nid, genre, script, description) 
+values ("Game of Thrones", 2011, 1, "Fantasy",  "https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=game-of-thrones",
+        "Nine noble families fight for control over the mythical lands of Westeros, while an ancient enemy returns after being dormant for thousands of years."),
+        ("Friends", 1994, 2, "Sitcom", "https://fangj.github.io/friends/",
+        "Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan."),
+        ("Sherlock", 2010, 3, "Crime", "https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=sherlock",
+        "A modern update finds the famous sleuth and his doctor partner solving crime in 21st century London."),
+        ("Breaking Bad", 2008, 4, "Drama", "https://filmschoolrejects.com/wp-content/uploads/2017/05/Screenplay-Breaking_Bad-Pilot.pdf",
+        "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future."),
+        ("Black Mirror", 2011, 5, "Science Fiction", "https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=black-mirror-2011",
+        "Featuring stand-alone dramas -- sharp, suspenseful, satirical tales that explore techno-paranoia -- 'Black Mirror' is a contemporary reworking of 'The Twilight Zone' with stories that tap into the collective unease about the modern world. ")
+        ;
+
+insert into contentwarnings(name)
+value("Sex & Nudity"),("Violence & Gore"),("Profanity"),("Alcohol"), ("Drugs & Smoking");
+
+insert into showsCWs(sid,cwid)
+values(1,1),(3,2),(2,5),(2,4),(4,2),(4,1),(4,5),(3,3);
+
+insert into creators(name)
+values('Mark Gatiss'),('Steven Moffat'),('Vince Gilligan'),('David Crane'),('Marta Kauffman'),('David Benioff'),('D. B. Weiss'),('Charlie Brooker');
+
+insert into showsCreators(sid,cid)
+values (3,1),(3,2),(4,3),(2,4),(2,5),(1,6),(1,7),(5,8);
+
+insert into tags(sid, name, val)
+values (1, 'type', 'ensemble cast'), (2, 'type', 'ensemble cast'), (3, 'pace', 'fast'), (4, 'length', '5 seasons'), (5, 'length', '5 seasons');

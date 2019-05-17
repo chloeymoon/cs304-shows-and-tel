@@ -9,6 +9,7 @@ from werkzeug import secure_filename
 import functions, random, math
 
 import os
+import bcrypt
 import MySQLdb
 
 
@@ -54,11 +55,14 @@ def add():
         cwList = request.form.getlist('cw')
         creatorList=request.form.getlist('creator')
         genreList=request.form.getlist('genre')
-        tag_name = request.form['tags'] #.getlist('tags')
-        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-args')
+        print("IN ADD IN APP.PY")
+        print(tag_names)
+        print(tag_vals)
         filled = (title and year and genre and script and description
-                and creatorList and network and cwList and tag_name and tag_val)
-        if not(filled):
+                and creatorList and network and cwList)
+        if not(filled): # Should this be taken care on in front-end?
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
@@ -66,7 +70,7 @@ def add():
             if(len(databaseTitles)==0):
                 functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 
-                                        tag_name, tag_val)
+                                        tag_names, tag_vals)
                 flash("TV show: " + title + " successfully inserted")
                 return render_template('add.html')
             else: 
@@ -117,11 +121,11 @@ def edit(sid):
         newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
-        tag_name = request.form['tags']
-        tag_val = request.form['tag-vals']
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-vals')
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
-                        newcreators, tag_name, tag_val)
+                        newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
 
 @app.route('/search/', methods=['POST'])
@@ -134,9 +138,14 @@ def search():
         creator = request.form['creator']
         genre = request.form['genre']
         contentwarning = request.form['contentwarning']
-        tag_name = request.form['tags'] #.getlist('tags')
-        tag_val = request.form['tag-arg'] #.getlist('tag-arg')
+        tag_names = request.form.getlist('tags')
+        tag_vals = request.form.getlist('tag-args')
 
+        if (title=='' and network=='' and creator=='' and contentwarning==''
+                      and tag_names=='' and tag_vals=='' and genre==''):
+            flash("Search using at least one criteria")
+            return redirect(request.referrer)
+            
         if title:
             shows = functions.getResultsByTitle(conn,title)
         if network:
@@ -145,79 +154,88 @@ def search():
             shows = functions.getResultsByCreator(conn,creator)
         if genre:
             shows = functions.getResultsByGenre(conn,genre)
-        if (title=='' and network=='' and creator=='' and contentwarning==''
-                      and tag_name=='' and tag_val=='' and genre==''):
-            flash("Search using at least one criteria")
-            return redirect(request.referrer)
-        if tag_name and tag_val:
-            shows = functions.getResultsByTags(conn, tag_name, tag_val)
+        if tag_names and tag_vals:
+            shows = functions.getResultsByTags(conn, tag_names, tag_vals)
         if contentwarning:
             shows = functions.getResultsByContentWarning(conn,contentwarning)
+            
         return render_template('results.html', shows=shows)
         
 @app.route('/signup/', methods=['GET', 'POST'])
 def signup():
-    '''
-    conn = functions.getConn('final_project')
-    curs = curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    
-    
-    username = request.form['username']
-    passwd1 = request.form['password1']
-    passwd2 = request.form['password2']
-    if passwd1 != passwd2:
-        flash('passwords do not match')
-        return redirect( url_for('signup'))
-    print passwd1, type(passwd1)
-    hashed = passwd1
-    
-    try:
-        curs.execute('INSERT into userpass(uid,username,hashed) VALUES(null,%s,%s)', [username, hashed])
-        
-    except MySQLdb.IntegrityError as err:
-        flash('That username is taken')
-        return redirect(url_for('index'))
-    
-        
-    return render_template('signup.html')'''
-    return render_template('signup.html')
+    '''lets a user to sign up/join'''
+    if request.method=='GET':
+        return render_template('signup.html')
+    if request.method=='POST':
+        try:
+            username = request.form['username']
+            passwd1 = request.form['password1']
+            passwd2 = request.form['password2']
+            if passwd1 != passwd2:
+                flash('passwords do not match')
+                return redirect( url_for('signup'))
+            hashed = bcrypt.hashpw(passwd1.encode('utf-8'), bcrypt.gensalt())
+            conn = functions.getConn('final_project')
+            userRow = functions.checkUsername(conn,username)
+            if userRow is not None: #check if username exists in the database
+                flash('That username is taken')
+                return redirect( url_for('signup') )
+            functions.insertUser(conn,username,hashed)
+            session['username'] = username
+            session['logged_in'] = True
+            ###### decide and change this later ########
+            return redirect(url_for('login', username=username))
+        except Exception as err:
+            flash('form submission error '+str(err))
+            return redirect( url_for('signup') )
         
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
-    '''
-    try:
-        username = request.form['username']
-        passwd = request.form['password']
-        conn = functions.getConn('final_project')
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute('SELECT uid,hashed FROM userpass WHERE username = %s',
-                     [username])
-        row = curs.fetchone()
-        if row is None:
-            # Same response as wrong password, so no information about what went wrong
-            flash('login incorrect. Try again or join')
-            return redirect( url_for('index'))
-        hashed = row['hashed']
-        if hashed == passwd:
-            flash('successfully logged in as '+username)
-            session['username'] = username
-            session['uid'] = row['uid']
-            session['logged_in'] = True
-            session['visits'] = 1
-            return redirect( url_for('user', username=username) )
-        else:
-            flash('login incorrect. Try again or join')
-            return redirect( url_for('index'))
-    except Exception as err:
-        flash('form submission error '+str(err))
-        return redirect( url_for('index') )'''
-    
-@app.route('/logout/', methods=['GET', 'POST'])
+    if request.method=='GET':
+        return render_template('login.html')
+    if request.method=='POST':
+        try:
+            username = request.form['username']
+            passwd = request.form['password']
+            conn = functions.getConn('final_project')
+            userRow = functions.checkPW(conn,username)
+            if userRow is None:
+                flash('login incorrect (app.py 201). Try again or join')
+                return redirect(url_for('login'))
+            hashed = userRow['hashed']
+            #strings always come out as unicode, so have to encode
+            if bcrypt.hashpw(passwd.encode('utf-8'),hashed.encode('utf-8')) == hashed:
+                flash('successfully logged in as '+username)
+                session['username'] = username
+                session['logged_in'] = True
+                #### change this later
+                return redirect(url_for('login'))
+            else:
+                flash('login incorrect. Try again or join')
+                return redirect(url_for('login'))
+        except Exception as err:
+            flash('form submission error '+str(err))
+            return redirect( url_for('login') )
+            
+            
+@app.route('/logout/', methods=['POST','GET'])
 def logout():
-    print "hello"
-    
+    try:
+        if 'username' in session:
+            print session
+            username = session['username']
+            session.pop('username')
+            session.pop('logged_in')
+            flash('You are logged out')
+            print session
+            return redirect(url_for('index'))
+        else:
+            flash('you are not logged in. Please login or join')
+            return redirect( url_for('login') )
+    except Exception as err:
+        flash('some kind of error '+str(err))
+        return redirect( url_for('index') )
 
 if __name__ == '__main__':
     app.debug = True
-    app.run('0.0.0.0',8082)
+    app.run('0.0.0.0',8081)

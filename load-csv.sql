@@ -21,7 +21,7 @@ set cwid = NULL;
 load data local infile 'csv/Tags.csv' into table tags
 fields terminated by ','
 lines terminated by '\n'
-(name, val, sid)
+(val, name, sid)
 set tid = NULL;
 
 load data local infile 'csv/Creators.csv' into table creators
