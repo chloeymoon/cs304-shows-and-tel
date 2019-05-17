@@ -10,6 +10,14 @@
     
   <p>You may delete or add content warnings and creators. However, a show must 
     have at least one content warning and creator.</p>
+  <p>Note about tags: if you would like to update a show's tags, use the 
+    dropdown menu to choose a new tag type and enter a value into the 
+    corresponding textbox. However, if you would like to leave a tag unchanged,
+    you need to re-enter the tag type in the dropdown menu. For your reference, 
+    here are this show's tags:</p>
+    {% for tag in tags %}
+    <p>{{tag.name}}, {{tag.val}}</p>
+    {% endfor %}
 
     <form method=POST action="{{url_for('edit',sid=show.sid)}}" 
       enctype = "multipart/form-data" show=show creators=creators
@@ -34,9 +42,9 @@
         <tr>
           <td><label for="show-script">Script</label></td>
           <td>
-            <input name='show-script' value='{{show.script}}' size="80">
+            <input id='show-script' value='{{show.script}}' size="80">
             <p>Or upload a file (.doc, .docx, or .pdf):
-                <input type = "file" name = "file" />
+                <input type = "file" id="show-script" name="file" />
             </p>
           </td>
         </tr>

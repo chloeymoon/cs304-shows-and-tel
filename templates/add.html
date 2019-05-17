@@ -19,8 +19,10 @@
 
     <div class="form-group">
         <div class="creator">
-            <label for="creator">Creator: </label> <br>
-            <input type="button" class="btn btn-outline-primary" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+            <label for="creator">Creator:  <br>
+                <input type="button" id="creator" class="btn btn-outline-primary" 
+                value="Add Creators" onclick="addCreators()" name="creator"/>
+            </label>
         </div>
     </div>
 
@@ -38,8 +40,10 @@
         
     <div class="form-group">
         <div class="genre">
-            <label for=genre>Genre: </label> <br>
-            <input type="button" class="btn btn-outline-primary" value="Add Genre" onclick="addGenres()" id="cbutton" name="cbutton"/>
+            <label for=genre>Genre: <br>
+            <input type="button" class="btn btn-outline-primary" value="Add Genre" 
+                onclick="addGenres()" id="genre"/>
+            </label> 
         </div>
     </div>
 
@@ -64,8 +68,10 @@
     
     <div class="form-group">
         <div class="tags">
-            <label for=tag>Tags:</label>
-            <input type="button" id="tag" class="btn btn-outline-primary" name="tag" value="Add Tags" onclick="addTag()"/>
+            <label for=tag>Tags:
+            <input type="button" id="tag" class="btn btn-outline-primary" 
+                    name="tag" value="Add Tags" onclick="addTag()"/>
+            </label>
         </div>
     </div>
         
@@ -73,10 +79,11 @@
         <p><label for=script>Link to Script:
             <input class="form-control" type="text" id="script" name="script" 
                     size="100" placeholder="http://"/>
-            <p>Or upload a file (.doc, .docx, or .pdf):
-                <input type="file" name ="file" />
-            </p>
-        </label></p>
+            </label>
+            <label for=file>Or upload a file (.doc, .docx, or .pdf):
+                <input type="file" id="file" name ="file" />
+            </label>
+        </p>
     </div>
 
     <div class="form-group">
@@ -136,12 +143,14 @@ function addNewWarning(){
 // when 'Add Tags' button is clicked
 function addTag(){
     var taghtml = ` <div class=tag-input>
+                        <label for=tags>
                         <select class="form-control" id="tags" name="tags">
                             <option value=''>Choose a tag</option>
                             <option value='pace'>Pace</option>
                             <option value='length'>Length</option>
                             <option value='type'>Type</option>
                         </select>
+                        </label>
                         <label for="tag-args">
                             <input class="form-control" type="text" id="tag-args" name="tag-args" required/>
                         </label>
