@@ -148,7 +148,11 @@ def getSid(conn,showTitle):
     '''Returns sid based on show name'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select sid from shows where title = %s',[showTitle])
-    return curs.fetchone()['sid']
+    res = curs.fetchone()
+    if res:
+        return res['sid']
+    else:
+        return None
 
 def getCid(conn,creatorName):
     '''Returns cid based on creator name'''
@@ -216,9 +220,12 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     ''' Inserts show, creator, show&creator relationship etc. to the database, 
         given form values '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    if getSid(conn,title):
-        flash("I'm sorry. This show already exists.")
     lock.acquire()
+    print 'locked functions.py 220'
+    if getSid(conn,title): # if the show already exists in the db
+        lock.release()
+        print 'releasing lock; show already exists'
+        return False
     # check if network exists and, if not, inserts the network in the networks table
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
@@ -228,13 +235,10 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
-    print("IN INSERT SHOWS")
-    print(tag_names)
-    print(tag_vals)
     if tag_names and tag_vals: # If tags info exists, insert into database
         insertTags(conn, sid, tag_names, tag_vals)
     lock.release()
-
+    return True
 
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''
