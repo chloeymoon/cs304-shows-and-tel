@@ -221,7 +221,7 @@ def insertTags(conn, sid, tag_names, tag_vals):
         print('INSERTING', name, ',', val)
         curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
                     [sid, name, val])
-        
+                    
 def insertShows(conn, title, year, cwList, genreList, script, description, 
                 creatorList, network, tag_names, tag_vals):
     ''' Inserts show, creator, show&creator relationship etc. to the database, 
@@ -237,16 +237,12 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
     insertContentwarnings(conn,sid,cwList)
     insertCreators(conn,sid,creatorList)
     insertGenres(conn,sid, genreList)
-    curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-                    [sid, tag_name, tag_val])
+    print("IN INSERT SHOWS")
+    print(tag_names)
+    print(tag_vals)
+    if tag_names and tag_vals: # If tags info exists, insert into database
+        insertTags(conn, sid, tag_names, tag_vals)
     lock.release()
-    
-    # Support for multiple tags to be added in beta version
-    # for i in range(len(tag_names)):
-    #     name = tag_names[i]
-    #     val = tag_vals[i]
-    #     curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-    #                 [sid, name, val])
 
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''
@@ -268,13 +264,8 @@ def updateWarnings(conn,sid,newwarnings):
             curs.execute('insert into contentwarnings (name) values(%s)', [w])
         cwid = getCWid(conn,w)  
         curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
-    print("IN INSERT SHOWS")
-    print(tag_names)
-    print(tag_vals)
-    if tag_names and tag_vals: # If tags info exists, insert into database
-        insertTags(conn, sid, tag_names, tag_vals)
-    lock.release()
-    
+
+
 # Update functions for Edit page
 def updateCreators(conn,sid,newCreators):
     ''''Given a list of new creators, compares it with old creators and updates'''
@@ -332,6 +323,8 @@ def updateTags(conn, sid, tag_names, tag_vals):
         curs.execute('''insert into tags (sid, name, val) 
                         values (%s, %s, %s)''', (sid, tag[0], tag[1]))
         
+
+
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, network, genreList, cwList, script, 
            description, creators, tag_names, tag_vals):
