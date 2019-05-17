@@ -140,6 +140,8 @@ def search():
         contentwarning = request.form['contentwarning']
         tag_names = request.form.getlist('tags')
         tag_vals = request.form.getlist('tag-args')
+        print tag_names
+        print tag_vals
 
         if (title=='' and network=='' and creator=='' and contentwarning==''
                       and tag_names=='' and tag_vals=='' and genre==''):
@@ -148,17 +150,17 @@ def search():
             
         if title:
             shows = functions.getResultsByTitle(conn,title)
-        if network:
+            print shows
+        elif network:
             shows = functions.getResultsByNetwork(conn,network)
-        if creator:
+        elif creator:
             shows = functions.getResultsByCreator(conn,creator)
-        if genre:
+        elif genre:
             shows = functions.getResultsByGenre(conn,genre)
-        if tag_names and tag_vals:
+        elif tag_names and tag_vals:
             shows = functions.getResultsByTags(conn, tag_names, tag_vals)
-        if contentwarning:
+        elif contentwarning:
             shows = functions.getResultsByContentWarning(conn,contentwarning)
-            
         return render_template('results.html', shows=shows)
         
 @app.route('/signup/', methods=['GET', 'POST'])
