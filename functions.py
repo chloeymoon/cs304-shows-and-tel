@@ -235,6 +235,7 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
 def updateWarnings(conn,sid,newwarnings):
     '''Given a list of new warnings, compares it with old warnings and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    lock.acquire()
     oldwarnings = [w['name'] for w in getWarnings(conn,sid)]
     #because the number of new list is not necessarily the same as the old list,
     #decided to delete and insert the differences rather than updating
@@ -251,10 +252,12 @@ def updateWarnings(conn,sid,newwarnings):
             curs.execute('insert into contentwarnings (name) values(%s)', [w])
         cwid = getCWid(conn,w)  
         curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
+    lock.release()
     
 def updateCreators(conn,sid,newCreators):
     ''''Given a list of new creators, compares it with old creators and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    lock.acquire()
     oldCreators = [c['name'] for c in getCreators(conn,sid)]
     toDelete = [c for c in oldCreators if c not in newCreators]
     toAdd = [c for c in newCreators if c not in oldCreators]
@@ -268,10 +271,12 @@ def updateCreators(conn,sid,newCreators):
             curs.execute('insert into creators (name) values(%s)', [c])
         cid = getCid(conn,c)  
         curs.execute('insert into showsCreators (sid,cid) values (%s,%s)',[sid,cid])
+    lock.release()
 
 def updateGenres(conn,sid,newGenres):
     ''''Given a list of new genres, compares it with old genres and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    lock.acquire()
     oldGenres = [g['name'] for g in getGenres(conn,sid)]
     toDelete = [g for g in oldGenres if g not in newGenres]
     toAdd = [g for g in newGenres if g not in oldGenres]
@@ -285,13 +290,14 @@ def updateGenres(conn,sid,newGenres):
             curs.execute('insert into genres (name) values(%s)', [g])
         gid = getGid(conn,g)  
         curs.execute('insert into showsGenres (sid,gid) values (%s,%s)',[sid,gid])
-        
+    lock.release()
         
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, network, genreList, cwList, script, 
            description, creators, tag_name, tag_val):
     ''''Updates the show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    lock.acquire()
     # old show information
     oldshow = getShow(conn,sid) #returns network name, sid, nid, title, etc.
     # Update intermediate tables first
@@ -313,7 +319,7 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
- 
+    lock.release()
  
  
 #username & joins
