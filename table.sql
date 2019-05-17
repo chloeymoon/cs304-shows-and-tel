@@ -29,8 +29,8 @@ ENGINE = InnoDB;
 create table tags (
     tid int auto_increment,
     primary key (tid),
-    name varchar(50),
-    val ENUM('length', 'pace', 'type'),
+    val varchar(50),
+    name ENUM('length', 'pace', 'type'),
     sid int,
     foreign key(sid) references shows(sid) on delete cascade
 )
