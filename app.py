@@ -100,6 +100,7 @@ def profile(sid):
     if request.method == 'GET':
         conn = functions.getConn('final_project')
         show = functions.getShow(conn,sid)
+        print(show["script"])
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
         genres = functions.getGenres(conn,sid)
@@ -125,7 +126,10 @@ def edit(sid):
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
         newscript = request.form['show-script']
-        newfile = request.files['file']
+        try:
+            newfile = request.files['file']
+        except:
+            newfile = False
         newgenrelist = request.form.getlist('show-genres')
         newcreators = request.form.getlist('show-creators')
         newcwList = request.form.getlist('show-warnings')
@@ -135,8 +139,13 @@ def edit(sid):
             filename = functions.isValidScriptType(newfile, newtitle)
             if filename:
                 newscript = filename
+                print("*** NEW SCRIPT FILE ***")
+                flash('''New script uploaded. Please hit SHIFT-REFRESH to refresh 
+                the cache and see the new script if it has not updated.''')
             else: # file is not a valid type
                 return redirect(request.referrer)
+        else:
+            print("No new script")
         functions.update(conn, sid, newtitle, newyear, newnetwork, 
                         newgenrelist, newcwList, newscript, newdesc,
                         newcreators, tag_names, tag_vals)
@@ -152,6 +161,8 @@ def script(sid):
     conn = functions.getConn('final_project')
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     script, is_local = functions.getScript(conn, sid)
+    print("**************** IN SCRIPT ROUTE ****************")
+    print(script)
     return script if (is_local=="local") else redirect(script)
 
 @app.route('/search/', methods=['POST'])
@@ -274,7 +285,7 @@ def likeShow():
         tt = request.form.get('tt')
         # movie_updated = functions.addUserRating(conn,tt,rating,uid)
         # return jsonify(tt=tt, avg=movie_updated['rating'])
-        
+
 if __name__ == '__main__':
     app.debug = True
     app.run('0.0.0.0',8082)
