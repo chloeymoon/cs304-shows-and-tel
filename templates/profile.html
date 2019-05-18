@@ -4,14 +4,30 @@
 <div class="row justify-content-center">
 <div class="col-md-6">
 <div show={{show}} creators={{creators}} warnings={{warnings}} genres={{genres}}>
-    {% if not session['logged_in'] %}
-        <p style="color: red;">You can't edit this show because you are not 
-            logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
-        <br>
-    {% endif %}
-    <h1>{{show.title}} ({{show.year}})</h1>
+
+    <h2>{{show.title}} ({{show.year}}) 
+        {% if not session['logged_in'] %}
+            <br><p style="color: red;">You can't edit or like this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
+            <br>
+        {% else %}
+            {% if not liked %}
+                <button type="button" class="btn btn-success" id="likebutton">like</button>
+            {% else %}
+                <button type="button" class="btn btn-success" id="likebutton">unlike</button>
+            {% endif %}
+        {% endif %}
+    </h2>
+    
+    <p>Number of Likes: <span id="numLikes">{{show.numLikes}}</span></p>
+    <br>
+  
     <p>{{show.description}}</p>
+    
+    <br>
+
     <ul>
+        <input type="hidden" name="sid" value="{{show.sid}}">
+        <input type="hidden" name="uid" value="{{uid}}">
         <li>Creator(s): 
             {% for creator in creators %}
                 <ul class="inside">
@@ -58,4 +74,43 @@
 </div>
 </div>
 </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>-->
+
+
+<script>
+// var loggedIn = session['logged_in'];
+// console.log(session)
+var username = "{{username}}";
+var sid = "{{show.sid}}"
+var url_like = "/like/";
+/* global $ */
+
+
+$("#likebutton").on("click", function(event){
+    if(username == "") return // if not logged in, can't rate
+    if($("#likebutton").text()=='like'){
+        var currentNum = $("#numLikes").text();
+        $("#likebutton").text('unlike');
+        $.post(url_like,
+            {'sid':sid, 'username':username, 'like':true},
+            function(resp){
+                console.log(resp)
+                $("#numLikes").text(resp.newNum)
+            }, 'json');
+    } else {
+        var currentNum = $("#numLikes").text();
+        $("#likebutton").text('like');
+        $.post(url_like,
+            {'sid':sid, 'username':username, 'like':false},
+            function(resp){
+                $("#numLikes").text(resp.newNum)
+            }, 'json');
+    }
+});
+
+</script>
+
 {% endblock %}

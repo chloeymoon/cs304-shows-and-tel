@@ -148,12 +148,12 @@ def getResultsByTitle(conn,term):
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
     
-def getResultsByExactTitle(conn,term):
-    '''Returns all shows based on the search term using title'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    term = '%' + term + '%'
-    curs.execute('select * from shows where title = %s', (term,))
-    return curs.fetchall()
+# def getResultsByExactTitle(conn,term):
+#     '''Returns all shows based on the search term using title'''
+#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+#     term = '%' + term + '%'
+#     curs.execute('select * from shows where title = %s', (term,))
+#     return curs.fetchall()
 
 # ID Getters
 def getCid(conn,creatorName):
@@ -399,6 +399,56 @@ def checkPW(conn,username):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select hashed from userpass where username=%s',[username])
     return curs.fetchone()
+    
+# using with ajax, likes
+def addUserLikes(conn,sid,username):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # lock.acquire()
+    uid = getUid(conn,username)
+    curs.execute('insert into likes(sid,uid) values (%s,%s)',[sid,uid])
+    newNumLikes = int(getNumLikes(conn,sid))+1
+    curs.execute('update shows set numLikes=%s where sid=%s',[newNumLikes,sid])
+    # lock.release()
+    return getNumLikes(conn,sid)
+    
+def deleteUserLikes(conn,sid,username):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    # lock.acquire()
+    uid = getUid(conn,username)
+    curs.execute('delete from likes where sid=%s and uid=%s',[sid,uid])
+    newNumLikes = int(getNumLikes(conn,sid))-1
+    curs.execute('update shows set numLikes=%s where sid=%s',[newNumLikes,sid])
+    # lock.release()
+    return getNumLikes(conn,sid)
+    
+def getUid(conn,username):
+    '''Returns uid based on username'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select uid from userpass where username = %s',[username])
+    res = curs.fetchone()
+    if res:
+        return res['uid']
+    else:
+        return None
+        
+def getNumLikes(conn,sid):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select numLikes from shows where sid = %s',[sid])
+    res = curs.fetchone()
+    if res:
+        return res['numLikes']
+    else:
+        return None
+        
+def userLiked(conn,sid,username):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    uid = getUid(conn,username)
+    curs.execute('select * from likes where sid=%s and uid=%s',[sid,uid])
+    res = curs.fetchone()
+    if res:
+        return res
+    else:
+        return None
 
 if __name__ == '__main__':
     conn = getConn('final_project')

@@ -36,8 +36,11 @@ def index():
 @app.route('/add/', methods=['GET','POST'])
 def add():
     '''Allows users to add a show to the database'''
-    conn = functions.getConn('final_project')
     if request.method == 'GET':
+        if 'username' not in session:
+            flash('you are not logged in. Please login or join')
+            return redirect( url_for('login') )
+        conn = functions.getConn('final_project')
         contentwarnings = functions.getAllWarnings(conn)
         return render_template('add.html',contentwarnings=contentwarnings, 
                                 commonWarnings=commonWarnings)
@@ -47,7 +50,10 @@ def add():
         year = request.form.get('year')
         genre = request.form.get('genre')
         script = request.form.get('script')
-        script_file = request.files['file']
+        try:
+            script_file = request.files['file']
+        except:
+            script_file = False
         description = request.form.get('description')
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
@@ -61,12 +67,18 @@ def add():
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
-            # Check to see if script file upload is a valid type
-            filename = functions.isValidScriptType(script_file, title)
-            if filename:
-                script = filename
-            else: # file is not a valid type
-                return redirect(request.referrer)
+            if script_file:
+                # Check to see if script file upload is a valid type
+                filename = functions.isValidScriptType(script_file, title)
+                if filename:
+                    script = filename
+                else: # file is not a valid type
+                    return redirect(request.referrer)
+            else:
+                if 'http' not in script:
+                    flash('''Invalid script link. Please include http:// at the 
+                            beginning of the link.''')
+                    return redirect(request.referrer)
             insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
                                 description, creatorList, network, 
                                 tag_names, tag_vals)
@@ -87,11 +99,30 @@ def displayAll():
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
 
+@app.route('/profile/<int:sid>/', methods=['GET'])
+def profile(sid):
+    '''Displays profile page of the show based on show id (sid)'''
+    if request.method == 'GET':
+        conn = functions.getConn('final_project')
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        warnings = functions.getWarnings(conn,sid)
+        genres = functions.getGenres(conn,sid)
+        tags = functions.getTags(conn,sid)
+        username= session.get('username','')
+        liked = functions.userLiked(conn,sid,username)
+        return render_template('profile.html', show=show, creators=creators, 
+                                warnings=warnings, tags=tags, genres=genres, username=username, liked=liked)
+        
+
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
     '''Edits/updates profile page of the show based on show id (sid)'''
     conn = functions.getConn('final_project')
     if request.method == 'GET':
+        if 'username' not in session:
+            flash('you are not logged in. Please login or join')
+            return redirect( url_for('login') )
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
@@ -104,7 +135,7 @@ def edit(sid):
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
-        newscript = request.form['show-script']
+        newscript = request.form['script']
         try:
             newfile = request.files['file']
         except:
@@ -134,19 +165,6 @@ def edit(sid):
                         newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
 
-@app.route('/profile/<int:sid>/', methods=['GET'])
-def profile(sid):
-    '''Displays profile page of the show based on show id (sid)'''
-    if request.method == 'GET':
-        conn = functions.getConn('final_project')
-        show = functions.getShow(conn,sid)
-        print(show["script"])
-        creators = functions.getCreators(conn,sid)
-        warnings = functions.getWarnings(conn,sid)
-        genres = functions.getGenres(conn,sid)
-        tags = functions.getTags(conn,sid)
-        return render_template('profile.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags, genres=genres)
 
 @app.route('/search/', methods=['POST'])
 def search():
@@ -214,12 +232,12 @@ def login():
 def logout():
     try:
         if 'username' in session:
-            print session
+            # print session
             username = session['username']
             session.pop('username')
             session.pop('logged_in')
             flash('You are logged out')
-            print session
+            # print session
             return redirect(url_for('index'))
         else:
             flash('you are not logged in. Please login or join')
@@ -227,6 +245,7 @@ def logout():
     except Exception as err:
         flash('some kind of error '+str(err))
         return redirect( url_for('index') )
+
 
 @app.route('/signup/', methods=['GET', 'POST'])
 def signup():
@@ -253,21 +272,27 @@ def signup():
             flash('signed up and logged in as '+username)
             return redirect(url_for('index'))
         except Exception as err:
-            flash('form submission error '+str(err))
+            print('form submission error '+str(err))
             return redirect( url_for('signup') )
 
 # Other routes for non-templated pages
-@app.route('/likeShow/', methods=['POST'])
-def likeShow():
+@app.route('/like/', methods=['POST'])
+def like():
     '''Uses Ajax; return a json object instead of redirecting'''
     if request.method == 'POST': 
-        conn = functions.getConn('wmdb')
-        #2 pieces of information: 1) tt 2) rating
-        uid= session.get('uid','')
-        rating = request.form.get('rating')
-        tt = request.form.get('tt')
-        # movie_updated = functions.addUserRating(conn,tt,rating,uid)
-        # return jsonify(tt=tt, avg=movie_updated['rating'])
+        conn = functions.getConn('final_project')
+        #we need 3 pieces of information: 1) uid 2) showid (sid) 3) like or unlike
+        username= session.get('username','')
+        sid = request.form.get('sid')
+        currentNum = request.form.get('currentNum')
+        like = request.form.get('like')
+        if like=='true':
+            #like -- updating db
+            like_updated = functions.addUserLikes(conn,sid,username)
+        else:
+            #unlike -- updating db
+            like_updated = functions.deleteUserLikes(conn,sid,username)
+        return jsonify(sid=sid, newNum=like_updated)
         
 @app.route('/script/<sid>')
 def script(sid):
@@ -281,6 +306,7 @@ def script(sid):
     script, is_local = functions.getScript(conn, sid)
     print("**************** IN SCRIPT ROUTE ****************")
     print(script, is_local)
+    print("ISSS LOCALL:", is_local)
     return script if (is_local=="local") else redirect(script)
 
 if __name__ == '__main__':

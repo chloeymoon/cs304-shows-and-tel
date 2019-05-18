@@ -4,7 +4,7 @@ use final_project;
 SET FOREIGN_KEY_CHECKS = 0;
 drop table if exists showsCreators, showsActors, showsStreams, showsTags, showsCWs, showsGenres;
 drop table if exists interviews, scripts, streams, networks, contentwarnings;
-drop table if exists shows, creators, streams, actors, tags, genres, userpass; 
+drop table if exists shows, creators, streams, actors, tags, genres, userpass, likes; 
 SET FOREIGN_KEY_CHECKS = 0;
 
 
@@ -16,16 +16,18 @@ create table userpass(
         username varchar(50) not null,
         hashed char(60) not null,
         primary key (uid)
-);
+)
+ENGINE = InnoDB;
 
 -- likes table
 create table likes (
-    sid int(10) unsigned,
-    uid int(10) unsigned,
+    sid int(10),
+    uid int(10),
     foreign key (sid) references shows (sid),
     foreign key (uid) references userpass (uid),
     primary key (sid, uid)
-); 
+)
+ENGINE = InnoDB; 
 
 
 create table networks (
@@ -68,45 +70,18 @@ create table genres (
 )
 ENGINE = InnoDB;
 
--- -- might implement in beta
--- create table streams (
---     stid int auto_increment,
---     primary key (stid),
---     source varchar(50)
--- )
--- ENGINE = InnoDB;
-
--- create table actors (
---     aid int auto_increment,
---     primary key (aid),
---     name varchar(30)
--- )
--- ENGINE = InnoDB;
-
 create table shows (
     sid int auto_increment,
     primary key (sid),
     title varchar(30),
     description varchar(1000),
     year int,
-    -- genre varchar(30), -- Q: enum(a,b,c)?? what is better?
-    -- cwid int, -- not right b/c many to many
     script varchar(100), -- adding scripts as an attribute in shows (link)
     nid int,
     foreign key(nid) references networks(nid) on delete cascade
         -- one show can have one network, but one network can have many shows
 )
 ENGINE = InnoDB;
-
--- create table interviews (
---     iid int auto_increment,
---     primary key (iid),
---     sid int,
---     link varchar(500),
---     foreign key (sid) references shows(sid) on delete cascade 
---         -- interview:show is many:one
--- )
--- ENGINE = InnoDB;
 
 
 -- TABLES FOR MANY TO MANY RELATIONSHIPS --
@@ -131,16 +106,6 @@ create table showsGenres (
 )
 ENGINE = InnoDB;
 
--- -- shows and streams
--- create table showsStreams (
---     sid int,
---     stid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (stid) references streams(stid) on delete cascade,
---     primary key(sid, stid)
--- )
--- ENGINE = InnoDB;
-
 create table showsCWs (
     sid int,
     cwid int,
@@ -150,22 +115,55 @@ create table showsCWs (
 )
 ENGINE = InnoDB;
 
--- -- shows and actors
--- create table showsActors (
---     sid int,
---     aid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (aid) references actors(aid) on delete cascade,
---     primary key(sid, aid)
--- )
--- ENGINE = InnoDB;
 
--- -- shows and tags
--- create table showsTags (
---     sid int,
---     tid int,
---     foreign key (sid) references shows(sid) on delete cascade,
---     foreign key (tid) references tags(tid) on delete cascade,
---     primary key(sid, tid)
--- )
--- ENGINE = InnoDB;
+-- loading csv files
+
+load data local infile 'csv/Genres.csv' into table genres
+fields terminated by ','
+lines terminated by '\n'
+(name)
+set gid = NULL;
+
+load data local infile 'csv/Networks.csv' into table networks
+fields terminated by ','
+lines terminated by '\n'
+(name)
+set nid = NULL;
+
+load data local infile 'csv/CW.csv' into table contentwarnings
+fields terminated by ','
+lines terminated by '\n'
+(name)
+set cwid = NULL;
+
+load data local infile 'csv/Tags.csv' into table tags
+fields terminated by ','
+lines terminated by '\n'
+(val, name, sid)
+set tid = NULL;
+
+load data local infile 'csv/Creators.csv' into table creators
+fields terminated by ','
+lines terminated by '\n'
+(name)
+set cid = NULL;
+
+load data local infile 'csv/ShowsCreators.csv' into table showsCreators
+fields terminated by ','
+lines terminated by '\n';
+
+load data local infile 'csv/ShowsCWs.csv' into table showsCWs
+fields terminated by ','
+lines terminated by '\n';
+
+load data local infile 'csv/ShowsGenres.csv' into table showsGenres
+fields terminated by ','
+lines terminated by '\n';
+
+load data local infile 'csv/Shows.csv' into table shows
+fields terminated by ';'
+lines terminated by '\n'
+(title, description, year, script, nid)
+set sid = NULL;
+
+ALTER TABLE shows ADD COLUMN numLikes int not null default 0;
