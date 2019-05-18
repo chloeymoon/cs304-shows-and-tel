@@ -7,36 +7,25 @@
     <div class=search>
         <div class=form>
             <h1 align:"center">Welcome to Shows & Tel</h1>
-            <p align:"center">Use the form to search for a TV show!</p>
-            
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                <div id="flashes">
-                {% for msg in messages %}
-                  <p>{{msg}}</p>
-                {% endfor %}
-                </div>
-              {% endif %}
-            {% endwith %}
+            <p align:"center">Use the form to search for a TV show! Currently, 
+                    this form only works with one search criteria (e.g. Title
+                    or Creator, etc.)</p>
 
             <form id="search" method=POST action="{{url_for('search')}}">
                 <div class=form-inputs>
                     <input type="hidden" name="uid" value="{{uid}}">
                     <p><label for=title>Title:
-                        <input type="text"  class="form-control" id="title" name="title" />
+                        <input type="text" class="form-control" id="title" 
+                                name="title" />
                     </label></p>
                     <p><label for=creator>Creator:
-                        <input type="text"  class="form-control" id="creator" name="creator" />
+                        <input type="text" class="form-control" id="creator" 
+                                name="creator" />
                     </label></p>
 
                     <p><label for=genre>Genre:
-                        <!--<select id="genre" name="genre" />-->
-                        <!--        <option value="">Select Genre</option>-->
-                        <!--    {% for genre in genres %}-->
-                        <!--        <option>{{genre.name}}</option>-->
-                        <!--    {% endfor %}-->
-                        <!--</select>-->
-                    </label><input type="text"  class="form-control" id="genre" name="genre" /></p>
+                    </label><input type="text" class="form-control" id="genre" 
+                        name="genre" placeholder="e.g. Crime or Comedy"/></p>
                     
                     <p><label for=network>Network:
                         <select id="network" class="form-control" name="network" />
@@ -46,7 +35,6 @@
                             {% endfor %}
                         </select>
                     </label></p>
-                    
                     
                     <p><label for=contentwarning>Content Warning:
                         <select id="contentwarning" class="form-control" name="contentwarning" />
@@ -59,6 +47,7 @@
                     
                     
                     <label for=tags>Tags:</label>
+                    <p>Example: Pace, fast</p>
                     <ul id="tags-list">
                         <div class=tag-input>
                             <select id="tags" class="form-control" name="tags">
@@ -69,11 +58,13 @@
                             </select>
                             
                         <label for=tag-args>Tag Name
-                                <input type="text" class="form-control" id="tag-args" name="tag-args"/>
+                                <input type="text" class="form-control" 
+                                        id="tag-args" name="tag-args"/>
                          </label>
                     </div>
                     </ul>
-                     <button type="button" class="btn btn-outline-primary" id="add-tag" name="add-tag">
+                     <button type="button" class="btn btn-outline-primary" 
+                            id="add-tag" name="add-tag">
                         Add another tag
                     </button>  
                     <br> <br>

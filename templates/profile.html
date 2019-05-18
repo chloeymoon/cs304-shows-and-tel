@@ -20,6 +20,7 @@
     
     <p>Number of Likes: <span id="numLikes">{{show.numLikes}}</span></p>
     <br>
+  
     <p>{{show.description}}</p>
     
     <br>
@@ -57,12 +58,18 @@
                 </ul>
             {% endfor %}
         </li>
-        <li>Script: <a href="{{show.script}}">{{show.script}}</a> </li>
+        <li>Script: 
+            {% if show.script != 'NULL' %}
+            <a href={{url_for('script', sid=show.sid)}}>{{show.script}}</a> 
+            {% endif %}
+        </li>
         <li>Network: {{show.network}}</li>  
     </ul>
     
     {% if session['logged_in'] %}
-    <a class="active" href={{url_for('edit',sid=show.sid)}}><button type="button" class="btn btn-outline-danger">Edit</button></a>
+    <a class="active" href={{url_for('edit',sid=show.sid)}}>
+        <button type="button" class="btn btn-outline-danger">Edit</button>
+    </a>
     {% endif %}
 </div>
 </div>
