@@ -8,10 +8,19 @@ Chloe Moon, Catherine Chen
 '''select * from table where (title = % or '')''' # title='' returns an empty string
 '''construct a view file'''
 '''lock for threads'''
-import sys
-import MySQLdb
+from flask import Flask, flash, send_from_directory
 from threading import Lock
+from werkzeug import secure_filename
+import os, sys
+import MySQLdb
+import functions, random, math
 
+app = Flask(__name__)
+app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
+                                          'abcdefghijklmnopqrstuvxyz' +
+                                          '0123456789'))
+                           for i in range(20) ])
+app.config['UPLOADS'] = 'uploads'
 lock = Lock()
 
 def getConn(db):
@@ -44,6 +53,30 @@ def getCreators(conn,sid):
                     +'where showsCreators.sid=shows.sid'+
                     ' and showsCreators.cid=creators.cid and shows.sid=%s', (sid,))
     return curs.fetchall()
+    
+def getGenres(conn,sid):
+    '''Returns all genres of the show'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select genres.name from genres, shows, showsGenres '
+                +'where showsGenres.sid=shows.sid'+
+                ' and showsGenres.gid=genres.gid and shows.sid=%s', (sid,))
+    return curs.fetchall()
+    
+def getScript(conn, sid):
+    ''' Given a show ID, return the URL for the script and whether the URL is
+        for a script that is stored locally or externally. Context: A script 
+        can be stored one of two ways: either as a URL for an external website 
+        (external) or as a  filepath that leads to a document that was uploaded 
+        to the filesystem (local). '''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    numrows = curs.execute('select script from shows where sid=%s', (sid,))
+    row =  curs.fetchone()
+    if "http" in row['script'] or "www" in row['script']:
+        return row['script'], "external"
+    else:
+        val = send_from_directory(app.config['UPLOADS'],
+                                  row['script'])
+        return val, "local"
 
 def getShow(conn,sid):
     '''Returns show with network name given sid'''
@@ -64,14 +97,6 @@ def getWarnings(conn,sid):
     curs.execute('select contentwarnings.name from contentwarnings, shows, showsCWs '
                     +'where showsCWs.sid=shows.sid'+
                     ' and showsCWs.cwid=contentwarnings.cwid and shows.sid=%s', (sid,))
-    return curs.fetchall()
-
-def getGenres(conn,sid):
-    '''Returns all genres of the show'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select genres.name from genres, shows, showsGenres '
-                +'where showsGenres.sid=shows.sid'+
-                ' and showsGenres.gid=genres.gid and shows.sid=%s', (sid,))
     return curs.fetchall()
 
 # By Search Terms
@@ -122,18 +147,25 @@ def getResultsByTitle(conn,term):
     term = '%' + term + '%'
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
+    
+# def getResultsByExactTitle(conn,term):
+#     '''Returns all shows based on the search term using title'''
+#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
+#     term = '%' + term + '%'
+#     curs.execute('select * from shows where title = %s', (term,))
+#     return curs.fetchall()
 
 # ID Getters
-def getNid(conn,networkName):
-    '''Returns nid based on network name'''
+def getCid(conn,creatorName):
+    '''Returns cid based on creator name'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select nid from networks where name = %s',[networkName])
+    curs.execute('select cid from creators where name = %s',[creatorName])
     res = curs.fetchone()
     if res:
-        return res['nid']
+        return res['cid']
     else:
         return None
-    
+        
 def getCWid(conn,cw):
     '''Returns cwid based on contentwarning'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -141,6 +173,26 @@ def getCWid(conn,cw):
     res = curs.fetchone()
     if res:
         return res['cwid']
+    else:
+        return None
+        
+def getGid(conn,genre):
+    '''Returns cid based on creator name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select gid from genres where name = %s',[genre])
+    res = curs.fetchone()
+    if res:
+        return res['gid']
+    else:
+        return None
+        
+def getNid(conn,networkName):
+    '''Returns nid based on network name'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute('select nid from networks where name = %s',[networkName])
+    res = curs.fetchone()
+    if res:
+        return res['nid']
     else:
         return None
     
@@ -153,29 +205,8 @@ def getSid(conn,showTitle):
         return res['sid']
     else:
         return None
-
-def getCid(conn,creatorName):
-    '''Returns cid based on creator name'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select cid from creators where name = %s',[creatorName])
-    res = curs.fetchone()
-    if res:
-        return res['cid']
-    else:
-        return None
-
-def getGid(conn,genre):
-    '''Returns cid based on creator name'''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    curs.execute('select gid from genres where name = %s',[genre])
-    res = curs.fetchone()
-    if res:
-        return res['gid']
-    else:
-        return None
         
 # helper functions for insertShows: many-to-many relationships (Contentwarnings, Creators)
-
 def insertContentwarnings(conn,sid,cwList):
     '''Inserts each creator's id first if not already in the database. Also inserts the relationship (e.g. showsCWs).'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -202,16 +233,6 @@ def insertGenres(conn,sid,genreList):
             curs.execute('insert into genres (name) values(%s)', [genre])
         gid = getGid(conn,genre)
         curs.execute('insert into showsGenres (sid,gid) values(%s, %s)',[sid,gid])
-
-def insertTags(conn, sid, tag_names, tag_vals):
-    ''' Given a show's ID and lists of tag names and values, inserts the 
-        information into the tags table. '''
-    curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    for i in range(len(tag_names)):
-        name = tag_names[i]
-        val = tag_vals[i]
-        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
-                    [sid, name, val])
                     
 def insertShows(conn, title, year, cwList, genreList, script, description, 
                 creatorList, network, tag_names, tag_vals):
@@ -237,27 +258,36 @@ def insertShows(conn, title, year, cwList, genreList, script, description,
         insertTags(conn, sid, tag_names, tag_vals)
     lock.release()
     return True
-
-def updateWarnings(conn,sid,newwarnings):
-    '''Given a list of new warnings, compares it with old warnings and updates'''
+    
+def insertTags(conn, sid, tag_names, tag_vals):
+    ''' Given a show's ID and lists of tag names and values, inserts the 
+        information into the tags table. '''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    oldwarnings = [w['name'] for w in getWarnings(conn,sid)]
-    #because the number of new list is not necessarily the same as the old list,
-    #decided to delete and insert the differences rather than updating
-    toDelete = [w for w in oldwarnings if w not in newwarnings]
-    toAdd = [w for w in newwarnings if w not in oldwarnings]
-    # use set
-    for w in toDelete:
-        cwid = getCWid(conn,w)
-        curs.execute('delete from showsCWs where sid=%s and cwid=%s',[sid,cwid])
-        if len(getResultsByContentWarning(conn,w))==0:
-            curs.execute('delete from contentwarnings where name=%s', [w])
-    for w in toAdd:
-        if getCWid(conn,w) is None:
-            curs.execute('insert into contentwarnings (name) values(%s)', [w])
-        cwid = getCWid(conn,w)  
-        curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
+    for i in range(len(tag_names)):
+        name = tag_names[i]
+        val = tag_vals[i]
+        curs.execute('insert into tags (sid, name, val) values(%s, %s, %s)', 
+                    [sid, name, val])
+                    
+# Helper function for script upload
+def isValidScriptType(script_file, title):
+    ''' Given a document from a file upload, check to see if it is a valid 
+        type (.doc, .docx, .pdf). If it is, save the document to the 
+        filesystem and return the filename. Otherwise flash an error message 
+        and return false. '''
+    mimetype = script_file.content_type.split('/')[1]
+    if mimetype.lower() not in ['doc','docx','pdf']:
+        msg = 'ERROR: File type not a DOC, DOCX or PDF: {}'.format(mimetype)
+        flash(msg)
+        return False
+    # If valid file type, then continue with file upload
+    filename = secure_filename('{}.{}'.format(title,mimetype))
+    pathname = os.path.join(app.config['UPLOADS'],filename)
+    script_file.save(pathname)
+    print(" *** NEW SCRIPT SAVED *** ")
+    return filename 
 
+# Update functions
 def updateCreators(conn,sid,newCreators):
     ''''Given a list of new creators, compares it with old creators and updates'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -291,10 +321,48 @@ def updateGenres(conn,sid,newGenres):
             curs.execute('insert into genres (name) values(%s)', [g])
         gid = getGid(conn,g)  
         curs.execute('insert into showsGenres (sid,gid) values (%s,%s)',[sid,gid])
+        
+def updateTags(conn, sid, tag_names, tag_vals):
+    ''' Given lists of tag names and values, update the database with new 
+        tags if they do not already exist. '''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    oldTags = [(tag['name'], tag['val']) for tag in getTags(conn, sid)]
+    newTags = zip(tag_names, tag_vals)
+    print("Old tags:", oldTags)
+    toDelete = [tag for tag in oldTags if tag not in newTags]
+    toAdd = [tag for tag in newTags if tag not in oldTags]
+    print("Deleting:", toDelete)
+    for tag in toDelete:
+        curs.execute('''delete from tags where sid=%s 
+                        and name=%s and val=%s''', (sid, tag[0], tag[1]))
+    print("Adding:", toAdd)
+    for tag in toAdd:
+        curs.execute('''insert into tags (sid, name, val) 
+                        values (%s, %s, %s)''', (sid, tag[0], tag[1]))
+                        
+def updateWarnings(conn,sid,newwarnings):
+    '''Given a list of new warnings, compares it with old warnings and updates'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    oldwarnings = [w['name'] for w in getWarnings(conn,sid)]
+    #because the number of new list is not necessarily the same as the old list,
+    #decided to delete and insert the differences rather than updating
+    toDelete = [w for w in oldwarnings if w not in newwarnings]
+    toAdd = [w for w in newwarnings if w not in oldwarnings]
+    # use set
+    for w in toDelete:
+        cwid = getCWid(conn,w)
+        curs.execute('delete from showsCWs where sid=%s and cwid=%s',[sid,cwid])
+        if len(getResultsByContentWarning(conn,w))==0:
+            curs.execute('delete from contentwarnings where name=%s', [w])
+    for w in toAdd:
+        if getCWid(conn,w) is None:
+            curs.execute('insert into contentwarnings (name) values(%s)', [w])
+        cwid = getCWid(conn,w)  
+        curs.execute('insert into showsCWs (sid,cwid) values (%s,%s)',[sid,cwid])
 
 # would there be the case where we want to change the sid? -- not really?
 def update(conn, sid, title, year, network, genreList, cwList, script, 
-           description, creators, tag_name, tag_val):
+           description, creators, tag_names, tag_vals):
     ''''Updates the show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # old show information
@@ -303,25 +371,21 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     updateWarnings(conn,sid,cwList)
     updateCreators(conn,sid,creators)
     updateGenres(conn,sid,genreList)
+    updateTags(conn, sid, tag_names, tag_vals)
 
     #insert if values don't exist already
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
-    
     curs.execute('''update shows set title=%s, year=%s, script=%s, 
                     description=%s, nid=%s where sid=%s''', 
                     [title, year, script, description, nid, sid]) 
-    curs.execute('update tags set name=%s, val=%s where sid=%s', 
-                  (tag_name, tag_val, sid))
                     
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
 
- 
 #username & joins
-
 def checkUsername(conn, username):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('''select username from userpass where username=%s''', [username])
