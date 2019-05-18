@@ -66,7 +66,7 @@ def add():
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
-            databaseTitles = functions.getResultsByTitle(conn, title)
+            databaseTitles = functions.getResultsByExactTitle(conn, title)
             if(len(databaseTitles)==0):
                 functions.insertShows(conn, title, year, cwList, genreList, script, 
                                         description, creatorList, network, 

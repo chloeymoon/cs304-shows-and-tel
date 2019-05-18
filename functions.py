@@ -124,6 +124,13 @@ def getResultsByTitle(conn,term):
     term = '%' + term + '%'
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
+    
+def getResultsByExactTitle(conn,term):
+    '''Returns all shows based on the search term using title'''
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    term = '%' + term + '%'
+    curs.execute('select * from shows where title = %s', (term,))
+    return curs.fetchall()
 
 # ID Getters
 def getNid(conn,networkName):
