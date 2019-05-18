@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name=author content="shows-and-tel">
+    {% block headstuff %}
+        <title>Shows-and-Tel</title>
+    {% endblock %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel='stylesheet' href="{{url_for('static',filename='style.css')}}">
+    <!-- Custom styles for this template -->
+   <!-- <link href="floating-labels.css" rel="stylesheet"> -->
+</head>
+<body>
+
+<ul id="navbar" class="navbar navbar-dark bg-dark" uid={{uid}}>
+  <li><a class="active" href={{url_for('index')}}>Home</a></li>
+  <li><a class="active" href={{url_for('displayAll')}}>All</a></li>
+
+<!-- signup and login button -->
+<!--when user is not logged in-->
+  {% if not session['logged_in'] %} 
+    <li><a class="active" href={{url_for('signup')}}>Sign Up</a></li>
+    <li><a class="active" href={{url_for('login')}}>Login </a></li>
+  {% else %}
+<!--when user is logged in-->
+    <li><a class="active" href={{url_for('add')}}>Add</a></li>
+    <li><a class="active" href={{url_for('logout')}}>Logout</a></li>
+  {% endif %}
+  
+  
+</ul>
+<br>
+</div>
+
+<div>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flashes">
+    {% for msg in messages %}
+      <p>{{msg}}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+</div>
+
+{% block content %}
+
+{% endblock %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+
+</body>
+</html>
