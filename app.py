@@ -50,7 +50,10 @@ def add():
         year = request.form.get('year')
         genre = request.form.get('genre')
         script = request.form.get('script')
-        script_file = request.files['file']
+        try:
+            script_file = request.files['file']
+        except:
+            script_file = False
         description = request.form.get('description')
         network = request.form.get('network')
         cwList = request.form.getlist('cw')
@@ -64,26 +67,29 @@ def add():
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
-            try:
+            if script_file:
                 # Check to see if script file upload is a valid type
                 filename = functions.isValidScriptType(script_file, title)
                 if filename:
                     script = filename
                 else: # file is not a valid type
                     return redirect(request.referrer)
-                insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
-                                    description, creatorList, network, 
-                                    tag_names, tag_vals)
-                # locking failed
-                if insert is False:
-                    flash("I'm sorry. Show already exists.")
-                # locking succeeded
-                else:
-                    insert
-                    flash("TV show: " + title + " successfully inserted")
-                return render_template('add.html')
-            except:
-                print "bad request key error"
+            else:
+                if 'http' not in script:
+                    flash('''Invalid script link. Please include http:// at the 
+                            beginning of the link.''')
+                    return redirect(request.referrer)
+            insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
+                                description, creatorList, network, 
+                                tag_names, tag_vals)
+            # locking failed
+            if insert is False:
+                flash("I'm sorry. Seems like someone inserted this show just now.")
+            # locking succeeded
+            else:
+                insert
+                flash("TV show: " + title + " successfully inserted")
+            return render_template('add.html')
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
@@ -113,7 +119,7 @@ def edit(sid):
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
-        newscript = request.form['show-script']
+        newscript = request.form['script']
         try:
             newfile = request.files['file']
         except:
@@ -290,6 +296,7 @@ def script(sid):
     script, is_local = functions.getScript(conn, sid)
     print("**************** IN SCRIPT ROUTE ****************")
     print(script, is_local)
+    print("ISSS LOCALL:", is_local)
     return script if (is_local=="local") else redirect(script)
 
 if __name__ == '__main__':
