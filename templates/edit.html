@@ -49,6 +49,7 @@
           </td>
         </tr>
         
+          
           {% for genre in genres %}
           <tr class='genre'>
             <td><label for="{{genre.name}}">Genre</label></td>
@@ -62,8 +63,6 @@
           </tr>
           {% endfor %}
           
-        
-        <!--<div class="warning">-->
           {% for warning in warnings %}
           <tr class='warning'>
               <td><label for="{{warning.name}}">Content Warning</label></td>
@@ -76,9 +75,8 @@
               </td>
           </tr>
           {% endfor %}
-        <!--</div>-->
+
         
-        <!--<div class="creators">-->
           {% for creator in creators %}
           <tr class='creator'>
             <td><label for="{{creator.name}}">Creator</label></td>
@@ -91,7 +89,6 @@
             </td>
           </tr>
           {% endfor %}
-        <!--</div>-->
         
           {% for tag in tags %}
           <tr class='tag' name={{tag.name}}>
@@ -120,7 +117,7 @@
   </div>
   </div>
     
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
 <script language="javascript">
 /* global $ */
 
@@ -137,7 +134,7 @@ $(document).ready(function() {
 
 // Adds a new input for a content warning on button click
 $("#addwarning").on('click', function(){
-  var newWarning = '<tr><td><label for="' + counter.toString() + '">Content Warning</label></td><td><input name="' + counter.toString() +'" id="show-warnings" value="">' +
+  var newWarning = '<tr><td><label for="' + counter.toString() + '">Content Warning</label></td><td><input id="' + counter.toString() +'" name="show-warnings" value="">' +
                     '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
   counter++;

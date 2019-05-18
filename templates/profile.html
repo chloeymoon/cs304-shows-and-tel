@@ -7,16 +7,15 @@
 
     <h2>{{show.title}} ({{show.year}}) 
         {% if not session['logged_in'] %}
-            <br><p style="color: red;">You can't edit or like this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
-            <br>
+            </h2><br><p style="color: red;">You can't edit or like this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar to edit/like.</p>
         {% else %}
             {% if not liked %}
-                <button type="button" class="btn btn-success" id="likebutton">like</button>
+                <button type="button" class="btn btn-success" id="likebutton">like</button></h2>
             {% else %}
-                <button type="button" class="btn btn-success" id="likebutton">unlike</button>
+                <button type="button" class="btn btn-success" id="likebutton">unlike</button></h2>
             {% endif %}
         {% endif %}
-    </h2>
+    <!--</h2>-->
     
     <p>Number of Likes: <span id="numLikes">{{show.numLikes}}</span></p>
     <br>
@@ -74,10 +73,6 @@
 </div>
 </div>
 </div>
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>-->
 
 
 <script>
