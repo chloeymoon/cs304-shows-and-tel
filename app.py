@@ -99,6 +99,22 @@ def displayAll():
         shows = functions.getResultsByTitle(conn,"")
         return render_template('results.html', shows=shows)
 
+@app.route('/profile/<int:sid>/', methods=['GET'])
+def profile(sid):
+    '''Displays profile page of the show based on show id (sid)'''
+    if request.method == 'GET':
+        conn = functions.getConn('final_project')
+        show = functions.getShow(conn,sid)
+        creators = functions.getCreators(conn,sid)
+        warnings = functions.getWarnings(conn,sid)
+        genres = functions.getGenres(conn,sid)
+        tags = functions.getTags(conn,sid)
+        username= session.get('username','')
+        liked = functions.userLiked(conn,sid,username)
+        return render_template('profile.html', show=show, creators=creators, 
+                                warnings=warnings, tags=tags, genres=genres, username=username, liked=liked)
+        
+
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
     '''Edits/updates profile page of the show based on show id (sid)'''
@@ -149,19 +165,6 @@ def edit(sid):
                         newcreators, tag_names, tag_vals)
         return redirect(url_for('profile', sid=sid))
 
-@app.route('/profile/<int:sid>/', methods=['GET'])
-def profile(sid):
-    '''Displays profile page of the show based on show id (sid)'''
-    if request.method == 'GET':
-        conn = functions.getConn('final_project')
-        show = functions.getShow(conn,sid)
-        print(show["script"])
-        creators = functions.getCreators(conn,sid)
-        warnings = functions.getWarnings(conn,sid)
-        genres = functions.getGenres(conn,sid)
-        tags = functions.getTags(conn,sid)
-        return render_template('profile.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags, genres=genres)
 
 @app.route('/search/', methods=['POST'])
 def search():
@@ -229,12 +232,12 @@ def login():
 def logout():
     try:
         if 'username' in session:
-            print session
+            # print session
             username = session['username']
             session.pop('username')
             session.pop('logged_in')
             flash('You are logged out')
-            print session
+            # print session
             return redirect(url_for('index'))
         else:
             flash('you are not logged in. Please login or join')
@@ -242,6 +245,7 @@ def logout():
     except Exception as err:
         flash('some kind of error '+str(err))
         return redirect( url_for('index') )
+
 
 @app.route('/signup/', methods=['GET', 'POST'])
 def signup():
@@ -272,17 +276,23 @@ def signup():
             return redirect( url_for('signup') )
 
 # Other routes for non-templated pages
-@app.route('/likeShow/', methods=['POST'])
-def likeShow():
+@app.route('/like/', methods=['POST'])
+def like():
     '''Uses Ajax; return a json object instead of redirecting'''
     if request.method == 'POST': 
-        conn = functions.getConn('wmdb')
-        #2 pieces of information: 1) tt 2) rating
-        uid= session.get('uid','')
-        rating = request.form.get('rating')
-        tt = request.form.get('tt')
-        # movie_updated = functions.addUserRating(conn,tt,rating,uid)
-        # return jsonify(tt=tt, avg=movie_updated['rating'])
+        conn = functions.getConn('final_project')
+        #we need 3 pieces of information: 1) uid 2) showid (sid) 3) like or unlike
+        username= session.get('username','')
+        sid = request.form.get('sid')
+        currentNum = request.form.get('currentNum')
+        like = request.form.get('like')
+        if like=='true':
+            #like -- updating db
+            like_updated = functions.addUserLikes(conn,sid,username)
+        else:
+            #unlike -- updating db
+            like_updated = functions.deleteUserLikes(conn,sid,username)
+        return jsonify(sid=sid, newNum=like_updated)
         
 @app.route('/script/<sid>')
 def script(sid):

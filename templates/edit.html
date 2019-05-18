@@ -102,8 +102,8 @@
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
-              <label for="tag-vals">Tags</label>
-              <input id="tag-vals" name='tag-vals' value='{{tag.val}}'>
+              <label for='{{tag.val}}'>Tags</label>
+              <input id='{{tag.val}}' name='tag-vals' value='{{tag.val}}'>
               {% if tag == tags[0] %}
                 <button type="button" class="btn btn-outline-primary" name="add" id="add-tag">Add Tag</button>
               {% elif tag != tags[0] %}
@@ -123,10 +123,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+
 //accessibility
 var counter = 0;
 
- // Attempted to load previous tag types into the dropdown menus, but
+// Attempted to load previous tag types into the dropdown menus, but
 // didn't have time to finish it
 $(document).ready(function() {
   var tag_name = $(".tag").attr("name");
@@ -177,6 +178,7 @@ $("#add-tag").on('click', function(){
             </td>
           </tr>`;
   $(newTag).insertAfter($(this).closest('.tag'));
+  counter++;
 })
 
 // Helper function to delete an input 
