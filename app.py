@@ -13,10 +13,7 @@ import bcrypt
 import MySQLdb
 
 app = Flask(__name__)
-app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
-                                          'abcdefghijklmnopqrstuvxyz' +
-                                          '0123456789'))
-                           for i in range(20) ])
+app.secret_key = 'qwygroyq34927843oew'
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 app.config['UPLOADS'] = 'uploads'
 
@@ -30,6 +27,8 @@ def index():
     conn = functions.getConn('final_project')
     networks = functions.getAllNetworks(conn)
     contentwarnings = functions.getAllWarnings(conn)
+    print 'app.py line 33 session ------'
+    print session
     return render_template('home.html', networks=networks, 
                                         contentwarnings=contentwarnings)
     
@@ -37,6 +36,8 @@ def index():
 def add():
     '''Allows users to add a show to the database'''
     if request.method == 'GET':
+        print 'app.py line 40 session ------'
+        print session
         if 'username' not in session:
             flash('you are not logged in. Please login or join')
             return redirect( url_for('login') )
@@ -88,6 +89,8 @@ def add():
             # locking succeeded
             else:
                 insert
+                print 'app.py linee 95 post session ----------'
+                print session
                 flash("TV show: " + title + " successfully inserted")
             return render_template('add.html')
     
