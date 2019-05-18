@@ -79,30 +79,37 @@ var sid = "{{show.sid}}"
 var url_to_add_likes = "/likeShow/";
 /* global $ */
 
-$("#likebutton").on("click", function(event){
-    if(username == "") return // if not logged in, can't rate
-    // if($("#likebutton").text()=='like'){
-    //     var currentNum = $("#numLikes").text();
-    //     var newNum = parseInt(currentNum)+1;
-    //     console.log(newNum);
-    //     // change text
-    //     $("#likebutton").text('unlike');
-    //     $.post(url_to_add_likes,
-    //         {'newNum':newNum, 'sid':sid, 'username':username},
-    //         function(resp){
-    //             console.log(resp)
-    //             // currentNum.text(resp.newNum)
-    //         }, 'json');
-    $.post(url_to_add_likes, {'newNum':1, 'sid':1, 'username':1},
-    function(resp){
-        console.log(resp)
-        // currentNum.text(resp.newNum)
-    }, 'json');
-    }
-    // } else {
-    //     $("#likebutton").text('like')
-    // }
-);
+// $("#likebutton").on("click", function(event){
+//     if(username == "") return // if not logged in, can't rate
+//     // if($("#likebutton").text()=='like'){
+//     //     var currentNum = $("#numLikes").text();
+//     //     var newNum = parseInt(currentNum)+1;
+//     //     console.log(newNum);
+//     //     // change text
+//     //     $("#likebutton").text('unlike');
+//     //     $.post(url_to_add_likes,
+//     //         {'newNum':newNum, 'sid':sid, 'username':username},
+//     //         function(resp){
+//     //             console.log(resp)
+//     //             // currentNum.text(resp.newNum)
+//     //         }, 'json');
+//     $.post(url_to_add_likes, {'newNum':1, 'sid':1, 'username':1},
+//     function(resp){
+//         console.log(resp)
+//         // currentNum.text(resp.newNum)
+//     }, 'json');
+//     }
+//     // } else {
+//     //     $("#likebutton").text('like')
+//     // }
+// );
+
+$("#likebutton").click(function(){
+  $.post("/likeShow/", function(data, status){
+    alert("Data: " + data + "\nStatus: " + status);
+  });
+});
+
 
 </script>
 
