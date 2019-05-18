@@ -97,10 +97,11 @@ def profile(sid):
         genres = functions.getGenres(conn,sid)
         tags = functions.getTags(conn,sid)
         username= session.get('username','')
-        # print "app.py line 100"
-        # print session
+        liked = functions.userLiked(conn,sid,username)
+        print "--------------- liked"
+        print liked
         return render_template('profile.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags, genres=genres, username=username)
+                                warnings=warnings, tags=tags, genres=genres, username=username, liked=liked)
         
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
@@ -237,23 +238,24 @@ def logout():
     except Exception as err:
         flash('some kind of error '+str(err))
         return redirect( url_for('index') )
-
-
-@app.route('/likeShow/', methods=['POST'])
-def likeShow():
+        
+@app.route('/like/', methods=['POST'])
+def like():
     '''Uses Ajax; return a json object instead of redirecting'''
     if request.method == 'POST': 
         conn = functions.getConn('final_project')
-        #we need 2 pieces of information: 1) uid 2) showid (sid)
+        #we need 3 pieces of information: 1) uid 2) showid (sid) 3) like or unlike
         username= session.get('username','')
-        print "----------------- app.py line 249"
-        print username
         sid = request.form.get('sid')
-        print sid
-        newNum = request.form.get('newNum')
-        # like_updated= functions.addUserLikes(conn,sid,username)
-        # return jsonify(sid=sid, numLikes=like_updated['numLikes'])
-        
+        currentNum = request.form.get('currentNum')
+        like = request.form.get('like')
+        if like=='true':
+            #like -- updating db
+            like_updated = functions.addUserLikes(conn,sid,username)
+        else:
+            #unlike -- updating db
+            like_updated = functions.deleteUserLikes(conn,sid,username)
+        return jsonify(sid=sid, newNum=like_updated)
         
 if __name__ == '__main__':
     app.debug = True

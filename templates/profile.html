@@ -4,19 +4,25 @@
 <div class="row justify-content-center">
 <div class="col-md-6">
 <div show={{show}} creators={{creators}} warnings={{warnings}} genres={{genres}}>
-    {% if not session['logged_in'] %}
-        <p style="color: red;">You can't edit this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
-        <br>
-    {% endif %}
-    <h2>{{show.title}} ({{show.year}}) <button type="button" class="btn btn-success" id="likebutton">like</button></h2>
+
+    <h2>{{show.title}} ({{show.year}}) 
+        {% if not session['logged_in'] %}
+            <br><p style="color: red;">You can't edit or like this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
+            <br>
+        {% else %}
+            {% if not liked %}
+                <button type="button" class="btn btn-success" id="likebutton">like</button>
+            {% else %}
+                <button type="button" class="btn btn-success" id="likebutton">unlike</button>
+            {% endif %}
+        {% endif %}
+    </h2>
+    
     <p>Number of Likes: <span id="numLikes">{{show.numLikes}}</span></p>
     <br>
     <p>{{show.description}}</p>
     
-    <!--likes-->
-    <!--<button type="button" class="btn btn-success" id="likebutton" >Like</button>-->
-    
-    <br><br>
+    <br>
 
     <ul>
         <input type="hidden" name="sid" value="{{show.sid}}">
@@ -65,51 +71,38 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>-->
-<script
-  src="https://code.jquery.com/jquery-3.4.1.js"
-  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-  crossorigin="anonymous"></script>
+
 
 <script>
 // var loggedIn = session['logged_in'];
 // console.log(session)
 var username = "{{username}}";
 var sid = "{{show.sid}}"
-// var numLikes = "{{show.numLikes}}"
-var url_to_add_likes = "/likeShow/";
+var url_like = "/like/";
 /* global $ */
+
 
 $("#likebutton").on("click", function(event){
     if(username == "") return // if not logged in, can't rate
     if($("#likebutton").text()=='like'){
         var currentNum = $("#numLikes").text();
-        var newNum = parseInt(currentNum)+1;
-        console.log(newNum);
-        // change text
         $("#likebutton").text('unlike');
-        $.post(url_to_add_likes,
-            {'newNum':newNum, 'sid':sid, 'username':username},
+        $.post(url_like,
+            {'sid':sid, 'username':username, 'like':true},
             function(resp){
                 console.log(resp)
-                // currentNum.text(resp.newNum)
+                $("#numLikes").text(resp.newNum)
             }, 'json');
-    $.post(url_to_add_likes, {'newNum':1, 'sid':1, 'username':1},
-    function(resp){
-        console.log(resp)
-        // currentNum.text(resp.newNum)
-    }, 'json');
     } else {
-        $("#likebutton").text('like')
+        var currentNum = $("#numLikes").text();
+        $("#likebutton").text('like');
+        $.post(url_like,
+            {'sid':sid, 'username':username, 'like':false},
+            function(resp){
+                $("#numLikes").text(resp.newNum)
+            }, 'json');
     }
-}
-);
-
-// $("#likebutton").click(function(){
-//   $.post("/likeShow/", function(data, status){
-//     alert("Data: " + data + "\nStatus: " + status);
-//   });
-// });
-
+});
 
 </script>
 
