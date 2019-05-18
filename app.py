@@ -135,7 +135,7 @@ def edit(sid):
         newnetwork = request.form['show-network']
         newyear = request.form['show-release']
         newdesc = request.form['show-description']
-        newscript = request.form['script']
+        newscript = request.form['show-script']
         try:
             newfile = request.files['file']
         except:
@@ -219,7 +219,6 @@ def login():
                 flash('successfully logged in as '+username)
                 session['username'] = username
                 session['logged_in'] = True
-                #### change this later
                 return redirect(url_for('index'))
             else:
                 flash('login incorrect. Try again or join')

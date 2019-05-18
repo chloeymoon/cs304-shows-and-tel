@@ -52,7 +52,6 @@
           {% if not genres %}
           <tr>
             <td><label for="emptyGenre">Genre</label></td><td><input name="show-genres" value="" id="emptyGenre">
-              <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
             </td>
           </tr>
           {% endif %}
@@ -74,31 +73,30 @@
           {% if not warnings %}
             <tr>
               <td><label for="emptyWarning">Content Warning</label></td><td><input name="emptyWarning" id="show-warnings" value="">
-                    <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
                 </td>
             </tr>
           {% endif %}
           
           {% for warning in warnings %}
-            <tr class='warning'>
-                <td><label for="{{warning.name}}">Content Warning</label></td>
-                <td><input id="{{warning.name}}" name='show-warnings' value='{{warning.name}}'>
-                {% if warning == warnings[0] %}
-                  <button type="button" class="btn btn-outline-primary" id="addwarning">Add Warning</button>
-                {% elif warning != warnings[0] %}
-                  <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
-                {% endif %}
-                </td>
-            </tr>
+          <tr class='warning'>
+              <td><label for="{{warning.name}}">Content Warning</label></td>
+              <td><input id="{{warning.name}}" name='show-warnings' value='{{warning.name}}'>
+              {% if warning == warnings[0] %}
+                <button type="button" class="btn btn-outline-primary" id="addwarning">Add Warning</button>
+              {% elif warning != warnings[0] %}
+                <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
+              {% endif %}
+              </td>
+          </tr>
           {% endfor %}
 
         
           {% if not creators %}
-            <tr>
-              <td><label for="emptyCreator">Creator</label></td><td><input name="show-creators" id="emptyCreator" value="">
-                <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
-              </td>
-            </tr>
+          <tr>
+            <td>
+              <label for="emptyCreator">Creator</label></td><td><input name="show-creators" id="emptyCreator" value="">
+            </td>
+          </tr>
           {% endif %}
           
           {% for creator in creators %}
@@ -114,26 +112,6 @@
           </tr>
           {% endfor %}
         
-          {% if not tags %}
-            <tr class='tag'>
-              <td><label for="tags">Tags</label></td>
-              <td>
-                <select id="tags" name=tags>
-                    <option value=''>Choose a tag</option>
-                    <option value='pace'>Pace</option>
-                    <option value='length'>Length</option>
-                    <option value='type'>Type</option>
-                </select>
-                <input id="tag-vals" name='tag-vals' value='' required>
-                {% if tag == tags[0] %}
-                  <button type="button" name="add" id="add-tag">Add Tag</button>
-                {% elif tag != tags[0] %}
-                <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
-                {% endif %}
-              </td>
-            </tr>
-          {% endif %}
-          
           {% for tag in tags %}
           <tr class='tag' name={{tag.name}}>
             <td><label for="tags">Tags</label></td>
