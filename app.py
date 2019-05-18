@@ -205,6 +205,7 @@ def search():
 # User session routes
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    '''lets a user log in'''
     if request.method=='GET':
         return render_template('login.html')
     if request.method=='POST':
@@ -232,6 +233,7 @@ def login():
             
 @app.route('/logout/', methods=['POST','GET'])
 def logout():
+    '''lets a user log in'''
     try:
         if 'username' in session:
             # print session

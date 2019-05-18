@@ -35,14 +35,12 @@ def getConn(db):
 def getAllNetworks(conn):
     '''Returns all the networks in the database, for the dropdown menu in the home page'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    # curs.execute('select name from networks group by networks.name')
     curs.execute('select name from networks')
     return curs.fetchall()
     
 def getAllWarnings(conn):
     '''Returns all the content warnings in the database, for the dropdown menu in the home page'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    # curs.execute('select name from networks group by networks.name')
     curs.execute('select name from contentwarnings')
     return curs.fetchall()
     
@@ -147,13 +145,6 @@ def getResultsByTitle(conn,term):
     term = '%' + term + '%'
     curs.execute('select * from shows where title like %s', (term,))
     return curs.fetchall()
-    
-# def getResultsByExactTitle(conn,term):
-#     '''Returns all shows based on the search term using title'''
-#     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-#     term = '%' + term + '%'
-#     curs.execute('select * from shows where title = %s', (term,))
-#     return curs.fetchall()
 
 # ID Getters
 def getCid(conn,creatorName):
@@ -395,21 +386,25 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
 
 #username & joins
 def checkUsername(conn, username):
+    '''check if username already exists; username has to be unique'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('''select username from userpass where username=%s''', [username])
     return curs.fetchone()
     
 def insertUser(conn,username,hashed):
+    '''inserts username and password into userpass table'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('insert into userpass(username,hashed) values (%s,%s)',[username,hashed])
 
 def checkPW(conn,username):
+    '''select hashed password given username'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select hashed from userpass where username=%s',[username])
     return curs.fetchone()
     
 # using with ajax, likes
 def addUserLikes(conn,sid,username):
+    '''user likes; adds likes table and increments numLikes values and updates shows table'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     lock.acquire()
     uid = getUid(conn,username)
@@ -420,6 +415,7 @@ def addUserLikes(conn,sid,username):
     return getNumLikes(conn,sid)
     
 def deleteUserLikes(conn,sid,username):
+    '''User unlikes; deletes from likes table and decrements value and updates shows table'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     lock.acquire()
     uid = getUid(conn,username)
@@ -440,6 +436,7 @@ def getUid(conn,username):
         return None
         
 def getNumLikes(conn,sid):
+    '''returns the number of likes of this show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('select numLikes from shows where sid = %s',[sid])
     res = curs.fetchone()
@@ -449,6 +446,7 @@ def getNumLikes(conn,sid):
         return None
         
 def userLiked(conn,sid,username):
+    '''returns the dictionary if this user liked this show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     uid = getUid(conn,username)
     curs.execute('select * from likes where sid=%s and uid=%s',[sid,uid])
