@@ -8,16 +8,19 @@
         <p style="color: red;">You can't edit this show because you are not logged in. Please Log in by clicking "Login" in the Nav Bar.</p>
         <br>
     {% endif %}
-    <h2>{{show.title}} ({{show.year}})</h2>
+    <h2>{{show.title}} ({{show.year}}) <button type="button" class="btn btn-success" id="likebutton">like</button></h2>
+    <p>Number of Likes: <span id="numLikes">{{show.numLikes}}</span></p>
+    <br>
     <p>{{show.description}}</p>
     
     <!--likes-->
-    <p>Number of Likes: {{show.likes}}</p>
-    <button type="button" class="btn btn-success" onclick="addLike()">Like</button>
+    <!--<button type="button" class="btn btn-success" id="likebutton" >Like</button>-->
     
     <br><br>
 
     <ul>
+        <input type="hidden" name="sid" value="{{show.sid}}">
+        <input type="hidden" name="uid" value="{{uid}}">
         <li>Creator(s): 
             {% for creator in creators %}
                 <ul class="inside">
@@ -58,4 +61,49 @@
 </div>
 </div>
 </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>-->
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+
+<script>
+// var loggedIn = session['logged_in'];
+// console.log(session)
+var username = "{{username}}";
+var sid = "{{show.sid}}"
+// var numLikes = "{{show.numLikes}}"
+var url_to_add_likes = "/likeShow/";
+/* global $ */
+
+$("#likebutton").on("click", function(event){
+    if(username == "") return // if not logged in, can't rate
+    // if($("#likebutton").text()=='like'){
+    //     var currentNum = $("#numLikes").text();
+    //     var newNum = parseInt(currentNum)+1;
+    //     console.log(newNum);
+    //     // change text
+    //     $("#likebutton").text('unlike');
+    //     $.post(url_to_add_likes,
+    //         {'newNum':newNum, 'sid':sid, 'username':username},
+    //         function(resp){
+    //             console.log(resp)
+    //             // currentNum.text(resp.newNum)
+    //         }, 'json');
+    $.post(url_to_add_likes, {'newNum':1, 'sid':1, 'username':1},
+    function(resp){
+        console.log(resp)
+        // currentNum.text(resp.newNum)
+    }, 'json');
+    }
+    // } else {
+    //     $("#likebutton").text('like')
+    // }
+);
+
+</script>
+
 {% endblock %}

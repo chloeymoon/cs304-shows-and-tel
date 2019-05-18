@@ -96,8 +96,11 @@ def profile(sid):
         warnings = functions.getWarnings(conn,sid)
         genres = functions.getGenres(conn,sid)
         tags = functions.getTags(conn,sid)
+        username= session.get('username','')
+        # print "app.py line 100"
+        # print session
         return render_template('profile.html', show=show, creators=creators, 
-                                warnings=warnings, tags=tags, genres=genres)
+                                warnings=warnings, tags=tags, genres=genres, username=username)
         
 @app.route('/edit/<int:sid>/', methods=['GET','POST'])
 def edit(sid):
@@ -221,12 +224,12 @@ def login():
 def logout():
     try:
         if 'username' in session:
-            print session
+            # print session
             username = session['username']
             session.pop('username')
             session.pop('logged_in')
             flash('You are logged out')
-            print session
+            # print session
             return redirect(url_for('index'))
         else:
             flash('you are not logged in. Please login or join')
@@ -242,11 +245,14 @@ def likeShow():
     if request.method == 'POST': 
         conn = functions.getConn('final_project')
         #we need 2 pieces of information: 1) uid 2) showid (sid)
-        uid= session.get('uid','')
-        print uid
+        username= session.get('username','')
+        print "----------------- app.py line 249"
+        print username
         sid = request.form.get('sid')
-        # show_updated = functions.addUserLikes(conn,sid,uid)
-        # return jsonify(tt=tt, avg=movie_updated['rating'])
+        print sid
+        newNum = request.form.get('newNum')
+        # like_updated= functions.addUserLikes(conn,sid,username)
+        # return jsonify(sid=sid, numLikes=like_updated['numLikes'])
         
         
 if __name__ == '__main__':

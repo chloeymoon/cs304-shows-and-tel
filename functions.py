@@ -337,10 +337,10 @@ def checkPW(conn,username):
     return curs.fetchone()
     
 # using with ajax, likes
-def addUserLikes(conn,sid,uid):
+def addUserLikes(conn,sid,username):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute('insert into likes(sid,uid) values (%s,%s)',[sid,uid])
-
+    
 
 if __name__ == '__main__':
     conn = getConn('final_project')
