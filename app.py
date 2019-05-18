@@ -36,8 +36,11 @@ def index():
 @app.route('/add/', methods=['GET','POST'])
 def add():
     '''Allows users to add a show to the database'''
-    conn = functions.getConn('final_project')
     if request.method == 'GET':
+        if 'username' not in session:
+            flash('you are not logged in. Please login or join')
+            return redirect( url_for('login') )
+        conn = functions.getConn('final_project')
         contentwarnings = functions.getAllWarnings(conn)
         return render_template('add.html',contentwarnings=contentwarnings, 
                                 commonWarnings=commonWarnings)
@@ -61,23 +64,26 @@ def add():
             flash("All fields should be completely filled")
             return redirect(request.referrer)
         else:
-            # Check to see if script file upload is a valid type
-            filename = functions.isValidScriptType(script_file, title)
-            if filename:
-                script = filename
-            else: # file is not a valid type
-                return redirect(request.referrer)
-            insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
-                                description, creatorList, network, 
-                                tag_names, tag_vals)
-            # locking failed
-            if insert is False:
-                flash("I'm sorry. Show already exists.")
-            # locking succeeded
-            else:
-                insert
-                flash("TV show: " + title + " successfully inserted")
-            return render_template('add.html')
+            try:
+                # Check to see if script file upload is a valid type
+                filename = functions.isValidScriptType(script_file, title)
+                if filename:
+                    script = filename
+                else: # file is not a valid type
+                    return redirect(request.referrer)
+                insert = functions.insertShows(conn, title, year, cwList, genreList, script, 
+                                    description, creatorList, network, 
+                                    tag_names, tag_vals)
+                # locking failed
+                if insert is False:
+                    flash("I'm sorry. Show already exists.")
+                # locking succeeded
+                else:
+                    insert
+                    flash("TV show: " + title + " successfully inserted")
+                return render_template('add.html')
+            except:
+                print "bad request key error"
     
 @app.route('/displayAll/', methods=['GET'])
 def displayAll():
@@ -92,6 +98,9 @@ def edit(sid):
     '''Edits/updates profile page of the show based on show id (sid)'''
     conn = functions.getConn('final_project')
     if request.method == 'GET':
+        if 'username' not in session:
+            flash('you are not logged in. Please login or join')
+            return redirect( url_for('login') )
         show = functions.getShow(conn,sid)
         creators = functions.getCreators(conn,sid)
         warnings = functions.getWarnings(conn,sid)
@@ -253,7 +262,7 @@ def signup():
             flash('signed up and logged in as '+username)
             return redirect(url_for('index'))
         except Exception as err:
-            flash('form submission error '+str(err))
+            print('form submission error '+str(err))
             return redirect( url_for('signup') )
 
 # Other routes for non-templated pages
