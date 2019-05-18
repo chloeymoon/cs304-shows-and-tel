@@ -49,12 +49,6 @@
           </td>
         </tr>
         
-          {% if not genres %}
-          <tr>
-            <td><label for="emptyGenre">Genre</label></td><td><input name="show-genres" value="" id="emptyGenre">
-            </td>
-          </tr>
-          {% endif %}
           
           {% for genre in genres %}
           <tr class='genre'>
@@ -68,14 +62,6 @@
             </td>
           </tr>
           {% endfor %}
-          
-        
-          {% if not warnings %}
-            <tr>
-              <td><label for="emptyWarning">Content Warning</label></td><td><input name="emptyWarning" id="show-warnings" value="">
-                </td>
-            </tr>
-          {% endif %}
           
           {% for warning in warnings %}
           <tr class='warning'>
@@ -91,14 +77,6 @@
           {% endfor %}
 
         
-          {% if not creators %}
-          <tr>
-            <td>
-              <label for="emptyCreator">Creator</label></td><td><input name="show-creators" id="emptyCreator" value="">
-            </td>
-          </tr>
-          {% endif %}
-          
           {% for creator in creators %}
           <tr class='creator'>
             <td><label for="{{creator.name}}">Creator</label></td>
@@ -157,7 +135,7 @@ $(document).ready(function() {
 
 // Adds a new input for a content warning on button click
 $("#addwarning").on('click', function(){
-  var newWarning = '<tr><td><label for="' + counter.toString() + '">Content Warning</label></td><td><input name="' + counter.toString() +'" id="show-warnings" value="">' +
+  var newWarning = '<tr><td><label for="' + counter.toString() + '">Content Warning</label></td><td><input id="' + counter.toString() +'" name="show-warnings" value="">' +
                     '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
   counter++;
