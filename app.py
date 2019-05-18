@@ -84,7 +84,7 @@ def add():
                                 tag_names, tag_vals)
             # locking failed
             if insert is False:
-                flash("I'm sorry. Seems like someone inserted this show just now.")
+                flash("I'm sorry. This show already exists.")
             # locking succeeded
             else:
                 insert

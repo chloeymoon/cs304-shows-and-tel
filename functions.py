@@ -211,6 +211,10 @@ def insertContentwarnings(conn,sid,cwList):
     '''Inserts each creator's id first if not already in the database. Also inserts the relationship (e.g. showsCWs).'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     for cw in cwList:
+        # race condition -- told to insert and catch errors but realized 
+        # that it won't give an error but add a new contentwarning of the same name;
+        # changing primary key with cwid auto incremented was impossible, etc...
+        # -- so locked insertShows for convenience. I think it's better to lock more than not.
         if getCWid(conn,cw) is None:
             curs.execute('insert into contentwarnings (name) values(%s)', [cw])
         cwid=getCWid(conn,cw)
@@ -366,14 +370,17 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     ''''Updates the show'''
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     # old show information
+    lock.acquire()
     oldshow = getShow(conn,sid) #returns network name, sid, nid, title, etc.
+    # lock.acquire()
     # Update intermediate tables first
     updateWarnings(conn,sid,cwList)
     updateCreators(conn,sid,creators)
     updateGenres(conn,sid,genreList)
     updateTags(conn, sid, tag_names, tag_vals)
-
-    #insert if values don't exist already
+    # racing condition: someone could've (almost simultaneously)
+    # added this network after we find that nid is none but before inserting
+    # so locked entire block to be safe
     if getNid(conn,network) is None:
         curs.execute('insert into networks (name) values(%s)', [network])
     nid = getNid(conn,network)
@@ -384,6 +391,7 @@ def update(conn, sid, title, year, network, genreList, cwList, script,
     #delete values if none of the left shows has them
     if len(getResultsByNetwork(conn,oldshow['network']))==0:
         curs.execute('delete from networks where name=%s', [oldshow['network']])
+    lock.release()
 
 #username & joins
 def checkUsername(conn, username):
@@ -403,22 +411,22 @@ def checkPW(conn,username):
 # using with ajax, likes
 def addUserLikes(conn,sid,username):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    # lock.acquire()
+    lock.acquire()
     uid = getUid(conn,username)
     curs.execute('insert into likes(sid,uid) values (%s,%s)',[sid,uid])
     newNumLikes = int(getNumLikes(conn,sid))+1
     curs.execute('update shows set numLikes=%s where sid=%s',[newNumLikes,sid])
-    # lock.release()
+    lock.release()
     return getNumLikes(conn,sid)
     
 def deleteUserLikes(conn,sid,username):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
-    # lock.acquire()
+    lock.acquire()
     uid = getUid(conn,username)
     curs.execute('delete from likes where sid=%s and uid=%s',[sid,uid])
     newNumLikes = int(getNumLikes(conn,sid))-1
     curs.execute('update shows set numLikes=%s where sid=%s',[newNumLikes,sid])
-    # lock.release()
+    lock.release()
     return getNumLikes(conn,sid)
     
 def getUid(conn,username):
