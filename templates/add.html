@@ -6,18 +6,8 @@
 <div class="row justify-content-center">
 <div class="col-md-5">
 
-
-<!--{% with messages = get_flashed_messages() %}-->
-<!--  {% if messages %}-->
-<!--    <div id="flashes">-->
-<!--    {% for msg in messages %}-->
-<!--      <p>{{msg}}</p>-->
-<!--    {% endfor %}-->
-<!--    </div>-->
-<!--  {% endif %}-->
-<!--{% endwith %}-->
-
-<form name="add" id="add" method=POST action={{url_for('add')}}>
+<form name="add" id="add" method=POST 
+    enctype = "multipart/form-data" action={{url_for('add')}}>
     
 <div class=form-inputs>
     <div class="form-group">
@@ -29,8 +19,9 @@
 
     <div class="form-group">
         <div class="creator">
-            <label for=creator>Creator: </label> <br>
-            <input type="button" class="btn btn-outline-primary" value="Add Creators" onclick="addCreators()" id="cbutton" name="cbutton"/>
+            <label for="creator">Creator: </label> <br>
+                <input type="button" id="creator" class="btn btn-outline-primary" 
+                value="Add Creators" onclick="addCreators()" name="creator"/>
         </div>
     </div>
 
@@ -49,14 +40,15 @@
     <div class="form-group">
         <div class="genre">
             <label for=genre>Genre: </label> <br>
-            <input type="button" class="btn btn-outline-primary" value="Add Genre" onclick="addGenres()" id="cbutton" name="cbutton"/>
+            <input type="button" class="btn btn-outline-primary" value="Add Genre" 
+                onclick="addGenres()" id="genre"/>
         </div>
     </div>
 
     <div class="form-group">
         <div class="contentwarning">
-            <label for=contentwarning>Content Warning: </label>
-            <select class="form-control" name="warning-dropdown" id="warning-dropdown"> 
+            <label for=warning-dropdown>Content Warning: </label>
+            <select id="warning-dropdown"class="form-control" name="warning-dropdown" id="warning-dropdown"> 
                 {% for common in commonWarnings %}
                     <option value={{common}}>{{common}}</option>
                 {% endfor %}
@@ -66,7 +58,8 @@
                     {% endif %}
                 {% endfor %}
                 <option value="Other">Other (Add a new warning)</option> 
-                <input type="button" class="btn btn-outline-primary" value="Add" id="cwbutton" name="cwbutton"/>
+                <input type="button" class="btn btn-outline-primary" value="Add" 
+                        id="cwbutton" name="cwbutton"/>
                <span id="newwarning_placeholder"></span>
             </select>
         </div>
@@ -74,22 +67,27 @@
     
     <div class="form-group">
         <div class="tags">
-            <label for="tags">Tags:</label>
-            <input type="button" class="btn btn-outline-primary" value="Add Tags" onclick="addTag()"/>
+            <label for=tag>Tags:
+            <input type="button" id="tag" class="btn btn-outline-primary" 
+                    name="tag" value="Add Tags" onclick="addTag()"/>
+            </label>
         </div>
     </div>
         
     <div class="form-group">
-        <p><label for=script>Link to Script:
-            <input class="form-control" type="text" id="script" name="script" size="100"/>
-        </label></p>
+        <p><label for=script>Link to Script: </label>
+            <input class="form-control" type="text" id="script" name="script" 
+                    size="100" placeholder="http://"/>
+            <label for="show-upload">Or upload a file (.doc, .docx, or .pdf):</label>
+                <input id="show-upload" type="file" name ="file" />
+        </p>
     </div>
 
     <div class="form-group">
-        <p><label for=description>Description:
-            <!--<input type="text" id="description" name="description" />-->
-            <textarea class="form-control" rows="4" cols="110" name='description'></textarea>
-        </label></p>
+        <p><label for=description>Description:</label>
+            <textarea class="form-control" id="description" rows="4" cols="110"
+                        name='description'></textarea>
+        </p>
         
     </div>
         <p><button type="submit" class="btn btn-success">Submit</button></p>
@@ -102,6 +100,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+// Helper function to remove input
 function deleteUl(elem){
     elem.closest('div').remove();
 }
@@ -119,6 +118,7 @@ $("#cwbutton").on("click", function (e) {
     }
 });
 
+// Adds a new input for creator on button click
 function addCreators() {
 // 	$("#c_placeholder").append('<input type="text" id="creator" name="creator"/>');
     var creatorhtml = '<div><input type="text" id="creator" name="creator" required/>'
@@ -126,12 +126,14 @@ function addCreators() {
     $(creatorhtml).appendTo(".creator")
 }
 
+// Adds a new input for genre on button click
 function addGenres() {
     var genrehtml = '<div><input type="text" id="genre" name="genre" required/>'
             +'<button type="button" class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>'
     $(genrehtml).appendTo(".genre")
 }
 
+// Adds a new input for content warning on button click
 function addNewWarning(){
     var newwarning = $('#newcw').val();
     var warninghtml = '<div id="warning"><input type="text" value="'+newwarning+'" name="cw"/>'
@@ -143,13 +145,15 @@ function addNewWarning(){
 // when 'Add Tags' button is clicked
 function addTag(){
     var taghtml = ` <div class=tag-input>
+                        <label for=tags>
                         <select class="form-control" id="tags" name="tags">
                             <option value=''>Choose a tag</option>
                             <option value='pace'>Pace</option>
                             <option value='length'>Length</option>
                             <option value='type'>Type</option>
                         </select>
-                        <label for="tag-args">
+                        </label>
+                        <label for="tag-args">tag
                             <input class="form-control" type="text" id="tag-args" name="tag-args" required/>
                         </label>
                         <button type="button"  class="btn btn-outline-danger" onclick="deleteUl(this)" name="delete">X</button></div>

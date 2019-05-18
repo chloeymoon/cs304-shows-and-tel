@@ -2,39 +2,59 @@
   {% block headstuff %}<title>Edit Show</title>{% endblock %}
 
 {% block content %}
+
+<div class="row justify-content-center">
+<div class="col-md-7">
+  
   <h1 show=show>Update Show: {{show.title}} (#{{show.sid}})</h1>
     
-  <p>You may delete or add content warnings and creators. However, a show must have at least one content warning and creator.
+  <p>You may delete or add content warnings and creators. However, a show must 
+    have at least one content warning and creator.</p>
+  <p>Note about tags: if you would like to update a show's tags, use the 
+    dropdown menu to choose a new tag type and enter a value into the 
+    corresponding textbox. However, if you would like to leave a tag unchanged,
+    you need to re-enter the tag type in the dropdown menu. For your reference, 
+    here are this show's tags:</p>
+    {% for tag in tags %}
+    <p>{{tag.name}}, {{tag.val}}</p>
+    {% endfor %}
 
-    <form method=POST action="{{url_for('edit',sid=show.sid)}}" show=show creators=creators warnings=warnings>
+    <form method=POST action="{{url_for('edit',sid=show.sid)}}" 
+      enctype = "multipart/form-data" show=show creators=creators
+      warnings=warnings>
       <table>
         <tr>
           <td><label for="show-title">Title</label></td>
-          <td><input name='show-title' value='{{show.title}}'></td> 
+          <td><input id="show-title" name='show-title' value='{{show.title}}'></td> 
         </tr>
         <tr>
           <td><label for="show-network">Network</label></td>
-          <td><input name='show-network' value='{{show.network}}'></td>
+          <td><input id="show-network"name='show-network' value='{{show.network}}'></td>
         </tr>
         <tr>
           <td><label for="show-release">Release year</label></td>
-          <td><input name='show-release' value='{{show.year}}'></td>
+          <td><input id="show-release" name='show-release' value='{{show.year}}'></td>
         </tr>
         <tr>
           <td><label for="show-description">Description</label></td>
-          <td><textarea rows="4" cols="75" name='show-description'>{{show.description}}</textarea></td>
+          <td><textarea id="show-description" rows="4" cols="75" name='show-description'>{{show.description}}</textarea></td>
         </tr>
         <tr>
           <td><label for="show-script">Script</label></td>
-          <td><input name='show-script' value='{{show.script}}' size="80"></td>
+          <td>
+            <input name='show-script' id="show-script" value='{{show.script}}' size="80">
+                <label for="show-upload">Or upload a file (.doc, .docx, or .pdf):</label>
+                <input id="show-upload" type="file" name="file" />
+            </p>
+          </td>
         </tr>
         
           {% for genre in genres %}
           <tr class='genre'>
-            <td><label for="show-genres">Genre</label></td>
-            <td><input name='show-genres' value='{{genre.name}}'>
+            <td><label for="{{genre.name}}">Genre</label></td>
+            <td><input id="{{genre.name}}" name='show-genres' value='{{genre.name}}'>
               {% if genre == genres[0] %}
-                <button type="button" name="add" id="addgenre">Add Genre</button>
+                <button type="button" class="btn btn-outline-primary" name="add" id="addgenre">Add Genre</button>
               {% elif genre != genres[0] %}
               <button type="button" name="delete" onclick="deleteRow(this)">X</button>
               {% endif %}
@@ -46,12 +66,12 @@
         <!--<div class="warning">-->
           {% for warning in warnings %}
           <tr class='warning'>
-              <td><label for="show-warnings">Content Warning</label></td>
-              <td><input name='show-warnings' value='{{warning.name}}'>
+              <td><label for="{{warning.name}}">Content Warning</label></td>
+              <td><input id="{{warning.name}}" name='show-warnings' value='{{warning.name}}'>
               {% if warning == warnings[0] %}
-                <button type="button" id="addwarning">Add Warning</button>
+                <button type="button" class="btn btn-outline-primary" id="addwarning">Add Warning</button>
               {% elif warning != warnings[0] %}
-                <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+                <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
               {% endif %}
               </td>
           </tr>
@@ -61,12 +81,12 @@
         <!--<div class="creators">-->
           {% for creator in creators %}
           <tr class='creator'>
-            <td><label for="show-creators">Creator</label></td>
-            <td><input name='show-creators' value='{{creator.name}}'>
+            <td><label for="{{creator.name}}">Creator</label></td>
+            <td><input id="{{creator.name}}" name='show-creators' value='{{creator.name}}'>
               {% if creator == creators[0] %}
-                <button type="button" name="add" id="addcreator">Add Creator</button>
+                <button type="button" class="btn btn-outline-primary" name="add" id="addcreator">Add Creator</button>
               {% elif creator != creators[0] %}
-              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              <button type="button" class="btn btn-outline-danger"name="delete" onclick="deleteRow(this)">X</button>
               {% endif %}
             </td>
           </tr>
@@ -76,68 +96,69 @@
           {% for tag in tags %}
           <tr class='tag' name={{tag.name}}>
             <td><label for="tags">Tags</label></td>
-            <td><select id="tags" name=tags>
-                  <option value=''>Choose a tag</option>
+            <td><select id="tags" class="form-control" name=tags>
+                  <option value=''>Choose a tag type</option>
                   <option value='pace'>Pace</option>
                   <option value='length'>Length</option>
                   <option value='type'>Type</option>
               </select>
+              <label for="tag-vals">Tags</label>
               <input id="tag-vals" name='tag-vals' value='{{tag.val}}'>
               {% if tag == tags[0] %}
-                <button type="button" name="add" id="add-tag">Add Tag</button>
+                <button type="button" class="btn btn-outline-primary" name="add" id="add-tag">Add Tag</button>
               {% elif tag != tags[0] %}
-              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              <button type="button" class="btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
               {% endif %}
             </td>
           </tr>
           {% endfor %}
-        
-        <!--<td><label for="show-tag">Tags</label></td>-->
-        <!--  <td>-->
-        <!--    {% for tag in tags %}-->
-        <!--    <div class=tags-row name={{tag.name}}>-->
-        <!--      <p><select id="tags" name=tags>-->
-        <!--          <option value=''>Choose a tag</option>-->
-        <!--          <option value='pace'>Pace</option>-->
-        <!--          <option value='length'>Length</option>-->
-        <!--          <option value='type'>Type</option>-->
-        <!--      </select>-->
-        <!--      <input id="tag-vals" name='tag-vals' value='{{tag.val}}'></p>-->
-        <!--    </div>-->
-        <!--    {% endfor %}-->
-        <!--  </td>-->
           
       </table>
-      <input type="submit" name="submit" value="update">
+      <br>
+      <input type="submit" class="btn btn-success" name="submit" value="update">
     </form>
+  </div>
+  </div>
     
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script language="javascript">
 /* global $ */
+//accessibility
+var counter = 0;
+
+ // Attempted to load previous tag types into the dropdown menus, but
+// didn't have time to finish it
 $(document).ready(function() {
   var tag_name = $(".tag").attr("name");
   console.log(tag_name);
   // $('#tags option[value='+tag_name+']').prop('selected', true);
 });
 
+// Adds a new input for a content warning on button click
 $("#addwarning").on('click', function(){
-  var newWarning = '<tr><td><label for="show-warnings">Content Warning</label></td><td><input name="show-warnings" value="">' +
-                    '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
+  var newWarning = '<tr><td><label for="' + counter.toString() + '">Content Warning</label></td><td><input name="' + counter.toString() +'" id="show-warnings" value="">' +
+                    '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>';
   $(newWarning).insertAfter($(this).closest('.warning'));
+  counter++;
 });
 
+// Adds a new input for a creator on button click
 $("#addcreator").on('click', function(){
-  var newCreator = ('<tr><td><label for="show-creators">Creator</label></td><td><input name="show-creators" value="">'+
-              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
+  var newCreator = ('<tr><td><label for="' + counter.toString() + '">Creator</label></td><td><input name="show-creators" id="' + counter.toString() + '" value="">'+
+              '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newCreator).insertAfter($(this).closest('.creator'));
+  counter++;
 });
 
+// Adds a new input for a genre on button click
 $("#addgenre").on('click', function(){
-  var newGenre = ('<tr><td><label for="show-genres">Genre</label></td><td><input name="show-genres" value="">'+
-              '<button type="button" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
+  var newGenre = ('<tr><td><label for="' + counter.toString() + '">Genre</label></td><td><input name="show-genres" value="" id="' + counter.toString() + '">'+
+              '<button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button></td></tr>');
   $(newGenre).insertAfter($(this).closest('.genre'));
+  counter++;
 });
 
+// Adds new inputs for tag name (type) and value on button click
 $("#add-tag").on('click', function(){
   var newTag = `<tr class='tag'>
             <td><label for="tags">Tags</label></td>
@@ -151,13 +172,14 @@ $("#add-tag").on('click', function(){
               {% if tag == tags[0] %}
                 <button type="button" name="add" id="add-tag">Add Tag</button>
               {% elif tag != tags[0] %}
-              <button type="button" name="delete" onclick="deleteRow(this)">X</button>
+              <button type="button" class= "btn btn-outline-danger" name="delete" onclick="deleteRow(this)">X</button>
               {% endif %}
             </td>
           </tr>`;
   $(newTag).insertAfter($(this).closest('.tag'));
 })
 
+// Helper function to delete an input 
 function deleteRow(elem){
     console.log('deleting');
     elem.closest('tr').remove();
